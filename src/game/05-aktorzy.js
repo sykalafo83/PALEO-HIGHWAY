@@ -9,7 +9,7 @@
     const d = CHARS[key];
     return baseActor({
       kind: 'player', team: 'player', key, def: d, b: alt ? altBuild(key) : d.build, name: d.name, pIdx: idx || 0,
-      hp: d.hp, maxHp: d.hp, lagHp: d.hp, lives: OPTS.lives - 1, score: 0,
+      hp: d.hp, maxHp: d.hp, lagHp: d.hp, lives: (cheat('lives') ? 9 : OPTS.lives) - 1, score: 0,
       comboIdx: 0, weapon: null, ammo: 0, dur: 0, running: false, tapDir: 0, tapT: -99, rad: 8,
       fury: 0, amber: 0, up: { hp: 0, combo: 0, bomb: 0, ride: 0, fury: 0 }
     });
@@ -30,6 +30,7 @@
       depthR: kind === 'rex' ? 10 : kind === 'digger' ? 6 : 0
     });
     if (d.mk) a.b = d.mk();
+    if (a.b && cheat('tiny')) a.b = Object.assign({}, a.b, { scale: (a.b.scale || 1) * 0.7 });   // kod KARZEŁKI
     if (type !== 'dummy' && !app.demo && !app.seen[type]) { app.seen[type] = 1; safeSet('paleo_seen', JSON.stringify(app.seen)); }
     if (type === 'raptor') a.cols = RAPTOR_COLS[Math.random() * 2 | 0];
     if (type === 'rraptor') { a.cols = { body: '#7a5a3a', belly: '#c8a878', stripe: '#3a2a1a' }; a.rider = ENEMIES.grunt.mk(); }
@@ -112,6 +113,7 @@
       if (src.kind === 'player') { src.x -= src.face * 5; if (Math.random() < 0.5) G.popups.push({ x: t.x, y: t.y - 54, txt: 'BLOK!', t: 0, col: '#c0d0e0' }); }
       return;
     }
+    if (cheat('onehit') && src && src.kind === 'player' && t.team !== 'player') { if (isBoss(t)) dmg *= 2; else { dmg = Math.max(dmg, t.hp); knock = true; } }
     if (t.perch) { t.perch = false; knock = true; }
     const air = t.state === 'fall' && t.z > 4 && t.team !== 'player';
     if (air) { knock = true; dmg = Math.max(1, Math.round(dmg * 0.75)); }
@@ -177,6 +179,7 @@
       const drop = t.type === 'bomber' && Math.random() < 0.45 ? 'dynamite' : t.type === 'gunner' && Math.random() < 0.35 ? 'grenade' : null;
       if (drop) G.items.push({ type: drop, x: t.x, y: t.y, z: 16, vz: 3, t: 0, ammo: 2 });
       G.popups.push({ x: t.x, y: t.y - 50, txt: '' + t.def.score, t: 0 });
+      if (cheat('gold')) for (let i = 0; i < 4; i++) G.items.push({ type: i ? 'coin' : 'amber', x: t.x + rnd(-16, 16), y: clamp(t.y + rnd(-6, 6), FLOOR_TOP + 8, FLOOR_BOTTOM), z: 14, vz: 2 + i * 0.5, t: 0 });
     }
     if (t.type === 'whitefang') unlock('whitefang');
     if (t.kind === 'rex' && t.lastHitWeapon === 'dynamite') unlock('rexdyn');
@@ -247,7 +250,7 @@
     app.toasts.push({ head: 'NOWA POSTAĆ DO WYBORU!', name, t: 0, col: '#7cff7c' });
   }
   function unlock(id) {
-    if (app.ach[id] || app.demo || (app.gameMode === 'custom' && G && ST && ST.custom)) return;   // własne etapy nie dają osiągnięć
+    if (app.ach[id] || app.demo || cheated() || (app.gameMode === 'custom' && G && ST && ST.custom)) return;   // własne etapy nie dają osiągnięć
     app.ach[id] = Date.now(); safeSet('paleo_ach', JSON.stringify(app.ach));
     const a = ACH.find(x => x[0] === id); if (a) app.toasts.push({ name: a[1], t: 0 });
     sfx('oneup');

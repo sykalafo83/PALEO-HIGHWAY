@@ -30,6 +30,7 @@
 
     for (const p of G.players) {
       if (!p.alive) continue;
+      if (cheat('fury') && p.state !== 'super') p.fury = 100;
       if (p.state === 'drop') {
         p.vz -= GRAV; p.z += p.vz;
         if (p.z <= 0) {

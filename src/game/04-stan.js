@@ -59,6 +59,10 @@
       G.actors.push(pl);
     });
     G.player = G.players[0];
+    // kod WIERNY RAPTOR: przy starcie etapu czeka oswojony raptor dla każdego gracza
+    if (cheat('raptor') && !stObj) G.players.forEach((pl, i) => {
+      const r = makeEnemy('raptor', ST.startX + 40 + i * 30, pl.y); r.hp = 0; r.tame = true; r.dying = true; r.stay = true; r.face = -1; setState(r, 'tamed'); G.actors.push(r);
+    });
     AU.stopMusic(); AU.play(ST.music);
   }
 

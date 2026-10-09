@@ -113,6 +113,7 @@
   }
 
   // Oblicza punkty szkieletu (bez rysowania) — przydatne też do hitboxów broni.
+  const mods = { bigHead: 1 };   // modyfikatory z kodów (np. WIELKIE GŁOWY)
   function skeleton(b, pose) {
     const s = b.scale || 1;
     const legU = b.legU * s, legL = b.legL * s, T = b.torso * s, aU = b.armU * s, aL = b.armL * s;
@@ -125,7 +126,7 @@
     const hip = [0, hipY];
     const tilt = pose.lean;
     const sh = [hip[0] + Math.sin(tilt * D2R) * T, hip[1] - Math.cos(tilt * D2R) * T];
-    const hr = b.head * s;
+    const hr = b.head * s * (mods.bigHead || 1);
     const neckTilt = tilt + (pose.head || 0);
     const head = [sh[0] + Math.sin(neckTilt * D2R) * (hr + 2), sh[1] - Math.cos(neckTilt * D2R) * (hr + 2)];
     function leg(l) {
@@ -1021,5 +1022,5 @@
     ctx.restore();
   }
 
-  global.Sprites = { POSES, drawFigure, drawHeadAcc, drawPortrait, drawRaptor, drawPachy, drawShot, drawPtera, drawPen, drawNetOver, drawTrike, drawPara, drawJeep, drawItem, drawBarrel, drawSpark, drawDust, skeleton, shade, segs, circ };
+  global.Sprites = { POSES, mods, drawFigure, drawHeadAcc, drawPortrait, drawRaptor, drawPachy, drawShot, drawPtera, drawPen, drawNetOver, drawTrike, drawPara, drawJeep, drawItem, drawBarrel, drawSpark, drawDust, skeleton, shade, segs, circ };
 })(window);

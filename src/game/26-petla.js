@@ -72,6 +72,7 @@
     if (pressed.mute) AU.toggleMute();
     app.t++; app.frame = (app.frame || 0) + 1;
     AU.setAmbience(ambienceFor());
+    if (app.mode === 'title' && app.cheats.size) clearCheats();   // kody działają tylko w jednym przejściu
     if (app.mode !== 'play' && app.mode !== 'pause') AU.setIntensity(false);
     if (app.share) { updateShare(); clearPressed(); return; }
     if (pressed.up && G && ((app.mode === 'clear' && app.t > 40) || (app.mode === 'gameover' && app.cont > 0 && app.t > 30) || (app.mode === 'ending' && app.t > 300))) { openShare(); clearPressed(); return; }
@@ -295,11 +296,13 @@
           else if (app.gameMode === 'custom') startCustom(null);
           else if (app.gameMode === 'challenge') startChallenge(null);
           else if (app.gameMode === 'daily') startDaily(null);
+          else if (app.gameMode === 'arcade') openCodes();
           else if (app.debug) { app.mode = 'stagesel'; app.t = 0; }
           else { goMap(urlStage, null); }
         }
         break;
       }
+      case 'codes': updateCodes(); break;
       case 'stagesel':
         if (pressed.up) { app.stageSel = (app.stageSel + SEL_COUNT - 1) % SEL_COUNT; sfx('select'); }
         if (pressed.down) { app.stageSel = (app.stageSel + 1) % SEL_COUNT; sfx('select'); }
@@ -402,6 +405,7 @@
     if (view === 'title') drawTitle();
     else if (view === 'select') drawSelect();
     else if (view === 'stagesel') drawStageSel();
+    else if (view === 'codes') drawCodes();
     else if (view === 'map') drawMap();
     else if (view === 'ending') drawEnding();
     else if (view === 'scores') drawScores();
@@ -423,6 +427,7 @@
     if (view === 'title') drawTitleText();
     else if (view === 'select') drawSelectText();
     else if (view === 'stagesel') drawStageSelText();
+    else if (view === 'codes') drawCodesText();
     else if (view === 'map') drawMapText();
     else if (view === 'ending') drawEndingText();
     else if (view === 'scores') drawScoresText();
@@ -527,6 +532,6 @@
   } else boot();
 
   // debug / testy: uchwyty do stanu gry tylko w trybie debug (config.js) albo z parametrem adresu ?hooks=1 (testy automatyczne)
-  if (CFG.debug === true || urlParams.has('hooks')) window.__paleo = { get G() { return G; }, app, pickWeather, customList, buildCustomStage, startCustom, CHARS, ENEMIES, bonus, startStage: i => { startStage(i, G && G.players); app.mode = 'play'; }, startBonus: () => startBonus(G && G.players, 4), startCages: () => startCages(G && G.players, 5), startTraining: () => startTraining(null), startSuper: i => startSuper(G.players[i || 0]), newStage: i => { startStage(i, null); app.mode = 'play'; }, startEscape: () => startEscape(G.players), startDemo, endDemo, AU, startEpilog: () => startEpilog(G.players, () => endGame('★')), ENDINGS, startTrain: () => { app.gameMode = app.gameMode || 'arcade'; startTrain(G ? G.players : null, 7); }, unlocks: () => app.unlocks, hurt: (t, d, src, knock) => hurt(t, d, 1, !!knock, src), spawn: (type, x, y) => { const e = makeEnemy(type, x, y); if (type !== 'glider' && type !== 'digger') setState(e, 'idle'); G.actors.push(e); return e; }, afterStage, resumeProgress, saveInfo: () => app.save, startRush: () => startRush(null), startSurvival: () => startSurvival(null), unlock, opts: () => OPTS, endGame, inp, joinOrContinue: i => joinOrContinue(i),
+  if (CFG.debug === true || urlParams.has('hooks')) window.__paleo = { get G() { return G; }, app, pickWeather, customList, buildCustomStage, startCustom, CHARS, ENEMIES, bonus, startStage: i => { startStage(i, G && G.players); app.mode = 'play'; }, startBonus: () => startBonus(G && G.players, 4), startCages: () => startCages(G && G.players, 5), startTraining: () => startTraining(null), startSuper: i => startSuper(G.players[i || 0]), newStage: i => { startStage(i, null); app.mode = 'play'; }, startEscape: () => startEscape(G.players), startDemo, endDemo, AU, CODES, openCodes, applyCheatMods, cheats: () => app.cheats, grav: () => GRAV, startEpilog: () => startEpilog(G.players, () => endGame('★')), ENDINGS, startTrain: () => { app.gameMode = app.gameMode || 'arcade'; startTrain(G ? G.players : null, 7); }, unlocks: () => app.unlocks, hurt: (t, d, src, knock) => hurt(t, d, 1, !!knock, src), spawn: (type, x, y) => { const e = makeEnemy(type, x, y); if (type !== 'glider' && type !== 'digger') setState(e, 'idle'); G.actors.push(e); return e; }, afterStage, resumeProgress, saveInfo: () => app.save, startRush: () => startRush(null), startSurvival: () => startSurvival(null), unlock, opts: () => OPTS, endGame, inp, joinOrContinue: i => joinOrContinue(i),
     flight, curBonus: () => curBonus(), startFlight: () => startFlight(G ? G.players : null, 6), CHALLENGES, dailyPlan, startDaily: () => startDaily(null),
     startChallenge: id => { app.chDef = CHALLENGES.find(c => c.id === id); app.gameMode = 'challenge'; startChallenge(null); }, STAGES };

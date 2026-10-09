@@ -33,6 +33,8 @@ muzyka i dźwięki są generowane kodem (Canvas 2D + Web Audio).
   oraz tryb demo na ekranie tytułowym, jak na prawdziwym automacie.
 - **Dźwięk:** utwory ze wstępem oraz częściami A i B, płynne wejście muzyki bossa, dźwięki otoczenia (fale, krople,
   wiatr, deszcz, pociąg), osobne odgłosy pięści, rury, łańcucha, ostrza i tarczy, siedem głosów wrogów.
+- **Kody z ikon:** po wybraniu postaci 4 kafle z ikonami; tajne kombinacje włączają wybór etapu i 10 smaczków
+  (wielkie głowy, niska grawitacja, kino nieme, hel…). Spis: [iconcodes.html](iconcodes.html).
 - **Tryby:** zwykła gra, Nowa Gra+, trening, Boss Rush, przetrwanie, wyzwania z gwiazdkami i codzienne wyzwanie.
 - **Ekstra:** 32 osiągnięcia, bestiariusz, odtwarzacz muzyki, karta z wynikiem do udostępnienia, edytor etapów.
 - **Wygoda:** zapis postępu, przypisywanie klawiszy i przycisków pada (z wibracjami), sterowanie dotykowe,

@@ -188,8 +188,9 @@
       const bp = filter(ctx, 'bandpass', ff, 7, fg);
       pre.connect(bp);
     });
-    const o = osc(ctx, 'sawtooth', f0, t, t + dur + 0.05, pre);
-    o.frequency.exponentialRampToValueAtTime(f1, t + dur);
+    const vp = Engine.voicePitch || 1;
+    const o = osc(ctx, 'sawtooth', f0 * vp, t, t + dur + 0.05, pre);
+    o.frequency.exponentialRampToValueAtTime(f1 * vp, t + dur);
     const ng = ctx.createGain(); ng.gain.value = 0.25; ng.connect(pre);
     noiseSrc(ctx, t, t + dur, ng);
   }
@@ -522,8 +523,9 @@
       const fg = ctx.createGain(); fg.gain.value = [1, 0.55, 0.28][i]; fg.connect(g);
       pre.connect(filter(ctx, 'bandpass', ff * pr.fm, 6, fg));
     });
-    const o = osc(ctx, 'sawtooth', pr.f * s.p0, t, t + dur + 0.05, pre);
-    o.frequency.exponentialRampToValueAtTime(pr.f * s.p1, t + dur);
+    const vp = Engine.voicePitch || 1;   // kod HEL
+    const o = osc(ctx, 'sawtooth', pr.f * s.p0 * vp, t, t + dur + 0.05, pre);
+    o.frequency.exponentialRampToValueAtTime(pr.f * s.p1 * vp, t + dur);
     if (pr.vib) {
       const lg = ctx.createGain(); lg.gain.value = pr.f * 0.04; lg.connect(o.frequency);
       osc(ctx, 'sine', pr.vib, t, t + dur + 0.05, lg);

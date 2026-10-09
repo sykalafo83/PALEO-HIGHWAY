@@ -320,6 +320,7 @@
   }
   function resumeProgress() {
     const d = app.save; if (!d) return;
+    clearCheats();
     app.gameMode = 'arcade'; app.ngpRun = !!d.ngp; app.route = d.route.slice(); app.run = d.run || { cages: false, secrets: 0 }; app.p2Active = !!d.p2; G = null;
     const team = d.players.map(r => { const p = makePlayer(r.key, r.pIdx, r.alt); p.score = r.score; p.lives = r.lives; p.nextLife = r.nextLife; p.amber = r.amber || 0; if (r.up) Object.assign(p.up, r.up); return p; });
     app.sel = Math.max(0, selKeys().indexOf(team[0].key)); if (team[1]) app.sel2 = Math.max(0, selKeys().indexOf(team[1].key));
@@ -336,7 +337,7 @@
   function endGame(stageLabel) {
     if (app.gameMode === 'arcade' || !app.gameMode) clearProgress();
     const team = (G && G.players) || app.bonusTeam || [];
-    endRun('main', team.map(q => ({ s: q.score, st: stageLabel, c: q.key, pIdx: q.pIdx })));
+    endRun('main', cheated() ? [] : team.map(q => ({ s: q.score, st: stageLabel, c: q.key, pIdx: q.pIdx })));   // z kodami bez wpisu do tabeli
   }
   function nextEntry(lastHi) {
     while (app.entryQueue && app.entryQueue.length) {

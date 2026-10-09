@@ -56,7 +56,7 @@
         }
         return true;
       case 'tamed':
-        if (a.t > 420) { a.face = a.x - G.camX < W / 2 ? -1 : 1; setState(a, 'flee'); }
+        if (a.t > 420 && !a.stay) { a.face = a.x - G.camX < W / 2 ? -1 : 1; setState(a, 'flee'); }
         return true;
       case 'flee':
         a.x += a.face * 3; a.animT++;

@@ -283,6 +283,15 @@ strażnicy nadbiegają co kilka sekund. 1000 pkt za każdego uwolnionego, komple
 - **Wagoniki** (3B, kopalnia) pędzą po torach; „!” na brzegu ekranu ostrzega, z której strony.
 - **Ulewa** (3A) co jakiś czas zaciemnia ekran — widać tylko okolice graczy.
 
+### Kody z ikon
+Po wybraniu postaci w zwykłej grze (i w Nowej Grze+) pojawiają się 4 kwadratowe kafle z ikonami
+(jajo, kość, kieł, bursztyn, liść, czaszka). ◄► wybiera kafel, ▲▼ zmienia ikonę, Enter sprawdza kod, a pozycja
+GRAJ rusza z grą (na wpisanie kodów jest 20 s, Esc wraca do wyboru postaci). Można wpisać kilka kodów po kolei.
+Jeden kod włącza wybór etapu (jak w trybie debug), dziesięć pozostałych to smaczki: wielkie głowy, niska grawitacja,
+wieczna furia, dziewięć żyć, jeden cios, wierny raptor, kino nieme, karzełki, złota gorączka i hel.
+Kody działają do końca przejścia. Kody dające przewagę wyłączają w tym przejściu osiągnięcia i wpis do tabeli wyników.
+Kombinacje: plik **iconcodes.html** w katalogu gry.
+
 ### Oprawa i tryb demo
 - **Portret w HUD** reaguje na walkę: po trafieniu krzywi się z bólu, przy niskim życiu (poniżej 25%) tło pulsuje
   na czerwono i pojawia się pot, a przy pełnej furii portret płonie i ma gniewne spojrzenie.
