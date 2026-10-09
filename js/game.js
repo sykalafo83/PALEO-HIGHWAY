@@ -2763,9 +2763,9 @@
     if (a.state !== 'flame' || a.t < 16 || a.t > 70) return;
     const reach = 22 + Math.min(40, (a.t - 16) * 2), nx = sx + a.face * 16, ny = sy - 24;
     for (let i = 0; i < 14; i++) {
-      const k = ((G.frame * 0.13 + i / 14) % 1), d = k * reach;
+      const fr = G ? G.frame : app.frame || 0, k = ((fr * 0.13 + i / 14) % 1), d = k * reach;
       ctx.fillStyle = k < 0.3 ? 'rgba(255,240,160,0.9)' : k < 0.65 ? 'rgba(255,150,40,0.85)' : 'rgba(200,60,20,0.55)';
-      ctx.beginPath(); ctx.arc(nx + a.face * d, ny + Math.sin(i * 2.3 + G.frame * 0.4) * d * 0.12 + d * 0.18, 2 + k * 5, 0, Math.PI * 2); ctx.fill();
+      ctx.beginPath(); ctx.arc(nx + a.face * d, ny + Math.sin(i * 2.3 + fr * 0.4) * d * 0.12 + d * 0.18, 2 + k * 5, 0, Math.PI * 2); ctx.fill();
     }
   }
   function drawCarried(a, sx, sy) {
@@ -5903,7 +5903,8 @@
         'NIE UCIEKA — LEŻY Z GWIAZDKAMI NAD GŁOWĄ. PODEJDŹ I NACIŚNIJ ' + K('attack') + '.',
         'NA GRZBIECIE ' + K('attack') + ' TO ATAK DINOZAURA, ' + K('jump') + ' — SKOK, ' + SPEC() + ' — ZSIADANIE.',
         'RAPTOR GRYZIE, PACHY TARANUJE, TRICERATOPS BLOKUJE CIOSY KRYZĄ,',
-        'PTERANODON LATA. JAZDA TRWA OKREŚLONY CZAS (ULEPSZENIE W SKLEPIE JĄ WYDŁUŻA).'] },
+        'PTERANODON LATA. JAZDA TRWA OKREŚLONY CZAS (ULEPSZENIE W SKLEPIE JĄ WYDŁUŻA).',
+        'JEŹDZIEC NA RAPTORZE: PRZEWRÓĆ GO, A SPADNIE Z SIODŁA — RAPTOR OD RAZU JEST TWÓJ.'] },
       { demo: 'jeep', head: 'POJAZDY', lines: () => [
         'NA NIEKTÓRYCH ETAPACH STOJĄ POJAZDY — PODEJDŹ I NACIŚNIJ ' + K('attack') + ' („WSIĄDŹ!”).',
         '• JEEP — PĘDZI I TARANUJE WROGÓW NA SWOJEJ DRODZE.',
@@ -5925,13 +5926,28 @@
         'KANAŁY: FALA ŚCIEKÓW — WEJDŹ NA PODWYŻSZENIE PRZY ŚCIANIE ALBO JĄ PRZESKOCZ.',
         'POGODA ZMIENIA SIĘ Z KAŻDYM PRZEJŚCIEM: W DESZCZU ŚLIZGASZ SIĘ PO BIEGU,',
         'W BURZY PIASKOWEJ WIDZISZ TYLKO OKOLICĘ, WIATR ZNOSI BOMBY.'] },
+      { demo: 'foes', head: 'NOWI PRZECIWNICY', lines: () => [
+        '• JEŹDZIEC — KŁUSOWNIK NA RAPTORZE. PRZEWRÓĆ GO I PRZEJMIJ DINOZAURA.',
+        '• PODPALACZ — MIOTACZ OGNIA Z BLISKA. PODPALA PODŁOGĘ: NIE STÓJ W OGNIU,',
+        '  PODCHODŹ Z GÓRY LUB Z DOŁU I BIJ, GDY KOŃCZY STRZAŁ.',
+        '• LOTNIARZ — PRZELATUJE NA LOTNI I ZRZUCA SIEĆ TAM, GDZIE STOISZ.',
+        '  UCIEKAJ SPOD CIENIA; KOPNIĘCIE Z WYSKOKU ŚCIĄGA GO NA ZIEMIĘ.',
+        '• BRYGADZISTA — KOPARKA Z PANCERZEM (O NIEJ W „RADACH NA BOSSÓW”).'] },
       { demo: 'map', head: 'TRASA, SKLEP I BONUSY', lines: () => [
         'PO KAŻDYM ETAPIE: OCENA (S–D) I MAPA REGIONU. PO ETAPIE 2 WYBIERASZ TRASĘ:',
         'MIASTO CIENI ALBO OGNISTE SZYBY.',
         'PRZED MAPĄ JEST OBÓZ — ZA BURSZTYN KUPUJESZ ŻYCIE, DŁUŻSZE KOMBO, SILNIEJSZE',
         'BOMBY, DŁUŻSZĄ JAZDĘ, SZYBSZĄ FURIĘ I DODATKOWE ŻYCIA.',
         'BONUSY: JAZDA AUTEM (PO 3A/3B), ZAGRODA (PO 4), LOT NA PTERANODONIE (PO 5).',
-        'GRA ZAPISUJE SIĘ SAMA — „KONTYNUUJ” W MENU GŁÓWNYM.'] }
+        'PO KANAŁACH (6): POCIĄG DO TWIERDZY.',
+        'GRA ZAPISUJE SIĘ SAMA — „KONTYNUUJ” W MENU GŁÓWNYM.'] },
+      { demo: 'train', head: 'POCIĄG I ZAKOŃCZENIA', lines: () => [
+        'POCIĄG DO TWIERDZY: WALCZYSZ NA PLATFORMACH PĘDZĄCEGO POCIĄGU.',
+        'WROGOWIE WSKAKUJĄ Z OBU STRON TORU — PATRZ NA GÓRNĄ I DOLNĄ KRAWĘDŹ.',
+        'WRÓG ODRZUCONY POZA PLATFORMĘ ODPADA OD RAZU („ZRZUCONY!”) — WALCZ',
+        'PRZY KRAWĘDZI I POSYŁAJ ICH ZA BURTĘ. NA KOŃCU CZEKA BRYGADZISTA.',
+        'PO NAPISACH KOŃCOWYCH {ok|ENTER} POKAZUJE KOMIKS O TYM, CO TWOJA POSTAĆ',
+        'ROBI PO WSZYSTKIM — KAŻDA Z SIEDMIU POSTACI MA WŁASNE ZAKOŃCZENIE.'] }
     ] },
     { title: 'GRA WE DWÓCH', pages: [
       { demo: 'coop', head: 'DOŁĄCZANIE', lines: () => [
@@ -5949,7 +5965,7 @@
     ] },
     { title: 'TRYBY I RADY', pages: [
       { demo: 'modes', head: 'TRYBY GRY', lines: () => [
-        '• START GRY — 7 ETAPÓW, EPILOG I ZAKOŃCZENIE. PO PRZEJŚCIU: NOWA GRA+ I BARON.',
+        '• START GRY — 7 ETAPÓW, POCIĄG, EPILOG I ZAKOŃCZENIE. PO PRZEJŚCIU: NOWA GRA+ I BARON.',
         '• TRENING — MANEKINY, KTÓRE NIE ODDAJĄ: ĆWICZ KOMBO I RUCHY.',
         '• WYZWANIA — KRÓTKIE ZADANIA NA GWIAZDKI I CODZIENNE WYZWANIE.',
         '• BOSS RUSH — WSZYSCY BOSSOWIE PO KOLEI. • PRZETRWANIE — FALE BEZ KOŃCA.',
@@ -5961,6 +5977,7 @@
         '  I BIJ, GDY ŁAPIĄ ZADYSZKĘ.',
         '• STARY KIEŁ PO UDERZENIU W ŚCIANĘ JEST OGŁUSZONY — TO TWOJA SZANSA.',
         '• ZĘBACZ ZNIKA W ŚCIEKACH: ODSUŃ SIĘ OD BĄBELKÓW I KONTRUJ PO LĄDOWANIU.',
+        '• BRYGADZISTA: ŁYŻKA Z GÓRY BIJE PRZED KOPARKĘ, SZARŻA IDZIE PO LINII — BIJ Z BOKU.',
         '• DYNAMIT NA BOSSA TO PEWNE OBRAŻENIA. SUPER ZOSTAW NA KONIEC WALKI.'] },
       { demo: 'end', head: 'GOTOWY?', lines: () => [
         'TO WSZYSTKO, CO MUSISZ WIEDZIEĆ. NAJLEPIEJ POĆWICZ RUCHY NA MANEKINACH.',
@@ -6056,6 +6073,27 @@
       case 'melee': {
         ['pipe', 'machete', 'chain', 'rifle'].forEach((w, i) => SP.drawItem(ctx, w, bx + 30 + i * 30, fy - 2, t));
         fig(hb, t % 20 < 10 ? P.swingUp[0] : P.swingDown[0], cx + 70, fy, 1, { weapon: ['pipe', 'machete', 'chain'][cyc(3, 40)] });
+        break;
+      }
+      case 'foes': {
+        const fl = demoBuild('flamer'), k = t % 90;
+        fig(fl, k < 30 ? P.idle[0] : P.aim[0], bx + 40, fy, 1, { weapon: 'flamer' });
+        if (k >= 30) drawFlame({ state: 'flame', t: Math.min(70, k - 14), face: 1 }, bx + 40, fy);
+        const rx = bx + 120 + Math.sin(t * 0.03) * 20;
+        SP.drawRaptor(ctx, rx, fy, -1, t, 'run', { body: '#7a5a3a', belly: '#c8a878', stripe: '#3a2a1a' }, {});
+        fig(demoBuild('grunt'), SEAT, rx + 1, fy - 25, -1, { weapon: 'knife' });
+        drawGlider({ b: demoBuild('glider'), face: -1, state: 'glide', t: 0 }, bx + bw - 30 - ((t * 0.8) % (bw - 60)), by + 70, false);
+        break;
+      }
+      case 'train': {
+        // tło etapu przeskalowane do szerokości ramki, wyrównane do dołu (widać platformę)
+        const T = window.SPECIAL_STAGES.train, k = bw / W, top = by + bh - H * k, deckY = top + 192 * k;
+        ctx.save(); ctx.translate(bx, top); ctx.scale(k, k);
+        T.drawBack(ctx, {}, 300, t); T.drawFront(ctx, {}, 300, t);
+        ctx.restore();
+        const ph = t % 100, fly = Math.max(0, ph - 20);
+        fig(hb, ph < 20 ? P.jab[0] : P.idle[0], cx - 20, deckY, 1);
+        if (ph < 60) fig(demoBuild('grunt'), ph < 20 ? P.idle[0] : P.fall[0], cx + 10 + fly * 1.2, deckY - fly * 0.5 - (ph > 20 ? 8 : 0), -1);
         break;
       }
       case 'barrel': {

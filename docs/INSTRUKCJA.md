@@ -24,7 +24,7 @@ postaci pojawi się ekran **WYBÓR ETAPU**: ▲/▼ wybór, Enter/atak start, sk
 
 ### Menu główne
 **JAK GRAĆ** — wbudowany poradnik: 10 rozdziałów (podstawy, walka, chwyty i rzuty, obrona, specjały i furia, broń,
-dinozaury i pojazdy, etapy, gra we dwóch, tryby i rady), 24 strony z animowanymi pokazami. ▲▼ rozdział, ◄► / Enter
+dinozaury i pojazdy, etapy, gra we dwóch, tryby i rady), 27 stron z animowanymi pokazami. ▲▼ rozdział, ◄► / Enter
 strona, Esc powrót; klawisze w tekście są brane z Twoich ustawień, przy padzie pokazują się ikony przycisków.
 Ostatnia strona prowadzi prosto do treningu.
 

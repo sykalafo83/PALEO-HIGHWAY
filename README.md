@@ -25,7 +25,7 @@ muzyka i dźwięki są generowane kodem (Canvas 2D + Web Audio).
   dosiadanie dinozaurów i pojazdy, podnoszenie i rzucanie beczek, wrzucanie wrogów do lawy, ścieków i morza.
 - **Przeciwnicy z charakterem:** m.in. jeździec na raptorze (zrzuć go i przejmij dinozaura), podpalacz z miotaczem ognia
   i lotniarz zrzucający sieci.
-- **Poradnik „JAK GRAĆ”** w menu głównym: 10 rozdziałów i 25 stron z animowanymi pokazami ruchów,
+- **Poradnik „JAK GRAĆ”** w menu głównym: 10 rozdziałów i 27 stron z animowanymi pokazami ruchów,
   klawisze i ikony pada dopasowane do Twoich ustawień.
 - **Tryby:** zwykła gra, Nowa Gra+, trening, Boss Rush, przetrwanie, wyzwania z gwiazdkami i codzienne wyzwanie.
 - **Ekstra:** 32 osiągnięcia, bestiariusz, odtwarzacz muzyki, karta z wynikiem do udostępnienia, edytor etapów.

@@ -264,9 +264,9 @@
     if (a.state !== 'flame' || a.t < 16 || a.t > 70) return;
     const reach = 22 + Math.min(40, (a.t - 16) * 2), nx = sx + a.face * 16, ny = sy - 24;
     for (let i = 0; i < 14; i++) {
-      const k = ((G.frame * 0.13 + i / 14) % 1), d = k * reach;
+      const fr = G ? G.frame : app.frame || 0, k = ((fr * 0.13 + i / 14) % 1), d = k * reach;
       ctx.fillStyle = k < 0.3 ? 'rgba(255,240,160,0.9)' : k < 0.65 ? 'rgba(255,150,40,0.85)' : 'rgba(200,60,20,0.55)';
-      ctx.beginPath(); ctx.arc(nx + a.face * d, ny + Math.sin(i * 2.3 + G.frame * 0.4) * d * 0.12 + d * 0.18, 2 + k * 5, 0, Math.PI * 2); ctx.fill();
+      ctx.beginPath(); ctx.arc(nx + a.face * d, ny + Math.sin(i * 2.3 + fr * 0.4) * d * 0.12 + d * 0.18, 2 + k * 5, 0, Math.PI * 2); ctx.fill();
     }
   }
   function drawCarried(a, sx, sy) {
