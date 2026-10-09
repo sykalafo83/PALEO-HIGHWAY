@@ -23,7 +23,12 @@ Na ekranie tytułowym pojawia się **KONTYNUUJ** z opisem zapisu (etap, postacie
 postaci pojawi się ekran **WYBÓR ETAPU**: ▲/▼ wybór, Enter/atak start, skok/Esc powrót.
 
 ### Menu główne
-**START GRY**, **TRENING**, **WYZWANIA**, **BOSS RUSH**, **PRZETRWANIE**, **EKSTRA**, **OPCJE**, **NAJLEPSZE WYNIKI**
+**JAK GRAĆ** — wbudowany poradnik: 10 rozdziałów (podstawy, walka, chwyty i rzuty, obrona, specjały i furia, broń,
+dinozaury i pojazdy, etapy, gra we dwóch, tryby i rady), 24 strony z animowanymi pokazami. ▲▼ rozdział, ◄► / Enter
+strona, Esc powrót; klawisze w tekście są brane z Twoich ustawień, przy padzie pokazują się ikony przycisków.
+Ostatnia strona prowadzi prosto do treningu.
+
+**START GRY**, **JAK GRAĆ**, **TRENING**, **WYZWANIA**, **BOSS RUSH**, **PRZETRWANIE**, **EKSTRA**, **OPCJE**, **NAJLEPSZE WYNIKI**
 (▲▼ wybór, Enter/atak zatwierdza).
 
 **Wyzwania:** krótkie zadania z gwiazdkami za czas (rekordy zapisują się w przeglądarce, przegrana = 0 gwiazdek):
@@ -136,11 +141,18 @@ wybuchy i chwyty przechodzą. Pasek pod stopami to wytrzymałość gardy — ka�
 
 **Druga faza bossów:** przy 30% życia Kapitan Rdza, Żmija, Admirał Szpon i Padliniarz wpadają w szał — „OSTATNI ATAK!”:
 trzy szarże przez całą arenę z bronią (przeskakuj albo uciekaj w głąb planszy), potem chwila zadyszki (najlepszy moment na kontrę);
-atak powtarza się co kilka sekund. Stary Kieł i Zębacz wpadają we wściekłość i atakują częściej.
+atak powtarza się co kilka sekund. Stary Kieł, Zębacz i Bursztynowy Kolos wpadają we wściekłość i atakują częściej.
+Na trudności ARCADE bossowie mają +15% życia (zwykli wrogowie +25%), na ŁATWYM -15%.
+
+**Ataki specjalne bestii:**
+- **Bursztynowy Kolos — deszcz odłamków:** po ryku na ziemi pojawiają się rosnące cienie; gdy się zamkną, spadają w nie
+  bursztynowe odłamki. Uciekaj z cieni — garda nie pomaga.
+- **Zębacz — atak z rynny:** zanurza się w ściekach i znika; pod powierzchnią sunie za tobą tylko ślad bąbelków. Potem wyskakuje
+  i spada z impetem — odsuń się od bąbelków. Po lądowaniu jest chwilę ogłuszony („TERAZ!”) — czas na kontrę.
 
 **Wydarzenia na etapach:**
-- **Plaża — przypływ:** co ok. 15 s ostrzeżenie „PRZYPŁYW!”, potem woda zalewa pas planszy od strony morza; w wodzie wszyscy (poza bossem) poruszają się o połowę wolniej.
-- **Kanały — fala ścieków:** ostrzeżenie „FALA ŚCIEKÓW! NA PODWYŻSZENIE!” i strzałka z kierunkiem; fala przechodzi przez cały ekran i przewraca każdego na dole.
+- **Plaża — przypływ:** co ok. 30 s ostrzeżenie „PRZYPŁYW!”, potem woda zalewa pas planszy od strony morza; w wodzie wszyscy (poza bossem) poruszają się o połowę wolniej.
+- **Kanały — fala ścieków:** co ok. 20 s ostrzeżenie „FALA ŚCIEKÓW! NA PODWYŻSZENIE!” i strzałka z kierunkiem; fala przechodzi przez cały ekran i przewraca każdego na dole.
   Schroń się na podwyższonym chodniku przy ścianie (pas z żółto-czarną krawędzią) albo przeskocz falę.
 
 **Gra we dwóch:** na ekranie wyboru postaci gracz 2 dołącza swoim Startem (skok = rezygnacja), może też

@@ -21,6 +21,8 @@ muzyka i dźwięki są generowane kodem (Canvas 2D + Web Audio).
 - **4 bohaterów + 3 do odblokowania**, każdy z własną serią ciosów, specjałem, ruchem komendowym, super-ruchem i okrzykami.
 - **Walka:** kombo, chwyty i rzuty, blok i parowanie, żonglerka w powietrzu, odbicia od ścian, broń biała i rzucana,
   dosiadanie dinozaurów i pojazdy.
+- **Poradnik „JAK GRAĆ”** w menu głównym: 10 rozdziałów i 24 strony z animowanymi pokazami ruchów,
+  klawisze i ikony pada dopasowane do Twoich ustawień.
 - **Tryby:** zwykła gra, Nowa Gra+, trening, Boss Rush, przetrwanie, wyzwania z gwiazdkami i codzienne wyzwanie.
 - **Ekstra:** 29 osiągnięć, bestiariusz, odtwarzacz muzyki, karta z wynikiem do udostępnienia, edytor etapów.
 - **Wygoda:** zapis postępu, przypisywanie klawiszy i przycisków pada (z wibracjami), sterowanie dotykowe,
@@ -90,7 +92,8 @@ index.html              gra
 editor.html             edytor etapów
 export.html             odsłuch i eksport muzyki oraz efektów do WAV
 config.js               ustawienia domyślne
-js/game.js              silnik: pętla gry, wejście, walka, AI, HUD, menu, tryby, zapis
+src/game/               źródła silnika gry w 27 częściach (wejście, gracz, AI, tryby, HUD, mapa, pętla…)
+js/game.js              silnik zbudowany z src/game/ (plik generowany — nie edytuj ręcznie)
 js/audio.js             syntezator dźwięków, instrumenty, sekwencer, utwory, okrzyki postaci
 js/sprites.js           szkieletowe postacie, dinozaury, pojazdy, bronie, przedmioty
 js/scenery.js           elementy scenerii i fabryka etapów (warstwy paralaksy)
@@ -99,7 +102,7 @@ js/editor.js            logika edytora etapów
 js/stages/              etapy (stage1–8), areny specjalne, rozszerzenia i własne etapy
 assets/audio/           wyeksportowana muzyka i efekty (WAV)
 icons/, manifest.webmanifest, sw.js   aplikacja PWA i praca offline
-tools/                  serwer lokalny, eksport audio, generator ikon
+tools/                  budowanie, testy automatyczne, serwer lokalny, eksport audio, generator ikon
 docs/                   instrukcja gry i zrzuty ekranu
 ```
 
@@ -109,11 +112,23 @@ Wymagają Node.js 22+; eksport audio dodatkowo przeglądarki Edge lub Chrome.
 
 | Polecenie | Działanie |
 |---|---|
+| `node tools/build.mjs` | składa `js/game.js` ze źródeł w `src/game/` (`--check` — tylko sprawdza, czy jest aktualny) |
+| `node tools/tests/run.mjs [nazwa…]` | testy automatyczne w przeglądarce bez okna (wszystkie albo wybrane); zrzuty w `tools/tests/out/` |
 | `node tools/serve.mjs [port]` | lokalny serwer (domyślnie port 8080) |
 | `node tools/export-audio.mjs` | renderuje wszystkie utwory i efekty do `assets/audio/` |
 | `tools/icon.html` | generator ikon aplikacji |
 
 Po zmianie listy plików gry podbij wersję `CACHE` w [`sw.js`](sw.js), żeby zainstalowana aplikacja pobrała nowe pliki.
+
+### Praca z kodem
+
+1. Zmieniaj pliki w `src/game/` (silnik) albo `js/` (pozostałe moduły), nie `js/game.js`.
+2. Zbuduj silnik: `node tools/build.mjs`.
+3. Uruchom testy: `node tools/tests/run.mjs` — 12 scenariuszy sprawdza m.in. wszystkie etapy i bossów, walkę,
+   pady, tryby, wydarzenia, komiks, lot, zakończenia, edytor i oprawę; test kończy się błędem także przy każdym
+   wyjątku JavaScript w grze. Testy same budują silnik przed startem.
+
+Uchwyty testowe (`window.__paleo`) są dostępne tylko z `debug: true` w `config.js` albo z parametrem adresu `?hooks=1`.
 
 ## Zasoby i prawa
 

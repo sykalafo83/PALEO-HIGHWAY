@@ -52,7 +52,7 @@
     function spawnBoat() {
       const r = Math.random(), type = F.t > 1800 && r < 0.35 ? 'gunboat' : r < 0.55 ? 'dinghy' : r < 0.85 ? 'trawler' : 'gunboat';
       const D = BOATS[type];
-      F.boats.push({ type, x: W + 50, y: rnd(166, 206), vx: rnd(0.4, 1.3) * (Math.random() < 0.3 ? -0.5 : 1), hp: D.hp, t: 0, flash: 0, sink: 0, cool: rnd(80, 160) });
+      F.boats.push({ type, x: W + 50, y: rnd(166, 206), vx: rnd(0.4, 1.3) * (Math.random() < 0.3 ? -0.5 : 1), hp: D.hp, t: 0, flash: 0, sink: 0, cool: Math.round(rnd(80, 160)) });
     }
     function pop(x, y, txt, col) { F.pops.push({ x, y, txt, col: col || '#fff', t: 0 }); }
 
@@ -111,9 +111,12 @@
         if (b.flash > 0) b.flash--;
         b.x -= SPEED * 0.6 + b.vx;
         if (b.sink) { b.sink++; if (b.sink > 60) F.boats.splice(i, 1); continue; }
-        if (D.shoot && flying && b.x < W - 20 && b.x > 40 && --b.cool <= 0) {
-          b.cool = rnd(110, 170); sfx('harpoon');
-          const ang = Math.atan2(p.y - b.y, p.x - b.x);
+        // kanonierka: błysk lufy (ostrzeżenie) przez 30 klatek, potem niezbyt celny strzał
+        if (D.shoot && flying && b.x < W - 20 && b.x > 40) b.cool--;
+        if (D.shoot && b.cool === 30) sfx('charge');
+        if (D.shoot && flying && b.x < W - 20 && b.x > 40 && b.cool <= 0) {
+          b.cool = Math.round(rnd(170, 240)); sfx('harpoon');
+          const ang = Math.atan2(p.y - b.y, p.x - b.x) + rnd(-0.22, 0.22);
           F.shots.push({ x: b.x, y: b.y - 14, vx: Math.cos(ang) * 3.4, vy: Math.sin(ang) * 3.4, t: 0 });
         }
         if (b.x < -80 || b.x > W + 120) F.boats.splice(i, 1);
@@ -121,13 +124,13 @@
       // harpuny
       for (let i = F.shots.length - 1; i >= 0; i--) {
         const s = F.shots[i]; s.t++; s.x += s.vx - SPEED * 0.3; s.y += s.vy;
-        if (flying && p.inv <= 0 && Math.abs(s.x - p.x) < 16 && Math.abs(s.y - p.y) < 10) { hurtP(20); F.shots.splice(i, 1); continue; }
+        if (flying && p.inv <= 0 && Math.abs(s.x - p.x) < 14 && Math.abs(s.y - p.y) < 9) { hurtP(12); F.shots.splice(i, 1); continue; }
         if (s.t > 120 || s.y < -10) F.shots.splice(i, 1);
       }
       // mewy
       for (let i = F.gulls.length - 1; i >= 0; i--) {
         const g = F.gulls[i]; g.t++; g.x -= SPEED + 1.6; g.y += Math.sin(g.t * 0.1) * 0.5;
-        if (flying && p.inv <= 0 && Math.abs(g.x - p.x) < 16 && Math.abs(g.y - p.y) < 10) { hurtP(12); F.gulls.splice(i, 1); continue; }
+        if (flying && p.inv <= 0 && Math.abs(g.x - p.x) < 16 && Math.abs(g.y - p.y) < 10) { hurtP(10); F.gulls.splice(i, 1); continue; }
         if (g.x < -20) F.gulls.splice(i, 1);
       }
       // bursztyny w chmurach
@@ -204,7 +207,7 @@
         const st = F.phase === 'crash' ? 'down' : p.dash > 0 ? 'swoop' : 'fly';
         SP.drawPtera(ctx, p.x, p.y + 12, 1, t, st, {});
         if (F.phase !== 'crash') {
-          ctx.save(); ctx.translate(p.x - 2, p.y + 4); ctx.scale(0.55, 0.55);
+          ctx.save(); ctx.translate(p.x - 9, p.y + 9); ctx.scale(0.55, 0.55);   // jeździec na środku grzbietu
           SP.drawFigure(ctx, F.player.b, SP.POSES.crouch[0], 0, 0, 1, {});
           ctx.restore();
         }
@@ -229,7 +232,8 @@
       } else if (b.type === 'gunboat') {
         ctx.fillStyle = OUT; ctx.fillRect(x - 10, y - 22, 20, 12); ctx.fillStyle = '#5a5a62'; ctx.fillRect(x - 9, y - 21, 18, 10);
         ctx.strokeStyle = OUT; ctx.lineWidth = 3; ctx.beginPath(); ctx.moveTo(x, y - 18); ctx.lineTo(x - 10, y - 30); ctx.stroke();
-        ctx.strokeStyle = '#7a828a'; ctx.lineWidth = 1.5; ctx.stroke();
+        ctx.strokeStyle = b.cool <= 30 && b.cool > 0 && Math.floor(b.cool / 4) % 2 ? '#ff6040' : '#7a828a'; ctx.lineWidth = 1.5; ctx.stroke();
+        if (b.cool <= 30 && b.cool > 0 && Math.floor(b.cool / 4) % 2) { ctx.fillStyle = '#ffe080'; ctx.fillRect(x - 12, y - 33, 4, 4); }
       } else {
         ctx.fillStyle = '#c89070'; ctx.fillRect(x - 3, y - 18, 5, 8); ctx.fillStyle = '#2a2a2a'; ctx.fillRect(x - 3, y - 20, 5, 3);   // kłusownik
       }
