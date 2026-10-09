@@ -22,6 +22,19 @@
   function updateShots() {
     for (let i = G.shots.length - 1; i >= 0; i--) {
       const s = G.shots[i]; s.t++;
+      if (s.type === 'prop') {
+        if (updateFlyingProp(s)) { breakCarried(s, s.x, s.y, s.owner); G.shots.splice(i, 1); }
+        continue;
+      }
+      if (s.type === 'netdrop') {
+        s.vz -= GRAV * 0.4; s.z += s.vz;
+        if (s.z <= 0) {
+          const t = G.players.find(q => hittable(q) && q.z < 12 && q.state !== 'netted' && Math.abs(q.x - s.x) < 18 && Math.abs(q.y - s.y) < 10);
+          if (t) netPlayer(t); else dust(s.x, s.y);
+          G.shots.splice(i, 1);
+        }
+        continue;
+      }
       // bomba gracza trafiająca w locie wroga spada mu pod nogi
       if (s.owner && !s.landed && s.vx && (s.type === 'dynamite' || s.type === 'grenade')) {
         for (const t of G.actors) {
@@ -99,6 +112,7 @@
 
   function netPlayer(t) {
     if (t.mount) dismount(t, false);
+    if (t.carry) dropCarry(t);
     if (t.grabbing) { release(t.grabbing); t.grabbing = null; }
     setState(t, 'netted'); t.netT = 130; t.vx = 0; sfx('grab');
     G.popups.push({ x: t.x, y: t.y - 60, txt: 'SIEĆ! WCISKAJ PRZYCISKI', t: 0, col: '#ffe080' });

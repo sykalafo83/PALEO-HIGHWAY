@@ -282,6 +282,7 @@
           if (ST.custom) { sfx('start'); leaveCustom(); break; }
           if (app.gameMode === 'daily') { sfx('start'); unlock('daily'); endRun('daily', dailyRecs()); break; }
           if (G.special === 'cages') goMap(app.cageNext, G.players);
+          else if (G.special === 'train') goMap(app.trainNext || 7, G.players);
           else if (!G.special && G.stageIdx === STAGES.length - 1 && app.gameMode === 'arcade') startEscape(G.players);
           else if (G.special === 'escape' && trueReady()) { saveProgress({ type: 'truefinal' }, G.players); startTrueFinal(G.players); }
           else if (G.stageIdx < STAGES.length - 1) afterStage(G.stageIdx, G.players);
@@ -291,7 +292,7 @@
             unlock('beatgame'); if (OPTS.difficulty === 'arcade') unlock('arcade'); if (app.ngpRun) unlock('ngplus'); clearProgress();
             app.newUnlocks = !app.unlocks.ngp || !app.unlocks.baron;
             app.unlocks.ngp = true; app.unlocks.baron = true; safeSet('paleo_unlocks', JSON.stringify(app.unlocks));
-            app.mode = 'ending'; app.t = 0; AU.stopMusic(); AU.play('ending'); G.players.forEach(q => saveHi(q.score));
+            app.mode = 'ending'; app.t = 0; app.epilogShown = false; AU.stopMusic(); AU.play('ending'); G.players.forEach(q => saveHi(q.score));
           }
         }
         break;
@@ -311,7 +312,11 @@
         if (app.t >= MAP_END) { sfx('start'); beginStage(app.mapTo, app.mapPlayer); }
         break;
       case 'ending':
-        if ((pressed.start || pressed.attack) && app.t > 300) endGame('★');
+        if ((pressed.start || pressed.attack) && app.t > 300) {
+          // najpierw komiks z zakończeniami postaci, potem tablica wyników
+          if (!app.epilogShown && G && G.players.length) { app.epilogShown = true; sfx('start'); startEpilog(G.players, () => endGame('★')); }
+          else endGame('★');
+        }
         break;
     }
     clearPressed();
@@ -389,6 +394,7 @@
         });
         if (!cages && res[0]) text('CZAS ETAPU ' + Math.floor(res[0].secs / 60) + ':' + String(res[0].secs % 60).padStart(2, '0'), W / 2, 50, 5, '#c0c0c0', 'center');
         if (cages) text('NASTĘPNY: ' + shortName(STAGES[app.cageNext]), W / 2, 158, 6, '#c0f0c0', 'center');
+        else if (G.special === 'train') text('NASTĘPNY: ' + shortName(STAGES[app.trainNext || 7]), W / 2, 158, 6, '#c0f0c0', 'center');
         else if (ST.custom) { /* własny etap — bez kolejnego */ }
         else if (G.special === 'escape' && trueReady()) text('NASTĘPNY: ??? — COŚ NADCHODZI OD MORZA', W / 2, 158, 6, '#ffe040', 'center');
         else if (!G.special && G.stageIdx === STAGES.length - 1 && app.gameMode === 'arcade') text('NASTĘPNY: EPILOG — UCIECZKA', W / 2, 158, 6, '#ff9a80', 'center');
@@ -446,6 +452,6 @@
   } else boot();
 
   // debug / testy: uchwyty do stanu gry tylko w trybie debug (config.js) albo z parametrem adresu ?hooks=1 (testy automatyczne)
-  if (CFG.debug === true || urlParams.has('hooks')) window.__paleo = { get G() { return G; }, app, pickWeather, customList, buildCustomStage, startCustom, CHARS, ENEMIES, bonus, startStage: i => { startStage(i, G && G.players); app.mode = 'play'; }, startBonus: () => startBonus(G && G.players, 4), startCages: () => startCages(G && G.players, 5), startTraining: () => startTraining(null), startSuper: i => startSuper(G.players[i || 0]), newStage: i => { startStage(i, null); app.mode = 'play'; }, startEscape: () => startEscape(G.players), unlocks: () => app.unlocks, hurt: (t, d, src) => hurt(t, d, 1, false, src), resumeProgress, saveInfo: () => app.save, startRush: () => startRush(null), startSurvival: () => startSurvival(null), unlock, opts: () => OPTS, endGame, inp, joinOrContinue: i => joinOrContinue(i),
+  if (CFG.debug === true || urlParams.has('hooks')) window.__paleo = { get G() { return G; }, app, pickWeather, customList, buildCustomStage, startCustom, CHARS, ENEMIES, bonus, startStage: i => { startStage(i, G && G.players); app.mode = 'play'; }, startBonus: () => startBonus(G && G.players, 4), startCages: () => startCages(G && G.players, 5), startTraining: () => startTraining(null), startSuper: i => startSuper(G.players[i || 0]), newStage: i => { startStage(i, null); app.mode = 'play'; }, startEscape: () => startEscape(G.players), startEpilog: () => startEpilog(G.players, () => endGame('★')), ENDINGS, startTrain: () => { app.gameMode = app.gameMode || 'arcade'; startTrain(G ? G.players : null, 7); }, unlocks: () => app.unlocks, hurt: (t, d, src, knock) => hurt(t, d, 1, !!knock, src), spawn: (type, x, y) => { const e = makeEnemy(type, x, y); if (type !== 'glider' && type !== 'digger') setState(e, 'idle'); G.actors.push(e); return e; }, afterStage, resumeProgress, saveInfo: () => app.save, startRush: () => startRush(null), startSurvival: () => startSurvival(null), unlock, opts: () => OPTS, endGame, inp, joinOrContinue: i => joinOrContinue(i),
     flight, curBonus: () => curBonus(), startFlight: () => startFlight(G ? G.players : null, 6), CHALLENGES, dailyPlan, startDaily: () => startDaily(null),
     startChallenge: id => { app.chDef = CHALLENGES.find(c => c.id === id); app.gameMode = 'challenge'; startChallenge(null); }, STAGES };

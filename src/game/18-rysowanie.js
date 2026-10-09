@@ -38,6 +38,11 @@
       case 'suplex': return a.t < 14 ? P.throw[0] : P.crouch[0];
       case 'shoot': case 'aim': case 'aimH': case 'snipeAim': return P.aim[0];
       case 'throwNet': return a.t < 10 ? P.lob[0] : P.throw[0];
+      case 'flame': return P.aim[0];
+      case 'hopin': return P.jump[0];
+      case 'lift': return a.t < 6 ? P.crouch[0] : P.hammerUp[0];
+      case 'carry': return P.hammerUp[0];
+      case 'heave': return a.t < 6 ? P.hammerUp[0] : P.throw[0];
       case 'netted': return P.bow[0];
       case 'toss': return a.t < 8 ? P.lob[0] : P.throw[0];
       case 'grab': return P.grab[0];
@@ -75,8 +80,12 @@
         hurt: 'hurt', fall: 'down', thrown: 'down', down: 'down', dead: 'down', getup: 'idle', roar: 'roar', charge: a.t < 34 ? 'roar' : 'run', dazed: 'hurt', tail: 'hurt' };
       let face = a.face;
       if (a.state === 'tail' && a.t >= 14 && a.t < 24) face = -face;
-      map.tamed = 'idle'; map.flee = 'run';
+      map.tamed = 'idle'; map.flee = 'run'; map.hopin = 'run';
       SP.drawRaptor(ctx, sx, sy, face, a.animT, map[a.state] || 'idle', a.cols, a.kind === 'rex' ? { flash, scale: 2.3, rex: true } : { flash });
+      if (a.rider) {
+        const bob = ['walk', 'run', 'enter'].includes(a.state) ? Math.abs(Math.sin(a.animT * 0.25)) * 2 : 0;
+        SP.drawFigure(ctx, a.rider, SEAT, sx - a.face, sy - 25 - bob, a.face, { flash, weapon: map[a.state] === 'bite' ? null : 'knife' });
+      }
       if (a.state === 'tamed') drawStars(sx + a.face * 18, sy - 44);
       if (a.state === 'dazed') drawStars(sx + a.face * 40, sy - 70);
       return;
@@ -95,6 +104,8 @@
       return;
     }
     if (a.kind === 'player' && a.mount) { drawRider(a, sx, sy, flash); return; }
+    if (a.kind === 'digger') { drawDigger(a, sx, sy, flash); return; }
+    if (a.kind === 'glider') { drawGlider(a, sx, sy, flash); return; }
     const pose = poseOf(a);
     let face = a.face;
     if (a.state === 'special' && Math.floor(a.t / 4) % 2 && (a.key === 'kruk' || a.key === 'borys')) face = -face;
@@ -116,6 +127,8 @@
     if (a.perch) drawPerch(sx, a.y, a.z);
     if (a.alpha < 1) ctx.globalAlpha = Math.max(0, a.alpha);
     SP.drawFigure(ctx, a.b, pose, sx + jitter, sy, face, opt);
+    drawFlame(a, sx, sy);
+    drawCarried(a, sx, sy);
     // garda: półprzezroczysta tarcza przed postacią i pasek wytrzymałości gardy
     if (a.kind === 'player' && (a.state === 'block' || (a.guard !== undefined && a.guard < 99))) {
       const gx = sx + a.face * 13 * scaleOf(a), gy = sy - 26 * scaleOf(a), k = a.blockFlash > 0 ? 1 : 0.55;
@@ -219,6 +232,7 @@
     if (app.ngpRun && !G.special) drawNgpTint(true);
     if (G.wx) drawWeatherBack(G.wx);
     drawEventsBack();
+    drawFires();
     const ents = [];
     G.actors.forEach(a => ents.push({ y: a.y, a }));
     G.props.forEach(pr => { if (pr.hp > 0) ents.push({ y: pr.y, pr }); });
@@ -246,6 +260,7 @@
       if (e.a) drawActor(e.a);
       else if (e.pr) SP.drawBarrel(ctx, e.pr.x - G.camX + (e.pr.shake ? (e.pr.shake % 2 ? 1 : -1) : 0), e.pr.y, e.pr.hp, e.pr.kind);
       else if (e.s && e.s.type === 'snipe') drawSnipe(e.s);
+      else if (e.s && e.s.type === 'prop') SP.drawBarrel(ctx, e.s.x - G.camX, e.s.y - e.s.z + 12, 2, e.s.kind);
       else if (e.s) SP.drawShot(ctx, e.s, e.s.x - G.camX, e.s.y - e.s.z - (e.s.type === 'dynamite' ? 3 : 0), e.s.t);
       else if (e.cart) window.Scenery.minecart(ctx, e.cart.x - G.camX, e.cart.y);
       else if (e.veh) { if (e.veh.type === 'jeep') SP.drawJeep(ctx, e.veh.x - G.camX, e.veh.y, -1, 0, { wreck: e.veh.used }); else window.Scenery.minecart(ctx, e.veh.x - G.camX, e.veh.y); }

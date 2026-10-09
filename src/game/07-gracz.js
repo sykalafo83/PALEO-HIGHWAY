@@ -13,6 +13,8 @@
     if (p.state !== 'block') p.guard = Math.min(100, (p.guard === undefined ? 100 : p.guard) + 0.45);
     if (p.blockFlash > 0) p.blockFlash--;
     if (p.mount && ['idle', 'walk', 'rideAtk', 'rideJump'].includes(p.state)) { updateRider(p, held, pressed, dx, dy); return; }
+    if (p.carry && !['lift', 'carry', 'heave'].includes(p.state)) dropCarry(p);
+    if (updateCarry(p, held, pressed, dx, dy)) return;
     switch (p.state) {
       case 'enter':
         p.vx = d.speed; p.x += p.vx; p.animT++;
@@ -53,6 +55,8 @@
           if (p.running) { setState(p, 'dash'); p.vx = p.face * 3.4; sfx('whoosh'); p.running = false; return; }
           const it = nearItem(p);
           if (it) { setState(p, 'pickup'); p.pickItem = it; return; }
+          const pr = held.down && !p.weapon && nearProp(p);
+          if (pr) { liftProp(p, pr); return; }
           if (MELEE[p.weapon]) { p.pipeCount = 0; startMove(p, MELEE[p.weapon].move); return; }
           if (!p.weapon && held.up && !dx) { startMove(p, MOVES.launcher); p.comboIdx = 0; return; }
           if (p.weapon === 'rifle') { setState(p, 'shoot'); return; }

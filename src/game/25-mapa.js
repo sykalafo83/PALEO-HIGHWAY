@@ -314,7 +314,7 @@
   function clearProgress() { try { localStorage.removeItem(SAVE_KEY); } catch (e) { /* brak */ } app.save = null; }
   function saveLabel(d) {
     const pt = d.point, dt = new Date(d.ts);
-    const where = (d.ngp ? 'NG+ ' : '') + (pt.type === 'escape' ? 'EPILOG' : pt.type === 'truefinal' ? 'FINAŁ' : pt.type === 'branch' ? 'WYBÓR TRASY' : pt.type === 'bonus' ? 'BONUS AUTOSTRADA' : pt.type === 'flight' ? 'BONUS LOT' : pt.type === 'cages' ? 'BONUS ZAGRODA' : 'ETAP ' + STAGES[pt.idx].label);
+    const where = (d.ngp ? 'NG+ ' : '') + (pt.type === 'escape' ? 'EPILOG' : pt.type === 'truefinal' ? 'FINAŁ' : pt.type === 'branch' ? 'WYBÓR TRASY' : pt.type === 'bonus' ? 'BONUS AUTOSTRADA' : pt.type === 'flight' ? 'BONUS LOT' : pt.type === 'cages' ? 'BONUS ZAGRODA' : pt.type === 'train' ? 'POCIĄG' : 'ETAP ' + STAGES[pt.idx].label);
     const date = String(dt.getDate()).padStart(2, '0') + '.' + String(dt.getMonth() + 1).padStart(2, '0') + ' ' + String(dt.getHours()).padStart(2, '0') + ':' + String(dt.getMinutes()).padStart(2, '0');
     return where + ' — ' + d.players.map(r => CHARS[r.key].name).join('+') + ' — ' + d.players.reduce((a, r) => a + r.score, 0) + ' PKT — ' + date;
   }
@@ -328,6 +328,7 @@
     else if (pt.type === 'bonus') startBonus(team, pt.next);
     else if (pt.type === 'flight') startFlight(team, pt.next);
     else if (pt.type === 'cages') startCages(team, pt.next);
+    else if (pt.type === 'train') startTrain(team, pt.next);
     else if (pt.type === 'escape') startEscape(team);
     else if (pt.type === 'truefinal') startTrueFinal(team);
     else goMap(pt.idx, team);

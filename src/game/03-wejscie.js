@@ -283,6 +283,7 @@
     if (idx === 2 || idx === 3) return startBonus(team, 4);
     if (idx === 4) return startCages(team, 5);
     if (idx === 5) return startFlight(team, 6);
+    if (idx === 6) return startTrain(team, 7);
     goMap(idx + 1, team);
   }
   function nextLabel(idx) {
@@ -290,6 +291,7 @@
     if (idx === 2 || idx === 3) return 'ETAP BONUSOWY — AUTOSTRADA 7';
     if (idx === 4) return 'ETAP BONUSOWY — ZAGRODA';
     if (idx === 5) return 'ETAP BONUSOWY — LOT NAD ZATOKĄ';
+    if (idx === 6) return 'POCIĄG DO TWIERDZY';
     return STAGES[idx + 1] ? shortName(STAGES[idx + 1]) : '';
   }
   const bonus = window.BonusStage({ W, H, ctx, text, sfx, held, pressed, AU, rumble: (a, b, ms) => rumbleAll(a, b, ms) });

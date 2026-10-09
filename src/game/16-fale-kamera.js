@@ -11,9 +11,16 @@
       const s = G.pending[i];
       if (--s.delay > 0) continue;
       G.pending.splice(i, 1);
-      const x = s.side === 'L' ? G.camX - 30 : G.camX + W + 30;
-      const e = makeEnemy(s.type, x, s.y);
+      const hop = s.side === 'T' || s.side === 'B';   // wskakuje z boku toru (pociąg) — z tyłu albo z przodu platformy
+      const x = hop ? G.camX + rnd(70, W - 70) : s.side === 'L' ? G.camX - 30 : G.camX + W + 30;
+      const e = makeEnemy(s.type, x, s.y || 186);
       e.face = s.side === 'L' ? 1 : -1;
+      if (hop) {
+        const dk = ST.deck || { y0: FLOOR_TOP + 10, y1: FLOOR_BOTTOM - 4 };
+        e.y = s.side === 'T' ? FLOOR_TOP + 6 : FLOOR_BOTTOM;
+        const to = s.side === 'T' ? dk.y0 + 8 : dk.y1 - 8;
+        setState(e, 'hopin'); e.z = 10; e.vz = 5; e.fvy = (to - e.y) / 33; e.face = e.x < G.camX + W / 2 ? 1 : -1; sfx('jump');
+      }
       if (s.type === 'sniper') { e.perch = true; e.z = 42; e.x = s.side === 'L' ? G.camX + 46 : G.camX + W - 46; e.y = FLOOR_TOP + 8; setState(e, 'idle'); e.cool = 80; }
       if (s.type === 'ptera') e.z = 80;
       if (OPTS.assist && HINTS[s.type] && !app.hinted[s.type]) { app.hinted[s.type] = 1; G.hint = { txt: HINTS[s.type], t: 300 }; }

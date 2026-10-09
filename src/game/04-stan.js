@@ -54,7 +54,7 @@
       if (pl.out) { pl.out = false; pl.lives = Math.max(pl.lives, 0); }
       applyUps(pl);
       Object.assign(pl, { x: ST.startX - 60 - i * 26, y: 178 + i * 18, z: 0, vx: 0, vy: 0, vz: 0, face: 1, hp: pl.maxHp, lagHp: pl.maxHp, weapon: null,
-        grabbing: null, grabbedBy: null, invuln: 0, flash: 0, alive: true, dying: false, victory: false, running: false, mount: null });
+        grabbing: null, grabbedBy: null, carry: null, invuln: 0, flash: 0, alive: true, dying: false, victory: false, running: false, mount: null });
       setState(pl, 'enter');
       G.actors.push(pl);
     });

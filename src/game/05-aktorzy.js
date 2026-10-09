@@ -16,7 +16,7 @@
   }
   function makeEnemy(type, x, y) {
     const d = ENEMIES[type];
-    const kind = (type === 'raptor' || type === 'whitefang') ? 'raptor' : type === 'pachy' ? 'pachy' : type === 'ptera' ? 'ptera' : type === 'trike' ? 'trike' : type === 'para' ? 'para' : (type === 'rex' || type === 'deino' || type === 'kolos') ? 'rex' : (d.ai && ['hammer', 'whip', 'harpoon', 'baron'].includes(d.ai) ? 'boss' : 'human');
+    const kind = (type === 'raptor' || type === 'whitefang' || type === 'rraptor') ? 'raptor' : type === 'glider' ? 'glider' : type === 'digger' ? 'digger' : type === 'pachy' ? 'pachy' : type === 'ptera' ? 'ptera' : type === 'trike' ? 'trike' : type === 'para' ? 'para' : (type === 'rex' || type === 'deino' || type === 'kolos') ? 'rex' : (d.ai && ['hammer', 'whip', 'harpoon', 'baron'].includes(d.ai) ? 'boss' : 'human');
     const diff = ST.diff;
     const ngp = app.ngpRun && d.ai !== 'dummy' ? (d.boss ? 1.5 : 1.3) : 1;
     // trudność: bossowie dostają 60% różnicy życia (ARCADE +15%, ŁATWY -15%), zwykli wrogowie pełną
@@ -26,12 +26,13 @@
       kind, type, team: d.beast ? 'beast' : 'enemy', def: d, name: d.name,
       x, y, hp, maxHp: hp, lagHp: hp, state: 'enter', cool: rnd(30, 70), mode: 'hover', dmgMul: (1 + (diff - 1) * 0.6) * diffNow().dmg * (app.ngpRun ? 1.25 : 1),
       modeT: rnd(20, 80), hoverY: rnd(FLOOR_TOP + 10, FLOOR_BOTTOM - 6),
-      rad: kind === 'rex' ? 30 : (kind === 'boss' ? 14 : (type === 'brute' || type === 'klin' ? 12 : (kind === 'pachy' ? 14 : 9))),
-      depthR: kind === 'rex' ? 10 : 0
+      rad: kind === 'digger' ? 34 : kind === 'rex' ? 30 : (kind === 'boss' ? 14 : (type === 'brute' || type === 'klin' ? 12 : (kind === 'pachy' ? 14 : 9))),
+      depthR: kind === 'rex' ? 10 : kind === 'digger' ? 6 : 0
     });
     if (d.mk) a.b = d.mk();
     if (type !== 'dummy' && !app.seen[type]) { app.seen[type] = 1; safeSet('paleo_seen', JSON.stringify(app.seen)); }
     if (type === 'raptor') a.cols = RAPTOR_COLS[Math.random() * 2 | 0];
+    if (type === 'rraptor') { a.cols = { body: '#7a5a3a', belly: '#c8a878', stripe: '#3a2a1a' }; a.rider = ENEMIES.grunt.mk(); }
     if (type === 'whitefang') a.cols = { body: '#e8e6dc', belly: '#ffffff', stripe: '#b8b8c4' };
     if (type === 'trike') { a.cols = TRIKE_COLS[Math.random() * 2 | 0]; a.rad = 16; }
     if (type === 'para') { a.cols = PARA_COLS[Math.random() * 2 | 0]; a.rad = 12; }
@@ -130,6 +131,7 @@
     else if (t.kind === 'rex') { if (Math.random() < 0.3) sfx('roar'); }
     else if (Math.random() < 0.6) sfx('eHurt');
     if (t.grabbing) { release(t.grabbing); t.grabbing = null; }
+    if (t.carry) dropCarry(t);
     if (t.grabbedBy) { t.grabbedBy.grabbing = null; t.grabbedBy = null; }
     if (t.mount && !(t.mount.vehicle && !knock)) { dismount(t, false); knock = true; }
     if (t.hp <= 0 && TAMEABLE.includes(t.kind)) t.tame = true;
@@ -148,6 +150,8 @@
         G.popups.push({ x: t.x, y: t.y - 60 - t.z, txt: 'ŻONGLERKA ×' + t.juggle, t: 0, col: '#ffb040' });
       }
       if (src && src.kind === 'player') t.lastPlayer = src;
+      if (ST.deck && t.team !== 'player' && !isBoss(t) && src) t.fvy = (t.y < (ST.deck.y0 + ST.deck.y1) / 2 ? -1 : 1) * (knock ? 0.85 : 0.5);
+      if (t.rider) ejectRider(t, src);
     } else {
       setState(t, 'hurt'); t.vx = dirX * 0.9; t.hurtCount++;
     }
@@ -219,7 +223,10 @@
     ['trueend', 'PRAWDZIWE ZAKOŃCZENIE', 'POKONAJ BURSZTYNOWEGO KOLOSA'],
     ['beachclean', 'SPRZĄTACZ PLAŻY', 'ROZBIJ WSZYSTKIE BECZKI I SKRZYNIE NA OPUSZCZONEJ PLAŻY'],
     ['ratcatcher', 'SZCZUROŁAP', 'ZŁAP 10 SZCZURÓW W KANAŁACH OTCHŁANI'],
-    ['abovewave', 'PONAD FALĄ', 'PRZECZEKAJ 3 FALE ŚCIEKÓW BEZ ZALANIA']
+    ['abovewave', 'PONAD FALĄ', 'PRZECZEKAJ 3 FALE ŚCIEKÓW BEZ ZALANIA'],
+    ['ringout', 'SPŁUKANY!', 'WRZUĆ WROGA W LAWĘ, ŚCIEKI, MORZE ALBO ZRZUĆ GO Z POCIĄGU'],
+    ['bowling', 'KRĘGLE', 'PRZEWRÓĆ RZUCONĄ BECZKĄ TRZECH WROGÓW NARAZ'],
+    ['scrapper', 'ZŁOMIARZ', 'ZEZŁOMUJ KOPARKĘ BRYGADZISTY']
   ];
   app.ach = loadJSON('paleo_ach') || {};
   app.unlocks = loadJSON('paleo_unlocks') || {};
@@ -257,7 +264,9 @@
     brute: 'GŁAZ: SZARŻUJE BRZUCHEM — ZEJDŹ Z JEGO LINII', bomber: 'MIOTACZ: UCIEKAJ OD ŻARZĄCEGO SIĘ LONTU',
     gunner: 'STRZELEC: CZERWONY LASER = STRZAŁ, PRZESKOCZ KULĘ', shield: 'TARCZOWNIK: ZAJDŹ GO OD TYŁU, CHWYĆ LUB KOPNIJ Z WYSKOKU',
     sniper: 'SNAJPER: UCIEKAJ Z CELOWNIKA, ZDEJMIJ GO Z WYSKOKU', netter: 'SIECIARZ: W SIECI WCISKAJ SZYBKO PRZYCISKI',
-    raptor: 'RAPTOR: POKONANY POZWOLI SIĘ DOSIĄŚĆ (ATAK)', pachy: 'PACHY: SZARŻUJE GŁOWĄ — USUŃ SIĘ Z DROGI',
+    raptor: 'RAPTOR: POKONANY POZWOLI SIĘ DOSIĄŚĆ (ATAK)',
+    rraptor: 'JEŹDZIEC: PRZEWRÓĆ GO, A RAPTOR ZOSTANIE TWÓJ', flamer: 'PODPALACZ: NIE STÓJ W OGNIU — ATAKUJ Z BOKU',
+    glider: 'LOTNIARZ: UCIEKAJ SPOD CIENIA SIECI, STRĄĆ GO Z WYSKOKU', pachy: 'PACHY: SZARŻUJE GŁOWĄ — USUŃ SIĘ Z DROGI',
     ptera: 'PTERANODON: PATRZ NA CIEŃ KAMIENIA, TRAF GO Z WYSKOKU', trike: 'TRICERATOPS: TWARDY — UŻYJ BOMBY ALBO SPECJAŁU',
     para: 'PARAZAUROLOF: JEGO RYK OGŁUSZA — PODSKOCZ!', whitefang: 'BIAŁY KIEŁ: BARDZO SZYBKI — UŻYJ FURII',
     boss: 'BOSS: PAROWANIE (ATAK TUŻ PRZED CIOSEM) GO OGŁUSZA', zmija: 'ŻMIJA: BICZ MA DŁUGI ZASIĘG — WALCZ Z BLISKA',

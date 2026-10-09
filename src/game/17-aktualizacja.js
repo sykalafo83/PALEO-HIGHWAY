@@ -50,9 +50,12 @@
       else if (a.kind === 'para') updatePara(a);
       else if (a.kind === 'rex') updateRex(a);
       else if (a.kind === 'boss') updateBoss(a);
+      else if (a.kind === 'glider') updateGlider(a);
+      else if (a.kind === 'digger') updateDigger(a);
       else updateHuman(a);
     }
     updateShots();
+    updateFires();
     updateHazards();
     updateEvents();
     if (G.ch) updateChallenge();
@@ -61,7 +64,8 @@
       if (a.invuln > 0) a.invuln--;
       a.lagHp += (a.hp - a.lagHp) * 0.06;
       if (a.state !== 'enter') {
-        a.y = clamp(a.y, FLOOR_TOP + 6, FLOOR_BOTTOM);
+        const dk = ST.deck && !['fall', 'thrown', 'down', 'dead', 'hopin'].includes(a.state);   // pociąg: chodzimy tylko po platformie
+        a.y = clamp(a.y, dk ? ST.deck.y0 : FLOOR_TOP + 6, dk ? ST.deck.y1 : FLOOR_BOTTOM);
         if (a.kind === 'player') a.x = clamp(a.x, G.camX + 10, G.camX + W - 10);
         else if (a.kind === 'rex' && a.alive) a.x = clamp(a.x, G.camX + 90, G.camX + W - 90);
         else if (!['dead', 'down', 'fall', 'thrown'].includes(a.state)) a.x = clamp(a.x, G.camX - 40, G.camX + W + 40);

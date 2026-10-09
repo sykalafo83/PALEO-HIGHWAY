@@ -181,6 +181,12 @@
     } else if (w === 'dynamite') {
       segs(ctx, [at(-2), at(5)], 3, '#c0302a', out);
       ctx.fillStyle = '#ffe060'; ctx.fillRect(at(6)[0] - 1, at(6)[1] - 1, 2, 2);
+    } else if (w === 'flamer') {
+      // miotacz ognia: zbiornik na plecach pomijamy, lufa z płomykiem pilotowym
+      segs(ctx, [at(-6), at(4)], 5, '#5a3a2a', out);
+      segs(ctx, [at(2), at(18)], 3, '#6a7078', out);
+      segs(ctx, [at(17), at(20)], 4, '#3a3a3a', out);
+      ctx.fillStyle = '#ffb030'; ctx.fillRect(at(21)[0] - 1, at(21)[1] - 2, 2, 2);
     } else if (w === 'hammer') {
       segs(ctx, [at(-4), at(22)], 3, '#6b4a2e', out);
       const c = at(22);
@@ -516,6 +522,7 @@
         ctx.fillStyle = out; ctx.beginPath(); ctx.moveTo(-6, 2); ctx.lineTo(-4, -5); ctx.lineTo(3, -6); ctx.lineTo(6, 0); ctx.lineTo(2, 5); ctx.closePath(); ctx.fill();
         ctx.fillStyle = '#8a8478'; ctx.beginPath(); ctx.moveTo(-5, 1); ctx.lineTo(-3, -4); ctx.lineTo(3, -5); ctx.lineTo(5, 0); ctx.lineTo(1, 4); ctx.closePath(); ctx.fill();
         break;
+      case 'netdrop':
       case 'net':
         ctx.rotate(t * 0.3);
         ctx.strokeStyle = '#e0d4a8'; ctx.lineWidth = 1; ctx.beginPath();

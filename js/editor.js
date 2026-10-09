@@ -13,8 +13,9 @@
   const ENEMIES = [
     ['grunt', 'SZAKAL', 'h'], ['thin', 'ĆWIEK', 'h'], ['brute', 'GŁAZ', 'h'], ['bomber', 'MIOTACZ', 'h'], ['gunner', 'STRZELEC', 'h'],
     ['shield', 'TARCZOWNIK', 'h'], ['sniper', 'SNAJPER', 'h'], ['netter', 'SIECIARZ', 'h'],
+    ['flamer', 'PODPALACZ', 'h'], ['glider', 'LOTNIARZ', 'h'], ['rraptor', 'JEŹDZIEC NA RAPTORZE', 'h'],
     ['raptor', 'RAPTOR', 'b'], ['pachy', 'PACHY', 'b'], ['trike', 'TRICERATOPS', 'b'], ['para', 'PARAZAUROLOF', 'b'], ['ptera', 'PTERANODON', 'b'],
-    ['whitefang', 'BIAŁY KIEŁ (MINI-BOSS)', 'm'],
+    ['whitefang', 'BIAŁY KIEŁ (MINI-BOSS)', 'm'], ['digger', 'BRYGADZISTA (KOPARKA)', 'm'],
     ['boss', 'KAPITAN RDZA', 'B'], ['zmija', 'ŻMIJA', 'B'], ['klin', 'KLIN', 'B'], ['klamra', 'KLAMRA', 'B'], ['rex', 'STARY KIEŁ', 'B'],
     ['szpon', 'ADMIRAŁ SZPON', 'B'], ['padliniarz', 'PADLINIARZ', 'B'], ['deino', 'ZĘBACZ', 'B'], ['baron', 'BARON BURSZTYN', 'B']
   ];

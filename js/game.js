@@ -159,6 +159,19 @@
     whitefang: { name: 'BIAŁY KIEŁ', hp: 170, speed: 1.7, score: 10000, beast: true, drop1up: true },
     raptor: { name: 'RAPTOR', hp: 56, speed: 1.3, score: 500, beast: true },
     pachy: { name: 'PACHY', hp: 75, speed: 1.0, score: 600, beast: true },
+    // ---- nowi wrogowie: jeździec na raptorze, podpalacz, lotniarz
+    rraptor: { name: 'JEŹDZIEC', hp: 70, speed: 1.55, score: 900 },
+    flamer: {
+      name: 'PODPALACZ', hp: 48, speed: 0.8, range: 26, score: 650, attacks: ['slap'], ai: 'flamer', weapon: 'flamer',
+      mk: () => build({ hair: 'helmet', scale: 1.05, shoulderW: 13, hipW: 11, limbW: 5.2, details: [{ t: 'plate', c: '#7a3a1a' }, { t: 'belt', c: '#1a1a1a' }],
+        colors: { skin: '#c89070', hair: '#3a3a3a', shirt: '#b8642a', pants: '#3a3028', boots: '#141414', gloves: '#2a2a2a', accent: '#ffb030' } })
+    },
+    glider: {
+      name: 'LOTNIARZ', hp: 32, speed: 1.4, range: 24, score: 700, attacks: ['slash'], ai: 'thin',
+      mk: () => build({ hair: 'bandana', legU: 12.5, legL: 12.5, shoulderW: 10, hipW: 8, limbW: 4, armW: 3.4,
+        details: [{ t: 'bandolier', c: '#e0d4a8' }, { t: 'belt', c: '#2a1a10' }],
+        colors: { skin: '#d0a078', hair: '#c8402a', shirt: '#2a4a6a', pants: '#3a3a3a', boots: '#1a1a1a', gloves: '#2a2a2a', accent: '#c8402a' } })
+    },
     // ---- bossowie
     boss: {
       name: 'KAPITAN RDZA', title: 'KAPITAN RDZA', sub: 'SZEF KŁUSOWNIKÓW', hp: 440, speed: 0.85, range: 46, score: 8000, boss: true, ai: 'hammer', weapon: 'hammer',
@@ -202,6 +215,12 @@
         colors: { skin: '#b89070', hair: '#d8b030', shirt: '#d8b030', pants: '#3a3a2a', boots: '#1a1a14', gloves: '#5a6a3a', accent: '#8a2a22' } })
     },
     kolos: { name: 'BURSZTYNOWY KOLOS', title: 'BURSZTYNOWY KOLOS', sub: 'OSTATNIE DZIEŁO BARONA', hp: 1000, speed: 0.95, score: 50000, boss: true, superArmor: true },
+    digger: {
+      name: 'BRYGADZISTA', title: 'BRYGADZISTA', sub: 'POSTRACH WYKOPÓW', hp: 520, speed: 0.75, score: 12000, boss: true, superArmor: true,
+      mk: () => build({ hair: 'hatbeard', scale: 1.2, belly: 7, bellyCol: 'shirt', shoulderW: 16, hipW: 13, limbW: 6, armW: 5,
+        details: [{ t: 'vest', c: '#f0d040' }, { t: 'belt', c: '#1a1a1a' }],
+        colors: { skin: '#d09468', hair: '#e0b020', shirt: '#5a6a7a', pants: '#3a4048', boots: '#141414', gloves: '#c8a040', accent: '#e0b020' } })
+    },
     deino: { name: 'ZĘBACZ', title: 'ZĘBACZ', sub: 'MUTANT Z KANAŁÓW', hp: 720, speed: 1.0, score: 18000, boss: true, superArmor: true },
     baron: {
       name: 'BARON BURSZTYN', title: 'BARON BURSZTYN', sub: 'WŁADCA IMPERIUM KŁUSOWNIKÓW', hp: 640, speed: 1.2, range: 34, score: 30000, boss: true, ai: 'baron', weapon: 'cane',
@@ -683,6 +702,7 @@
     if (idx === 2 || idx === 3) return startBonus(team, 4);
     if (idx === 4) return startCages(team, 5);
     if (idx === 5) return startFlight(team, 6);
+    if (idx === 6) return startTrain(team, 7);
     goMap(idx + 1, team);
   }
   function nextLabel(idx) {
@@ -690,6 +710,7 @@
     if (idx === 2 || idx === 3) return 'ETAP BONUSOWY — AUTOSTRADA 7';
     if (idx === 4) return 'ETAP BONUSOWY — ZAGRODA';
     if (idx === 5) return 'ETAP BONUSOWY — LOT NAD ZATOKĄ';
+    if (idx === 6) return 'POCIĄG DO TWIERDZY';
     return STAGES[idx + 1] ? shortName(STAGES[idx + 1]) : '';
   }
   const bonus = window.BonusStage({ W, H, ctx, text, sfx, held, pressed, AU, rumble: (a, b, ms) => rumbleAll(a, b, ms) });
@@ -752,7 +773,7 @@
       if (pl.out) { pl.out = false; pl.lives = Math.max(pl.lives, 0); }
       applyUps(pl);
       Object.assign(pl, { x: ST.startX - 60 - i * 26, y: 178 + i * 18, z: 0, vx: 0, vy: 0, vz: 0, face: 1, hp: pl.maxHp, lagHp: pl.maxHp, weapon: null,
-        grabbing: null, grabbedBy: null, invuln: 0, flash: 0, alive: true, dying: false, victory: false, running: false, mount: null });
+        grabbing: null, grabbedBy: null, carry: null, invuln: 0, flash: 0, alive: true, dying: false, victory: false, running: false, mount: null });
       setState(pl, 'enter');
       G.actors.push(pl);
     });
@@ -778,7 +799,7 @@
   }
   function makeEnemy(type, x, y) {
     const d = ENEMIES[type];
-    const kind = (type === 'raptor' || type === 'whitefang') ? 'raptor' : type === 'pachy' ? 'pachy' : type === 'ptera' ? 'ptera' : type === 'trike' ? 'trike' : type === 'para' ? 'para' : (type === 'rex' || type === 'deino' || type === 'kolos') ? 'rex' : (d.ai && ['hammer', 'whip', 'harpoon', 'baron'].includes(d.ai) ? 'boss' : 'human');
+    const kind = (type === 'raptor' || type === 'whitefang' || type === 'rraptor') ? 'raptor' : type === 'glider' ? 'glider' : type === 'digger' ? 'digger' : type === 'pachy' ? 'pachy' : type === 'ptera' ? 'ptera' : type === 'trike' ? 'trike' : type === 'para' ? 'para' : (type === 'rex' || type === 'deino' || type === 'kolos') ? 'rex' : (d.ai && ['hammer', 'whip', 'harpoon', 'baron'].includes(d.ai) ? 'boss' : 'human');
     const diff = ST.diff;
     const ngp = app.ngpRun && d.ai !== 'dummy' ? (d.boss ? 1.5 : 1.3) : 1;
     // trudność: bossowie dostają 60% różnicy życia (ARCADE +15%, ŁATWY -15%), zwykli wrogowie pełną
@@ -788,12 +809,13 @@
       kind, type, team: d.beast ? 'beast' : 'enemy', def: d, name: d.name,
       x, y, hp, maxHp: hp, lagHp: hp, state: 'enter', cool: rnd(30, 70), mode: 'hover', dmgMul: (1 + (diff - 1) * 0.6) * diffNow().dmg * (app.ngpRun ? 1.25 : 1),
       modeT: rnd(20, 80), hoverY: rnd(FLOOR_TOP + 10, FLOOR_BOTTOM - 6),
-      rad: kind === 'rex' ? 30 : (kind === 'boss' ? 14 : (type === 'brute' || type === 'klin' ? 12 : (kind === 'pachy' ? 14 : 9))),
-      depthR: kind === 'rex' ? 10 : 0
+      rad: kind === 'digger' ? 34 : kind === 'rex' ? 30 : (kind === 'boss' ? 14 : (type === 'brute' || type === 'klin' ? 12 : (kind === 'pachy' ? 14 : 9))),
+      depthR: kind === 'rex' ? 10 : kind === 'digger' ? 6 : 0
     });
     if (d.mk) a.b = d.mk();
     if (type !== 'dummy' && !app.seen[type]) { app.seen[type] = 1; safeSet('paleo_seen', JSON.stringify(app.seen)); }
     if (type === 'raptor') a.cols = RAPTOR_COLS[Math.random() * 2 | 0];
+    if (type === 'rraptor') { a.cols = { body: '#7a5a3a', belly: '#c8a878', stripe: '#3a2a1a' }; a.rider = ENEMIES.grunt.mk(); }
     if (type === 'whitefang') a.cols = { body: '#e8e6dc', belly: '#ffffff', stripe: '#b8b8c4' };
     if (type === 'trike') { a.cols = TRIKE_COLS[Math.random() * 2 | 0]; a.rad = 16; }
     if (type === 'para') { a.cols = PARA_COLS[Math.random() * 2 | 0]; a.rad = 12; }
@@ -892,6 +914,7 @@
     else if (t.kind === 'rex') { if (Math.random() < 0.3) sfx('roar'); }
     else if (Math.random() < 0.6) sfx('eHurt');
     if (t.grabbing) { release(t.grabbing); t.grabbing = null; }
+    if (t.carry) dropCarry(t);
     if (t.grabbedBy) { t.grabbedBy.grabbing = null; t.grabbedBy = null; }
     if (t.mount && !(t.mount.vehicle && !knock)) { dismount(t, false); knock = true; }
     if (t.hp <= 0 && TAMEABLE.includes(t.kind)) t.tame = true;
@@ -910,6 +933,8 @@
         G.popups.push({ x: t.x, y: t.y - 60 - t.z, txt: 'ŻONGLERKA ×' + t.juggle, t: 0, col: '#ffb040' });
       }
       if (src && src.kind === 'player') t.lastPlayer = src;
+      if (ST.deck && t.team !== 'player' && !isBoss(t) && src) t.fvy = (t.y < (ST.deck.y0 + ST.deck.y1) / 2 ? -1 : 1) * (knock ? 0.85 : 0.5);
+      if (t.rider) ejectRider(t, src);
     } else {
       setState(t, 'hurt'); t.vx = dirX * 0.9; t.hurtCount++;
     }
@@ -981,7 +1006,10 @@
     ['trueend', 'PRAWDZIWE ZAKOŃCZENIE', 'POKONAJ BURSZTYNOWEGO KOLOSA'],
     ['beachclean', 'SPRZĄTACZ PLAŻY', 'ROZBIJ WSZYSTKIE BECZKI I SKRZYNIE NA OPUSZCZONEJ PLAŻY'],
     ['ratcatcher', 'SZCZUROŁAP', 'ZŁAP 10 SZCZURÓW W KANAŁACH OTCHŁANI'],
-    ['abovewave', 'PONAD FALĄ', 'PRZECZEKAJ 3 FALE ŚCIEKÓW BEZ ZALANIA']
+    ['abovewave', 'PONAD FALĄ', 'PRZECZEKAJ 3 FALE ŚCIEKÓW BEZ ZALANIA'],
+    ['ringout', 'SPŁUKANY!', 'WRZUĆ WROGA W LAWĘ, ŚCIEKI, MORZE ALBO ZRZUĆ GO Z POCIĄGU'],
+    ['bowling', 'KRĘGLE', 'PRZEWRÓĆ RZUCONĄ BECZKĄ TRZECH WROGÓW NARAZ'],
+    ['scrapper', 'ZŁOMIARZ', 'ZEZŁOMUJ KOPARKĘ BRYGADZISTY']
   ];
   app.ach = loadJSON('paleo_ach') || {};
   app.unlocks = loadJSON('paleo_unlocks') || {};
@@ -1019,7 +1047,9 @@
     brute: 'GŁAZ: SZARŻUJE BRZUCHEM — ZEJDŹ Z JEGO LINII', bomber: 'MIOTACZ: UCIEKAJ OD ŻARZĄCEGO SIĘ LONTU',
     gunner: 'STRZELEC: CZERWONY LASER = STRZAŁ, PRZESKOCZ KULĘ', shield: 'TARCZOWNIK: ZAJDŹ GO OD TYŁU, CHWYĆ LUB KOPNIJ Z WYSKOKU',
     sniper: 'SNAJPER: UCIEKAJ Z CELOWNIKA, ZDEJMIJ GO Z WYSKOKU', netter: 'SIECIARZ: W SIECI WCISKAJ SZYBKO PRZYCISKI',
-    raptor: 'RAPTOR: POKONANY POZWOLI SIĘ DOSIĄŚĆ (ATAK)', pachy: 'PACHY: SZARŻUJE GŁOWĄ — USUŃ SIĘ Z DROGI',
+    raptor: 'RAPTOR: POKONANY POZWOLI SIĘ DOSIĄŚĆ (ATAK)',
+    rraptor: 'JEŹDZIEC: PRZEWRÓĆ GO, A RAPTOR ZOSTANIE TWÓJ', flamer: 'PODPALACZ: NIE STÓJ W OGNIU — ATAKUJ Z BOKU',
+    glider: 'LOTNIARZ: UCIEKAJ SPOD CIENIA SIECI, STRĄĆ GO Z WYSKOKU', pachy: 'PACHY: SZARŻUJE GŁOWĄ — USUŃ SIĘ Z DROGI',
     ptera: 'PTERANODON: PATRZ NA CIEŃ KAMIENIA, TRAF GO Z WYSKOKU', trike: 'TRICERATOPS: TWARDY — UŻYJ BOMBY ALBO SPECJAŁU',
     para: 'PARAZAUROLOF: JEGO RYK OGŁUSZA — PODSKOCZ!', whitefang: 'BIAŁY KIEŁ: BARDZO SZYBKI — UŻYJ FURII',
     boss: 'BOSS: PAROWANIE (ATAK TUŻ PRZED CIOSEM) GO OGŁUSZA', zmija: 'ŻMIJA: BICZ MA DŁUGI ZASIĘG — WALCZ Z BLISKA',
@@ -1264,6 +1294,19 @@
   function updateShots() {
     for (let i = G.shots.length - 1; i >= 0; i--) {
       const s = G.shots[i]; s.t++;
+      if (s.type === 'prop') {
+        if (updateFlyingProp(s)) { breakCarried(s, s.x, s.y, s.owner); G.shots.splice(i, 1); }
+        continue;
+      }
+      if (s.type === 'netdrop') {
+        s.vz -= GRAV * 0.4; s.z += s.vz;
+        if (s.z <= 0) {
+          const t = G.players.find(q => hittable(q) && q.z < 12 && q.state !== 'netted' && Math.abs(q.x - s.x) < 18 && Math.abs(q.y - s.y) < 10);
+          if (t) netPlayer(t); else dust(s.x, s.y);
+          G.shots.splice(i, 1);
+        }
+        continue;
+      }
       // bomba gracza trafiająca w locie wroga spada mu pod nogi
       if (s.owner && !s.landed && s.vx && (s.type === 'dynamite' || s.type === 'grenade')) {
         for (const t of G.actors) {
@@ -1341,6 +1384,7 @@
 
   function netPlayer(t) {
     if (t.mount) dismount(t, false);
+    if (t.carry) dropCarry(t);
     if (t.grabbing) { release(t.grabbing); t.grabbing = null; }
     setState(t, 'netted'); t.netT = 130; t.vx = 0; sfx('grab');
     G.popups.push({ x: t.x, y: t.y - 60, txt: 'SIEĆ! WCISKAJ PRZYCISKI', t: 0, col: '#ffe080' });
@@ -1361,6 +1405,8 @@
     if (p.state !== 'block') p.guard = Math.min(100, (p.guard === undefined ? 100 : p.guard) + 0.45);
     if (p.blockFlash > 0) p.blockFlash--;
     if (p.mount && ['idle', 'walk', 'rideAtk', 'rideJump'].includes(p.state)) { updateRider(p, held, pressed, dx, dy); return; }
+    if (p.carry && !['lift', 'carry', 'heave'].includes(p.state)) dropCarry(p);
+    if (updateCarry(p, held, pressed, dx, dy)) return;
     switch (p.state) {
       case 'enter':
         p.vx = d.speed; p.x += p.vx; p.animT++;
@@ -1401,6 +1447,8 @@
           if (p.running) { setState(p, 'dash'); p.vx = p.face * 3.4; sfx('whoosh'); p.running = false; return; }
           const it = nearItem(p);
           if (it) { setState(p, 'pickup'); p.pickItem = it; return; }
+          const pr = held.down && !p.weapon && nearProp(p);
+          if (pr) { liftProp(p, pr); return; }
           if (MELEE[p.weapon]) { p.pipeCount = 0; startMove(p, MELEE[p.weapon].move); return; }
           if (!p.weapon && held.up && !dx) { startMove(p, MOVES.launcher); p.comboIdx = 0; return; }
           if (p.weapon === 'rifle') { setState(p, 'shoot'); return; }
@@ -1932,6 +1980,8 @@
         return true;
       case 'fall': case 'thrown': {
         a.x += a.vx; a.vz -= GRAV; a.z += a.vz;
+        if (ST.deck && a.state === 'thrown' && !a.fvy && a.team !== 'player') a.fvy = (a.y < (ST.deck.y0 + ST.deck.y1) / 2 ? -1 : 1) * 0.9;
+        if (a.fvy) a.y += a.fvy;   // pociąg: odrzut w stronę krawędzi platformy
         // odbicie od krawędzi ekranu: wróg wraca w powietrzu — można go dobić
         if (a.team !== 'player' && !a.wallBounced && Math.abs(a.vx) > 1.2 && a.kind !== 'rex' && G) {
           const L = G.camX + 8, Rr = G.camX + W - 8;
@@ -1952,7 +2002,8 @@
           }
         }
         if (a.z <= 0) {
-          a.z = 0;
+          a.z = 0; a.fvy = 0;
+          if (a.team !== 'player' && !isBoss(a) && a.kind !== 'rex' && !a.bounced && ringOut(a)) return true;
           if (a.state === 'thrown') {
             a.hp -= 12; a.lastThrow = true; sfx('heavy'); G.shake = 5; dust(a.x, a.y);
             if (a.hp <= 0 && !a.dying) onDeath(a, a.thrower);
@@ -1963,6 +2014,10 @@
         }
         return true;
       }
+      case 'hopin':   // wskok na platformę pociągu
+        a.y += a.fvy || 0; a.vz -= GRAV; a.z += a.vz; a.animT++;
+        if (a.z <= 0) { a.z = 0; a.fvy = 0; setState(a, 'idle'); dust(a.x, a.y); sfx('land'); }
+        return true;
       case 'down':
         if (a.t > (a.kind === 'player' ? 46 : 40)) {
           if (a.hp <= 0 && a.tame) setState(a, 'tamed');
@@ -2095,6 +2150,11 @@
           return;
         }
         // dystansowcy
+        if (ai === 'flamer') {
+          if (e.cool <= 0 && ddy < 8 && dist > 20 && dist < 72) { setState(e, 'flame'); e.cool = rnd(130, 180) / ST.diff; sfx('charge'); return; }
+          stepToward(e, p.x + side * 52, p.y, e.def.speed);
+          return;
+        }
         if (ai === 'bomber') {
           if (dist < 30 && ddy < 6 && e.cool <= 0) { startMove(e, MOVES.slash); e.cool = rnd(50, 80); return; }
           if (e.cool <= 0 && dist > 50 && dist < 200) { setState(e, 'lob'); e.cool = rnd(110, 170) / ST.diff; return; }
@@ -2132,6 +2192,17 @@
       case 'snipeAim':
         if (e.t === 2 && p) { shoot({ type: 'snipe', x: p.x, y: p.y, z: 0, fuse: 52, from: e, life: 999 }); sfx('select'); }
         if (e.t > 58) setState(e, 'idle');
+        return;
+      case 'flame':
+        // strumień ognia: rośnie do 62 px, co 12 klatek zostawia płonącą plamę na podłodze
+        if (e.t > 16 && e.t < 70) {
+          const reach = 22 + Math.min(40, (e.t - 16) * 2);
+          if (e.t % 4 === 0) sfx('whoosh');
+          if (e.t % 12 === 0) addFire(e.x + e.face * reach, e.y);
+          if (e.t % 15 === 0) e.hitSet = null;
+          resolveHits(e, { abs: true, reach, dmg: 6, knock: false, depth: 9, snd: 'zap' });
+        }
+        if (e.t > 84) setState(e, 'idle');
         return;
       case 'throwNet':
         if (e.t === 10) { shoot({ type: 'net', x: e.x + e.face * 12, y: e.y, z: 24 * scaleOf(e), vx: e.face * 3.6, dmg: 0, knock: false, life: 120 }); sfx('whoosh'); }
@@ -2426,6 +2497,284 @@
     }
   }
 
+  // =============================================================== NOWI WROGOWIE I INTERAKCJE
+  // Jeździec na raptorze, podpalacz (płonąca podłoga), lotniarz (zrzuca sieci), koparka Brygadzisty,
+  // wrzucanie wrogów w zagrożenia oraz podnoszenie i rzucanie beczkami.
+
+  // ---- jeździec: po przewróceniu spada z siodła, a raptor od razu nadaje się do dosiadania
+  function ejectRider(r, src) {
+    if (!r.rider) return;
+    const g = makeEnemy('grunt', r.x - r.face * 8, r.y);
+    g.b = r.rider; r.rider = null;
+    setState(g, 'fall'); g.z = 18; g.vz = 3; g.vx = -r.face * 1.6; g.bounced = false; g.face = r.face;
+    G.actors.push(g);
+    r.team = 'beast'; r.tame = true; r.hp = 0;
+    onDeath(r, src);
+    G.popups.push({ x: r.x, y: r.y - 50, txt: 'ZRZUCONY Z SIODŁA!', t: 0, col: '#ffe080' });
+    sfx('screech');
+  }
+
+  // ---- ogień podpalacza: płonące plamy ranią każdego (graczy i wrogów), kto w nie wejdzie
+  function addFire(x, y) {
+    const F = G.fires = G.fires || [];
+    if (F.some(f => Math.abs(f.x - x) < 10 && Math.abs(f.y - y) < 6)) return;
+    F.push({ x, y: clamp(y, FLOOR_TOP + 8, FLOOR_BOTTOM), t: 0, life: 260 });
+  }
+  function updateFires() {
+    const F = G.fires; if (!F) return;
+    for (let i = F.length - 1; i >= 0; i--) {
+      const f = F[i];
+      if (++f.t > f.life) { F.splice(i, 1); continue; }
+      for (const a of G.actors) {
+        if (!a.alive || a.z > 4 || isBoss(a) || !hittable(a) || (a.fireT || 0) > G.frame) continue;
+        if (Math.abs(a.x - f.x) < 12 && Math.abs(a.y - f.y) < 7) {
+          a.fireT = G.frame + 45; hurt(a, 6, Math.random() < 0.5 ? 1 : -1, false, null, { unblock: true });
+          if (a.kind === 'player') G.popups.push({ x: a.x, y: a.y - 46, txt: 'GORĄCO!', t: 0, col: '#ff9040' });
+        }
+      }
+    }
+  }
+  function drawFires() {
+    for (const f of G.fires || []) {
+      const x = f.x - G.camX, k = 1 - f.t / f.life, s = Math.min(1, f.t / 12) * (0.6 + 0.4 * k);
+      if (x < -20 || x > W + 20) continue;
+      ctx.fillStyle = 'rgba(40,10,0,0.35)'; ctx.beginPath(); ctx.ellipse(x, f.y, 12, 3, 0, 0, Math.PI * 2); ctx.fill();
+      for (let j = 0; j < 4; j++) {
+        const p = (G.frame * 0.06 + j / 4 + f.x * 0.01) % 1, fx = x - 8 + j * 5 + Math.sin(G.frame * 0.3 + j) * 1.5;
+        ctx.fillStyle = p < 0.4 ? 'rgba(255,230,120,0.9)' : p < 0.7 ? 'rgba(255,140,40,0.8)' : 'rgba(200,50,20,0.6)';
+        ctx.beginPath(); ctx.arc(fx, f.y - 2 - p * 14 * s, (4 * (1 - p) + 1) * s, 0, Math.PI * 2); ctx.fill();
+      }
+    }
+  }
+
+  // ---- lotniarz: przelatuje wysoko i zrzuca sieć nad graczem; po trzech przelotach ląduje i walczy wręcz
+  function updateGlider(g) {
+    g.t++; g.animT++;
+    if (g.state === 'hurt' && g.z > 4) { setState(g, 'fall'); g.vz = 1; g.vx = 0; g.bounced = false; }   // trafiony w powietrzu spada
+    if (g.state === 'fall' || g.state === 'thrown') g.fell = true;
+    if (updateCommon(g)) return;
+    if (g.fell || g.pass >= 3) { g.kind = 'human'; g.z = 0; setState(g, 'idle'); return; }   // dalej zwykła AI ludzi
+    if (g.state === 'enter') { setState(g, 'glide'); g.pass = 0; g.z = 64; g.face = g.x < G.camX + W / 2 ? 1 : -1; }
+    const alt = [64, 46, 30][Math.min(g.pass, 2)];
+    g.x += g.face * 1.9; g.z += (alt - g.z) * 0.05;
+    const tp = nearestPlayer(g);
+    if (tp) {
+      g.y += clamp(tp.y - g.y, -0.5, 0.5);
+      if (!g.dropped && Math.abs(tp.x - g.x) < 10 && tp.state !== 'netted') {
+        g.dropped = true; sfx('whoosh');
+        shoot({ type: 'netdrop', x: g.x, y: tp.y, z: g.z, life: 200 });
+      }
+    }
+    if ((g.face > 0 && g.x > G.camX + W + 30) || (g.face < 0 && g.x < G.camX - 30)) {
+      g.pass++; g.face = -g.face; g.dropped = false;
+      if (g.pass >= 3) { g.x = clamp(g.x, G.camX + 20, G.camX + W - 20); setState(g, 'fall'); g.vz = 0.5; g.vx = g.face; g.bounced = true; g.hop = true; }
+    }
+  }
+  function drawGlider(a, sx, sy, flash) {
+    SP.drawFigure(ctx, a.b, a.state === 'glide' ? P.hammerUp[0] : poseOf(a), sx, sy, a.face, { flash, hurtFace: a.state !== 'glide' });
+    if (a.state !== 'glide') return;
+    const top = sy - 62 * scaleOf(a);
+    ctx.fillStyle = '#140c10';
+    ctx.beginPath(); ctx.moveTo(sx - 34, top + 6); ctx.lineTo(sx + a.face * 30, top - 6); ctx.lineTo(sx + 34, top + 6); ctx.closePath(); ctx.fill();
+    ctx.fillStyle = flash ? '#fff' : '#c8402a';
+    ctx.beginPath(); ctx.moveTo(sx - 31, top + 4); ctx.lineTo(sx + a.face * 28, top - 4); ctx.lineTo(sx + 31, top + 4); ctx.closePath(); ctx.fill();
+    ctx.fillStyle = '#f0d040'; ctx.beginPath(); ctx.moveTo(sx - 12, top + 4); ctx.lineTo(sx + a.face * 10, top - 1); ctx.lineTo(sx + 12, top + 4); ctx.closePath(); ctx.fill();
+    ctx.strokeStyle = '#5a5050'; ctx.lineWidth = 1; ctx.beginPath(); ctx.moveTo(sx - 20, top + 6); ctx.lineTo(sx, sy - 42); ctx.lineTo(sx + 20, top + 6); ctx.stroke();
+  }
+
+  // ---- koparka Brygadzisty: zamach łyżką z góry (pole rażenia z przodu) i szarża z łyżką przy ziemi
+  function updateDigger(d) {
+    d.t++; d.cool--; d.animT++; d.z = 0;
+    if (d.hp <= 0) {
+      if (!d.wrecked) {
+        d.wrecked = true; setState(d, 'wreck'); G.shake = 20; sfx('explode');
+        for (let i = 0; i < 3; i++) G.fx.push({ type: 'boom', x: d.x + rnd(-30, 30), y: d.y, z: rnd(10, 40), t: 0, life: 24 + i * 8 });
+        // Brygadzista wylatuje z kabiny (już pokonany — tylko efekt)
+        const f = makeEnemy('brute', d.x, d.y + 4); f.b = d.b; f.hp = 0; f.dying = true;
+        setState(f, 'fall'); f.z = 30; f.vz = 4; f.vx = -d.face * 2; f.bounced = false; G.actors.push(f);
+        G.popups.push({ x: d.x, y: d.y - 90, txt: 'KOPARKA ZEZŁOMOWANA!', t: 0, col: '#ffe040' });
+        unlock('scrapper');
+      }
+      d.state = 'wreck';
+      return;
+    }
+    const p = nearestPlayer(d);
+    switch (d.state) {
+      case 'enter':
+        d.face = -1; d.x -= 1.2; d.animT++;
+        if (d.x < G.camX + W - 80) { setState(d, 'intro'); G.introBoss = d; sfx('charge'); G.shake = 8; }
+        return;
+      case 'intro': if (d.t > 80) { setState(d, 'idle'); G.introBoss = null; d.cool = 40; } return;
+      case 'idle': case 'walk': {
+        if (!p) return;
+        const dx = p.x - d.x, dist = Math.abs(dx), ddy = Math.abs(p.y - d.y);
+        d.face = dx >= 0 ? 1 : -1;
+        if (d.cool <= 0) {
+          if (dist < 120 && dist > 40 && ddy < 22) { setState(d, 'slam'); sfx('charge'); return; }
+          if (ddy < 14) { setState(d, 'sweep'); sfx('charge'); return; }
+          d.cool = 20;
+        }
+        stepToward(d, clamp(p.x - d.face * 85, G.camX + 50, G.camX + W - 50), p.y, d.def.speed);
+        return;
+      }
+      case 'slam':
+        if (d.t === 40) {
+          const hx = d.x + d.face * 72;
+          G.shake = 14; sfx('slam'); dust(hx - 10, d.y); dust(hx + 10, d.y);
+          G.fx.push({ type: 'shock', x: hx, y: d.y, z: 0, t: 0, life: 22, r: 40 });
+          for (const q of G.players) if (hittable(q) && q.z < 20 && Math.abs(q.x - hx) < 34 && Math.abs(q.y - d.y) < 16) hurt(q, Math.round(20 * d.dmgMul), d.face, true, d, { unblock: true });
+          for (const pr of G.props) if (pr.hp > 0 && Math.abs(pr.x - hx) < 34 && Math.abs(pr.y - d.y) < 16) hitProp(pr, d.face, d);
+        }
+        if (d.t > 72) { setState(d, 'idle'); d.cool = rnd(60, 90); }
+        return;
+      case 'sweep':
+        if (d.t < 24) { d.x += d.t % 4 < 2 ? 0.8 : -0.8; return; }
+        d.x += d.face * 3.2; d.animT++;
+        if (d.t % 5 === 0) dust(d.x - d.face * 30, d.y);
+        resolveHits(d, { abs: true, reach: 58, dmg: Math.round(14 * d.dmgMul), knock: true, snd: 'heavy', shake: 6, depth: 14 });
+        if (d.t > 80 || d.x < G.camX + 50 || d.x > G.camX + W - 50) { d.x = clamp(d.x, G.camX + 50, G.camX + W - 50); setState(d, 'idle'); d.cool = rnd(70, 100); }
+        return;
+      default: setState(d, 'idle');
+    }
+  }
+  function drawDigger(a, sx, sy, flash) {
+    const f = a.face, wreck = a.state === 'wreck';
+    const body = flash ? '#fff' : wreck ? '#4a4440' : '#e0a020', dark = wreck ? '#2a2420' : '#8a5a10';
+    const shake = (a.state === 'sweep' || a.state === 'walk') && a.animT % 4 < 2 ? 1 : 0;
+    sy -= shake;
+    // gąsienice
+    ctx.fillStyle = '#140c10'; ctx.fillRect(sx - 40, sy - 16, 80, 16);
+    ctx.fillStyle = '#3a3a3a'; ctx.fillRect(sx - 38, sy - 14, 76, 12);
+    for (let i = 0; i < 6; i++) { ctx.fillStyle = '#5a5a5a'; ctx.beginPath(); ctx.arc(sx - 30 + i * 12, sy - 8, 4, 0, Math.PI * 2); ctx.fill(); }
+    ctx.fillStyle = '#222'; for (let i = 0; i < 10; i++) ctx.fillRect(sx - 38 + ((i * 8 + a.animT) % 76), sy - 15, 2, 2);
+    // nadwozie i kabina z Brygadzistą
+    ctx.fillStyle = '#140c10'; ctx.fillRect(sx - 34, sy - 42, 60, 28);
+    ctx.fillStyle = body; ctx.fillRect(sx - 33, sy - 41, 58, 26);
+    ctx.fillStyle = dark; ctx.fillRect(sx - 33, sy - 20, 58, 5);
+    const cx = sx - f * 6;
+    ctx.fillStyle = '#140c10'; ctx.fillRect(cx - 14, sy - 70, 28, 30);
+    ctx.fillStyle = body; ctx.fillRect(cx - 13, sy - 69, 26, 28);
+    ctx.fillStyle = wreck ? '#222' : '#9fd0e0'; ctx.fillRect(cx - 10, sy - 66, 20, 13);
+    if (!wreck) { ctx.fillStyle = '#c89070'; ctx.beginPath(); ctx.arc(cx, sy - 58, 4, 0, Math.PI * 2); ctx.fill(); ctx.fillStyle = '#f0d040'; ctx.fillRect(cx - 5, sy - 64, 10, 3); }
+    ctx.fillStyle = '#140c10'; ctx.fillRect(sx - f * 30 - 6, sy - 48, 12, 8); ctx.fillStyle = '#5a5a5a'; ctx.fillRect(sx - f * 30 - 5, sy - 47, 10, 6);   // przeciwwaga
+    // ramię i łyżka (kąty zależne od stanu)
+    let a1 = -0.75, a2 = 1.25;
+    if (a.state === 'slam') { const k = a.t < 36 ? Math.min(1, a.t / 30) : Math.max(0, 1 - (a.t - 36) / 4); a1 = -0.75 - k * 0.7; a2 = 1.25 - k * 0.9; if (a.t >= 38 && a.t < 72) { a1 = -0.15; a2 = 1.6; } }
+    if (a.state === 'sweep') { a1 = -0.05; a2 = 1.55; }
+    if (wreck) { a1 = 0.3; a2 = 1.2; }
+    const bx = sx + f * 18, by = sy - 40;
+    const ex = bx + f * Math.cos(a1) * 44, ey = by + Math.sin(a1) * 44;
+    const tx = ex + f * Math.cos(a1 + a2) * 34, ty = ey + Math.sin(a1 + a2) * 34;
+    ctx.lineCap = 'round';
+    ctx.strokeStyle = '#140c10'; ctx.lineWidth = 9; ctx.beginPath(); ctx.moveTo(bx, by); ctx.lineTo(ex, ey); ctx.lineTo(tx, ty); ctx.stroke();
+    ctx.strokeStyle = body; ctx.lineWidth = 6; ctx.stroke();
+    ctx.lineCap = 'butt';
+    ctx.fillStyle = '#140c10'; ctx.beginPath(); ctx.moveTo(tx - f * 4, ty - 8); ctx.lineTo(tx + f * 16, ty - 4); ctx.lineTo(tx + f * 14, ty + 10); ctx.lineTo(tx - f * 4, ty + 8); ctx.closePath(); ctx.fill();
+    ctx.fillStyle = wreck ? '#3a3a3a' : '#7a7a80'; ctx.beginPath(); ctx.moveTo(tx - f * 2, ty - 6); ctx.lineTo(tx + f * 14, ty - 3); ctx.lineTo(tx + f * 12, ty + 8); ctx.lineTo(tx - f * 2, ty + 6); ctx.closePath(); ctx.fill();
+    ctx.fillStyle = '#d0d0d0'; for (let i = 0; i < 3; i++) ctx.fillRect(tx + f * (13 + 0) - 1, ty - 2 + i * 4, 3 * f, 2);
+    if (wreck && G.frame % 6 < 3) { ctx.fillStyle = 'rgba(60,50,50,0.6)'; ctx.beginPath(); ctx.arc(cx + Math.sin(G.frame * 0.1) * 6, sy - 80 - (G.frame % 30), 8, 0, Math.PI * 2); ctx.fill(); }
+  }
+
+  // ---- wrzucanie wrogów w zagrożenia: lawa, ścieki, morze przy przypływie, zrzucenie z pociągu
+  function ringOut(a) {
+    let label = null, kind = null;
+    for (const h of ST.HAZARDS || []) if (a.x > h.x0 && a.x < h.x1 && a.y > h.y0 && a.y < h.y1) { label = h.label ? 'SPŁUKANY!' : 'W LAWIE!'; kind = h.label ? 'sludge' : 'lava'; }
+    if (!label && G.tideY > FLOOR_TOP + 10 && a.y < G.tideY - 2) { label = 'SPŁUKANY!'; kind = 'sea'; }
+    if (!label && ST.deck && (a.y < ST.deck.y0 - 2 || a.y > ST.deck.y1 + 2)) { label = 'ZRZUCONY!'; kind = 'train'; }
+    if (!label) return false;
+    const by = a.lastPlayer;
+    a.hp = 0; onDeath(a, by);
+    if (by) addScore(by, 1000);
+    G.popups.push({ x: a.x, y: a.y - 40, txt: label + ' +1000', t: 0, col: kind === 'lava' ? '#ff9040' : kind === 'train' ? '#ffe080' : '#a0ff60' });
+    if (kind === 'lava') { sfx('zap'); for (let i = 0; i < 8; i++) G.fx.push({ type: 'debris', x: a.x, y: a.y, z: 4, vx: rnd(-1.5, 1.5), vz: rnd(1, 4), t: 0, life: 30, col: i % 2 ? '#ffb030' : '#ff5a14' }); }
+    else if (kind === 'train') { sfx('whoosh'); G.fx.push({ type: 'dust', x: a.x, y: a.y, z: 0, t: 0, life: 22 }); }
+    else { sfx('land'); for (let i = 0; i < 8; i++) G.fx.push({ type: 'debris', x: a.x, y: a.y, z: 2, vx: rnd(-1.2, 1.2), vz: rnd(1.5, 3.5), t: 0, life: 30, col: kind === 'sea' ? '#c8e0f0' : '#8ad040' }); }
+    a.remove = true;
+    unlock('ringout');
+    return true;
+  }
+
+  // ---- beczki i skrzynie: ▼ + ATAK podnosi, ATAK/SKOK rzuca
+  const CARRYABLE = ['barrel', 'crate', 'fuel'];
+  function nearProp(p) {
+    return G.props.find(pr => pr.hp > 0 && CARRYABLE.includes(pr.kind) && Math.abs(pr.x - p.x) < 26 && Math.abs(pr.y - p.y) < 12);
+  }
+  function liftProp(p, pr) {
+    G.props.splice(G.props.indexOf(pr), 1);
+    p.carry = { kind: pr.kind, drop: pr.drop, secret: pr.secret };
+    setState(p, 'lift'); p.vx = 0; sfx('grab');
+  }
+  // rozbicie niesionej albo rzuconej beczki (z łupem; paliwo wybucha)
+  function breakCarried(c, x, y, owner) {
+    sfx('crash');
+    for (let i = 0; i < 10; i++) G.fx.push({ type: 'debris', x: x + rnd(-8, 8), y, z: rnd(4, 20), vx: rnd(-2, 2), vz: rnd(1, 4), t: 0, life: 50, col: PROP_COL[c.kind] || '#8a5a2b' });
+    if (c.kind === 'fuel') explode(x, y, owner, { r: 46, dmg: 24 });
+    if (c.drop) G.items.push({ type: c.drop, x, y, z: 12, vz: 2.5, t: 0, ammo: c.drop === 'bottle' ? 2 : c.drop === 'rifle' ? 8 : 3, dur: 16 });
+  }
+  function dropCarry(p) {
+    if (!p.carry) return;
+    breakCarried(p.carry, p.x + p.face * 10, p.y, p);
+    p.carry = null;
+  }
+  function updateFlyingProp(s) {
+    s.x += s.vx; s.vz -= GRAV * 0.6; s.z += s.vz;
+    for (const t of G.actors) {
+      if (s.hit.has(t) || !hostile(s.owner, t) || !hittable(t)) continue;
+      if (Math.abs(t.x - s.x) < 14 + t.rad * 0.5 && Math.abs(t.y - s.y) < 12 + (t.depthR || 0) && t.z < s.z + 24) {
+        s.hit.add(t); hurt(t, 18, Math.sign(s.vx) || 1, true, s.owner, { unblock: true, throw: true });
+        if (s.hit.size >= 3) unlock('bowling');
+        spark(t.x, t.y, hitY(t), true); sfx('heavy'); G.hitstop = 4;
+        if (s.kind === 'fuel') s.boom = true;
+      }
+    }
+    return s.boom || s.z <= 0 || s.x < G.camX - 40 || s.x > G.camX + W + 40;
+  }
+  function putDown(p) {
+    const c = p.carry; p.carry = null;
+    G.props.push({ x: p.x + p.face * 16, y: p.y, kind: c.kind, drop: c.drop, secret: c.secret, hp: PROP_HP[c.kind] || 2, shake: 6 });
+    sfx('land'); setState(p, 'idle');
+  }
+  function throwCarry(p) {
+    const c = p.carry; if (!c) return;
+    p.carry = null; sfx('throw');
+    shoot({ type: 'prop', kind: c.kind, drop: c.drop, owner: p, x: p.x + p.face * 10, y: p.y, z: 44 * scaleOf(p), vx: p.face * 5.2, vz: 1.4, hit: new Set(), life: 999 });
+  }
+  function updateCarry(p, held, pressed, dx, dy) {
+    switch (p.state) {
+      case 'lift': p.vx = 0; if (p.t > 12) setState(p, 'carry'); return true;
+      case 'carry': {
+        if (!p.carry) { setState(p, 'idle'); return true; }
+        if (pressed.attack || pressed.jump || pressed.special) { setState(p, 'heave'); return true; }
+        if (pressed.block) { putDown(p); return true; }
+        const sp = p.def.speed * 0.7;
+        p.vx = dx * sp; p.vy = dy * sp * 0.65; if (dx) p.face = dx;
+        p.x += p.vx; p.y += p.vy; if (dx || dy) p.animT++;
+        return true;
+      }
+      case 'heave':
+        if (p.t === 6) throwCarry(p);
+        if (p.t > 18) setState(p, 'idle');
+        return true;
+    }
+    return false;
+  }
+  // rysowanie: płomień miotacza i niesiona beczka nad głową
+  function drawFlame(a, sx, sy) {
+    if (a.state !== 'flame' || a.t < 16 || a.t > 70) return;
+    const reach = 22 + Math.min(40, (a.t - 16) * 2), nx = sx + a.face * 16, ny = sy - 24;
+    for (let i = 0; i < 14; i++) {
+      const k = ((G.frame * 0.13 + i / 14) % 1), d = k * reach;
+      ctx.fillStyle = k < 0.3 ? 'rgba(255,240,160,0.9)' : k < 0.65 ? 'rgba(255,150,40,0.85)' : 'rgba(200,60,20,0.55)';
+      ctx.beginPath(); ctx.arc(nx + a.face * d, ny + Math.sin(i * 2.3 + G.frame * 0.4) * d * 0.12 + d * 0.18, 2 + k * 5, 0, Math.PI * 2); ctx.fill();
+    }
+  }
+  function drawCarried(a, sx, sy) {
+    if (!a.carry) return;
+    const lift = a.state === 'lift' ? Math.min(1, a.t / 10) : a.state === 'heave' ? (a.t < 6 ? 1 : 0) : a.state === 'carry' ? 1 : 0;
+    if (!lift) return;
+    const s = scaleOf(a);
+    SP.drawBarrel(ctx, sx + a.face * 2, sy - (20 + 32 * lift) * s, 2, a.carry.kind);
+  }
   // =============================================================== AI BOSSÓW (LUDZIE)
   function updateBoss(b) {
     b.t++; b.cool--;
@@ -2857,10 +3206,41 @@
     6: [['h1', 'DROGA DO TWIERDZY PROWADZI POD MIASTEM — STARYMI KANAŁAMI.'], ['h2', 'SŁYSZYSZ? COŚ WIELKIEGO CHODZI W ŚCIEKACH.'], ['deino', 'GRRRHHH... KLAP! KLAP!']],
     7: [['h1', 'BURSZTYNOWA TWIERDZA. TU WSZYSTKO SIĘ ZACZĘŁO.'], ['baron', 'PRZYSZLIŚCIE PO SWOJE ZWIERZAKI? ZOSTANIECIE W BURSZTYNIE NA ZAWSZE.'], ['h2', 'KONIEC Z TWOIM IMPERIUM, BARONIE!']],
     truefinal: [['h1', 'ZACZEKAJ... SŁYSZYSZ? COŚ WYCHODZI Z MORZA.'], ['h2', 'BURSZTYNOWY KOLOS — OSTATNIA BROŃ BARONA!'], ['h1', 'UWOLNIONE DINOZAURY SĄ Z NAMI. KOŃCZYMY TO RAZ NA ZAWSZE!']],
+    train: [['h1', 'POCIĄG Z ŁADUNKIEM DLA BARONA JEDZIE PROSTO DO TWIERDZY.'], ['digger', 'NA MOIM POCIĄGU NIE MA GAPOWICZÓW. MOJA KOPARKA WAS ZE-SKROBIE!'], ['h2', 'TO WSKAKUJEMY. TRZYMAJ SIĘ BURTY!']],
     escape: [['baron', 'JEŚLI JA UPADAM... TO RAZEM Z TWIERDZĄ!'], ['h1', 'WULKAN SIĘ BUDZI! LAWA ZALEWA KORYTARZE!'], ['h2', 'BIEGIEM DO WYJŚCIA! NIE OGLĄDAJ SIĘ!']]
   };
+  // ---- zakończenia postaci: krótki komiks o tym, co każdy bohater robi po wszystkim (tło = jego „miejsce”)
+  const ENDINGS = {
+    kruk: { stage: 0, lines: [['kruk', 'ODBUDOWAŁEM STARĄ STACJĘ PRZY AUTOSTRADZIE. TERAZ TO SCHRONISKO DLA DINOZAURÓW.'],
+      ['kruk', 'MAŁE RAPTORY WCIĄŻ GRYZĄ MI BUTY. CHYBA MNIE LUBIĄ.'], ['rex', 'MRRR... (STARY KIEŁ WPADA CZASEM NA OBIAD)']] },
+    nina: { stage: 2, lines: [['nina', 'W MIEŚCIE CIENI OTWORZYŁAM SZKOŁĘ WALKI. LEKCJA PIERWSZA: NIE ZADZIERAJ Z DINOZAURAMI.'],
+      ['nina', 'NOCAMI WCIĄŻ PATROLUJĘ DACHY. PRZEMYTNICY OMIJAJĄ NASZĄ DZIELNICĘ.'], ['nina', 'A KLAMRA? ZMYWA NACZYNIA W MOJEJ KNAJPIE. ODPRACOWUJE.']] },
+    tur: { stage: 3, lines: [['tur', 'ZAMKNĄŁEM OGNISTE SZYBY NA CZTERY SPUSTY. NIKT JUŻ NIE OBUDZI GÓRY.'],
+      ['tur', 'Z KOPARKI BRYGADZISTY ZROBIŁEM PLAC ZABAW DLA MŁODYCH TRICERATOPSÓW.'], ['tur', 'NAJLEPSZA ROBOTA W MOIM ŻYCIU.']] },
+    borys: { stage: 4, lines: [['borys', 'ZA NAGRODĘ KUPIŁEM STARY KUTER. WYŁAWIAM DINOZAURY Z WRAKU KRAKENA.'],
+      ['borys', 'TRZYDZIEŚCI JUŻ WRÓCIŁO DO DOMU. SZPON PEWNIE ZGRZYTA ZĘBAMI W CELI.'], ['borys', 'MORZE JEST SPOKOJNE. JA TEŻ, PIERWSZY RAZ OD LAT.']] },
+    bursztyn: { stage: 7, lines: [['bursztyn', 'ODDAŁEM TWIERDZĘ DINOZAUROM. BURSZTYNOWE SALE SĄ TERAZ ICH GNIAZDAMI.'],
+      ['bursztyn', 'CODZIENNIE PRZYCHODZĘ PRZEPROSIĆ. NIEKTÓRE JUŻ MNIE NIE GRYZĄ.'], ['bursztyn', 'IMPERIUM? WYSTARCZY MI CIEPŁY KAMIEŃ I SPOKÓJ.']] },
+    padlin: { stage: 5, lines: [['padlin', 'SPRZĄTAM PLAŻĘ, KTÓRĄ SAM ZAŚMIECIŁEM. BECZKA PO BECZCE.'],
+      ['padlin', 'Z ZŁOMU WYRZUCONEGO PRZEZ MORZE BUDUJĘ FALOCHRON DLA GNIAZD.'], ['padlin', 'KOŚCI ZOSTAWIAM W SPOKOJU. NO... PRAWIE WSZYSTKIE.']] },
+    zmijka: { stage: 1, lines: [['zmijka', 'WRÓCIŁAM NA SMOLNE BAGNA. TYM RAZEM JAKO STRAŻNICZKA.'],
+      ['zmijka', 'MÓJ BICZ ODSTRASZA TERAZ KŁUSOWNIKÓW, NIE DINOZAURY.'], ['zmijka', 'SSSPOKÓJ... NIE SĄDZIŁAM, ŻE TAK MI SIĘ SPODOBA.']] }
+  };
+  // strona komiksu dla każdej (różnej) postaci z drużyny, potem done()
+  function startEpilog(team, done) {
+    const keys = [...new Set(team.map(q => q.key))].filter(k => ENDINGS[k]);
+    const next = i => {
+      if (i >= keys.length) { done(); return; }
+      const k = keys[i], key = 'epilog_' + k;
+      STORY[key] = ENDINGS[k].lines;
+      startStory(key, team, () => next(i + 1));
+      if (app.mode === 'story' && app.story.key === key) app.story.stage = STAGES[ENDINGS[k].stage];
+    };
+    next(0);
+  }
   const storyCache = {};
   function storySpeaker(who, team) {
+    if (CHARS[who]) { const q = team.find(t => t.key === who); return { name: CHARS[who].name, b: q ? q.b : CHARS[who].build, hero: true }; }
     if (who === 'h1' || who === 'h2') {
       let q = who === 'h1' ? team[0] : team[1];
       if (!q) { const k = CHAR_KEYS.find(k2 => k2 !== team[0].key); return { name: CHARS[k].name, b: CHARS[k].build, hero: true }; }
@@ -2876,7 +3256,7 @@
     if (!lines || app.gameMode !== 'arcade') { after(); return; }
     team = team || makeTeam();
     app.mode = 'story'; app.t = 0;
-    app.story = { key, lines, i: 0, t: 0, team, after, stage: key === 'escape' ? window.SPECIAL_STAGES.escape : key === 'truefinal' ? trueFinalStage() : STAGES[key] };
+    app.story = { key, lines, i: 0, t: 0, team, after, stage: key === 'escape' ? window.SPECIAL_STAGES.escape : key === 'train' ? window.SPECIAL_STAGES.train : key === 'truefinal' ? trueFinalStage() : STAGES[key] || STAGES[0] };
   }
   function beginStage(idx, team) {
     team = team || makeTeam();
@@ -3007,6 +3387,13 @@
       G.wx = Object.assign({ id: 'dawn' }, WEATHER.dawn);
       app.mode = 'play'; app.t = 0;
     });
+  }
+  // ---- etap specjalny: pociąg do Twierdzy (między Kanałami a Twierdzą)
+  function startTrain(team, nextIdx) {
+    team = team || makeTeam();
+    saveProgress({ type: 'train', next: nextIdx }, team);
+    app.trainNext = nextIdx;
+    startStory('train', team, () => { startStage(6, team, window.SPECIAL_STAGES.train); app.mode = 'play'; app.t = 0; });
   }
   function startEscape(team) {
     saveProgress({ type: 'escape' }, team);
@@ -3357,9 +3744,16 @@
       const s = G.pending[i];
       if (--s.delay > 0) continue;
       G.pending.splice(i, 1);
-      const x = s.side === 'L' ? G.camX - 30 : G.camX + W + 30;
-      const e = makeEnemy(s.type, x, s.y);
+      const hop = s.side === 'T' || s.side === 'B';   // wskakuje z boku toru (pociąg) — z tyłu albo z przodu platformy
+      const x = hop ? G.camX + rnd(70, W - 70) : s.side === 'L' ? G.camX - 30 : G.camX + W + 30;
+      const e = makeEnemy(s.type, x, s.y || 186);
       e.face = s.side === 'L' ? 1 : -1;
+      if (hop) {
+        const dk = ST.deck || { y0: FLOOR_TOP + 10, y1: FLOOR_BOTTOM - 4 };
+        e.y = s.side === 'T' ? FLOOR_TOP + 6 : FLOOR_BOTTOM;
+        const to = s.side === 'T' ? dk.y0 + 8 : dk.y1 - 8;
+        setState(e, 'hopin'); e.z = 10; e.vz = 5; e.fvy = (to - e.y) / 33; e.face = e.x < G.camX + W / 2 ? 1 : -1; sfx('jump');
+      }
       if (s.type === 'sniper') { e.perch = true; e.z = 42; e.x = s.side === 'L' ? G.camX + 46 : G.camX + W - 46; e.y = FLOOR_TOP + 8; setState(e, 'idle'); e.cool = 80; }
       if (s.type === 'ptera') e.z = 80;
       if (OPTS.assist && HINTS[s.type] && !app.hinted[s.type]) { app.hinted[s.type] = 1; G.hint = { txt: HINTS[s.type], t: 300 }; }
@@ -3458,9 +3852,12 @@
       else if (a.kind === 'para') updatePara(a);
       else if (a.kind === 'rex') updateRex(a);
       else if (a.kind === 'boss') updateBoss(a);
+      else if (a.kind === 'glider') updateGlider(a);
+      else if (a.kind === 'digger') updateDigger(a);
       else updateHuman(a);
     }
     updateShots();
+    updateFires();
     updateHazards();
     updateEvents();
     if (G.ch) updateChallenge();
@@ -3469,7 +3866,8 @@
       if (a.invuln > 0) a.invuln--;
       a.lagHp += (a.hp - a.lagHp) * 0.06;
       if (a.state !== 'enter') {
-        a.y = clamp(a.y, FLOOR_TOP + 6, FLOOR_BOTTOM);
+        const dk = ST.deck && !['fall', 'thrown', 'down', 'dead', 'hopin'].includes(a.state);   // pociąg: chodzimy tylko po platformie
+        a.y = clamp(a.y, dk ? ST.deck.y0 : FLOOR_TOP + 6, dk ? ST.deck.y1 : FLOOR_BOTTOM);
         if (a.kind === 'player') a.x = clamp(a.x, G.camX + 10, G.camX + W - 10);
         else if (a.kind === 'rex' && a.alive) a.x = clamp(a.x, G.camX + 90, G.camX + W - 90);
         else if (!['dead', 'down', 'fall', 'thrown'].includes(a.state)) a.x = clamp(a.x, G.camX - 40, G.camX + W + 40);
@@ -3572,6 +3970,11 @@
       case 'suplex': return a.t < 14 ? P.throw[0] : P.crouch[0];
       case 'shoot': case 'aim': case 'aimH': case 'snipeAim': return P.aim[0];
       case 'throwNet': return a.t < 10 ? P.lob[0] : P.throw[0];
+      case 'flame': return P.aim[0];
+      case 'hopin': return P.jump[0];
+      case 'lift': return a.t < 6 ? P.crouch[0] : P.hammerUp[0];
+      case 'carry': return P.hammerUp[0];
+      case 'heave': return a.t < 6 ? P.hammerUp[0] : P.throw[0];
       case 'netted': return P.bow[0];
       case 'toss': return a.t < 8 ? P.lob[0] : P.throw[0];
       case 'grab': return P.grab[0];
@@ -3609,8 +4012,12 @@
         hurt: 'hurt', fall: 'down', thrown: 'down', down: 'down', dead: 'down', getup: 'idle', roar: 'roar', charge: a.t < 34 ? 'roar' : 'run', dazed: 'hurt', tail: 'hurt' };
       let face = a.face;
       if (a.state === 'tail' && a.t >= 14 && a.t < 24) face = -face;
-      map.tamed = 'idle'; map.flee = 'run';
+      map.tamed = 'idle'; map.flee = 'run'; map.hopin = 'run';
       SP.drawRaptor(ctx, sx, sy, face, a.animT, map[a.state] || 'idle', a.cols, a.kind === 'rex' ? { flash, scale: 2.3, rex: true } : { flash });
+      if (a.rider) {
+        const bob = ['walk', 'run', 'enter'].includes(a.state) ? Math.abs(Math.sin(a.animT * 0.25)) * 2 : 0;
+        SP.drawFigure(ctx, a.rider, SEAT, sx - a.face, sy - 25 - bob, a.face, { flash, weapon: map[a.state] === 'bite' ? null : 'knife' });
+      }
       if (a.state === 'tamed') drawStars(sx + a.face * 18, sy - 44);
       if (a.state === 'dazed') drawStars(sx + a.face * 40, sy - 70);
       return;
@@ -3629,6 +4036,8 @@
       return;
     }
     if (a.kind === 'player' && a.mount) { drawRider(a, sx, sy, flash); return; }
+    if (a.kind === 'digger') { drawDigger(a, sx, sy, flash); return; }
+    if (a.kind === 'glider') { drawGlider(a, sx, sy, flash); return; }
     const pose = poseOf(a);
     let face = a.face;
     if (a.state === 'special' && Math.floor(a.t / 4) % 2 && (a.key === 'kruk' || a.key === 'borys')) face = -face;
@@ -3650,6 +4059,8 @@
     if (a.perch) drawPerch(sx, a.y, a.z);
     if (a.alpha < 1) ctx.globalAlpha = Math.max(0, a.alpha);
     SP.drawFigure(ctx, a.b, pose, sx + jitter, sy, face, opt);
+    drawFlame(a, sx, sy);
+    drawCarried(a, sx, sy);
     // garda: półprzezroczysta tarcza przed postacią i pasek wytrzymałości gardy
     if (a.kind === 'player' && (a.state === 'block' || (a.guard !== undefined && a.guard < 99))) {
       const gx = sx + a.face * 13 * scaleOf(a), gy = sy - 26 * scaleOf(a), k = a.blockFlash > 0 ? 1 : 0.55;
@@ -3753,6 +4164,7 @@
     if (app.ngpRun && !G.special) drawNgpTint(true);
     if (G.wx) drawWeatherBack(G.wx);
     drawEventsBack();
+    drawFires();
     const ents = [];
     G.actors.forEach(a => ents.push({ y: a.y, a }));
     G.props.forEach(pr => { if (pr.hp > 0) ents.push({ y: pr.y, pr }); });
@@ -3780,6 +4192,7 @@
       if (e.a) drawActor(e.a);
       else if (e.pr) SP.drawBarrel(ctx, e.pr.x - G.camX + (e.pr.shake ? (e.pr.shake % 2 ? 1 : -1) : 0), e.pr.y, e.pr.hp, e.pr.kind);
       else if (e.s && e.s.type === 'snipe') drawSnipe(e.s);
+      else if (e.s && e.s.type === 'prop') SP.drawBarrel(ctx, e.s.x - G.camX, e.s.y - e.s.z + 12, 2, e.s.kind);
       else if (e.s) SP.drawShot(ctx, e.s, e.s.x - G.camX, e.s.y - e.s.z - (e.s.type === 'dynamite' ? 3 : 0), e.s.t);
       else if (e.cart) window.Scenery.minecart(ctx, e.cart.x - G.camX, e.cart.y);
       else if (e.veh) { if (e.veh.type === 'jeep') SP.drawJeep(ctx, e.veh.x - G.camX, e.veh.y, -1, 0, { wreck: e.veh.used }); else window.Scenery.minecart(ctx, e.veh.x - G.camX, e.veh.y); }
@@ -4579,12 +4992,16 @@
     ['shield', 'KŁUSOWNIK', 'TARCZOWNIK W HEŁMIE.', 'ZAJDŹ GO OD TYŁU ALBO GO CHWYĆ.'],
     ['sniper', 'KŁUSOWNIK', 'SNAJPER NA RUSZTOWANIU.', 'UCIEKAJ Z CELOWNIKA, ZDEJMIJ GO Z WYSKOKU.'],
     ['netter', 'KŁUSOWNIK', 'ŁOWCA Z SIECIĄ.', 'WCISKAJ PRZYCISKI, BY SIĘ WYRWAĆ.'],
+    ['flamer', 'KŁUSOWNIK', 'PODPALACZ Z MIOTACZEM OGNIA.', 'ZOSTAWIA PŁONĄCĄ PODŁOGĘ — OBCHODŹ OGIEŃ.'],
+    ['glider', 'KŁUSOWNIK', 'LOTNIARZ — ZWIADOWCA NA LOTNI.', 'ZRZUCA SIECI Z GÓRY. STRĄĆ GO Z WYSKOKU.'],
+    ['rraptor', 'KŁUSOWNIK', 'JEŹDZIEC NA OSIODŁANYM RAPTORZE.', 'PRZEWRÓĆ GO — RAPTOR ZOSTANIE TWÓJ.'],
     ['raptor', 'BESTIA', 'SZYBKI DRAPIEŻNIK DŻUNGLI.', 'POKONANY POZWALA SIĘ DOSIĄŚĆ.'],
     ['pachy', 'BESTIA', 'ROŚLINOŻERCA Z TWARDĄ KOPUŁĄ.', 'TARANUJE WSZYSTKO NA SWOJEJ DRODZE.'],
     ['ptera', 'BESTIA', 'LATAJĄCY GAD Z GRZEBIENIEM.', 'ZRZUCA KAMIENIE — PATRZ NA CIEŃ.'],
     ['trike', 'BESTIA', 'TRICERATOPS Z KOŚCISTĄ KRYZĄ.', 'JAKO WIERZCHOWIEC BLOKUJE CIOSY Z PRZODU.'],
     ['para', 'BESTIA', 'PARAZAUROLOF Z RUROWATYM GRZEBIENIEM.', 'JEGO RYK OGŁUSZA WSZYSTKICH W POBLIŻU.'],
     ['whitefang', 'MINI-BOSS', 'ALBINOSKI RAPTOR Z LEGEND.', 'CZEKA ZA POPĘKANYMI ŚCIANAMI.'],
+    ['digger', 'MINI-BOSS', 'BRYGADZISTA W PANCERNEJ KOPARCE.', 'ŁYŻKA Z GÓRY I SZARŻA — UNIKAJ Z BOKU.'],
     ['boss', 'BOSS', 'KAPITAN RDZA — SZEF KŁUSOWNIKÓW.', 'MŁOT ELEKTRYCZNY I SKOK Z FALĄ.'],
     ['zmija', 'BOSS', 'ŻMIJA — KRÓLOWA BAGIEN.', 'BICZ, SALTA I WACHLARZ NOŻY.'],
     ['klin', 'BOSS', 'KLIN — STARSZY Z BRACI TRZASK.', 'SZARŻUJE Z SIŁĄ BULDOŻERA.'],
@@ -4609,6 +5026,11 @@
     const d = ENEMIES[k];
     if (isHero(k)) { ctx.save(); ctx.translate(x, y); ctx.scale(2, 2); SP.drawFigure(ctx, CHARS[k].build, P.walk[Math.floor(t / 8) % 4], 0, 0, 1, { weapon: CHARS[k].innate }); ctx.restore(); return; }
     if (k === 'raptor' || k === 'whitefang') { SP.drawRaptor(ctx, x, y, 1, t, 'walk', k === 'raptor' ? RAPTOR_COLS[0] : { body: '#e8e6dc', belly: '#ffffff', stripe: '#b8b8c4' }, { scale: 1.7 }); return; }
+    if (k === 'rraptor') { const a = { face: 1, animT: t, state: 'walk', rider: bmCache.rider || (bmCache.rider = ENEMIES.grunt.mk()) };
+      SP.drawRaptor(ctx, x, y, 1, t, 'walk', { body: '#7a5a3a', belly: '#c8a878', stripe: '#3a2a1a' }, { scale: 1.5 });
+      ctx.save(); ctx.translate(x, y); ctx.scale(1.5, 1.5); SP.drawFigure(ctx, a.rider, SEAT, -1, -25, 1, { weapon: 'knife' }); ctx.restore(); return; }
+    if (k === 'digger') { ctx.save(); ctx.translate(x, y); ctx.scale(1.1, 1.1); drawDigger({ face: 1, state: 'idle', animT: t, t: 0 }, 6, 0, false); ctx.restore(); return; }
+    if (k === 'glider') { if (!bmCache[k]) bmCache[k] = d.mk(); ctx.save(); ctx.translate(x, y - 30); ctx.scale(1.6, 1.6); drawGlider({ b: bmCache[k], face: 1, state: 'glide', t: 0 }, 0, 0, false); ctx.restore(); return; }
     if (k === 'rex' || k === 'deino') { SP.drawRaptor(ctx, x + 10, y, 1, t, 'walk', k === 'deino' ? DEINO_COLS : REX_COLS, { scale: 1.25, rex: true }); return; }
     if (k === 'pachy') { ctx.save(); ctx.translate(x, y); ctx.scale(1.7, 1.7); SP.drawPachy(ctx, 0, 0, 1, t, 'walk', PACHY_COLS[0], {}); ctx.restore(); return; }
     if (k === 'trike' || k === 'para') { ctx.save(); ctx.translate(x, y); ctx.scale(1.5, 1.5); (k === 'trike' ? SP.drawTrike : SP.drawPara)(ctx, 0, 0, 1, t, 'walk', k === 'trike' ? TRIKE_COLS[0] : PARA_COLS[0], {}); ctx.restore(); return; }
@@ -5150,7 +5572,7 @@
   function clearProgress() { try { localStorage.removeItem(SAVE_KEY); } catch (e) { /* brak */ } app.save = null; }
   function saveLabel(d) {
     const pt = d.point, dt = new Date(d.ts);
-    const where = (d.ngp ? 'NG+ ' : '') + (pt.type === 'escape' ? 'EPILOG' : pt.type === 'truefinal' ? 'FINAŁ' : pt.type === 'branch' ? 'WYBÓR TRASY' : pt.type === 'bonus' ? 'BONUS AUTOSTRADA' : pt.type === 'flight' ? 'BONUS LOT' : pt.type === 'cages' ? 'BONUS ZAGRODA' : 'ETAP ' + STAGES[pt.idx].label);
+    const where = (d.ngp ? 'NG+ ' : '') + (pt.type === 'escape' ? 'EPILOG' : pt.type === 'truefinal' ? 'FINAŁ' : pt.type === 'branch' ? 'WYBÓR TRASY' : pt.type === 'bonus' ? 'BONUS AUTOSTRADA' : pt.type === 'flight' ? 'BONUS LOT' : pt.type === 'cages' ? 'BONUS ZAGRODA' : pt.type === 'train' ? 'POCIĄG' : 'ETAP ' + STAGES[pt.idx].label);
     const date = String(dt.getDate()).padStart(2, '0') + '.' + String(dt.getMonth() + 1).padStart(2, '0') + ' ' + String(dt.getHours()).padStart(2, '0') + ':' + String(dt.getMinutes()).padStart(2, '0');
     return where + ' — ' + d.players.map(r => CHARS[r.key].name).join('+') + ' — ' + d.players.reduce((a, r) => a + r.score, 0) + ' PKT — ' + date;
   }
@@ -5164,6 +5586,7 @@
     else if (pt.type === 'bonus') startBonus(team, pt.next);
     else if (pt.type === 'flight') startFlight(team, pt.next);
     else if (pt.type === 'cages') startCages(team, pt.next);
+    else if (pt.type === 'train') startTrain(team, pt.next);
     else if (pt.type === 'escape') startEscape(team);
     else if (pt.type === 'truefinal') startTrueFinal(team);
     else goMap(pt.idx, team);
@@ -5420,7 +5843,14 @@
         'I NACIŚNIJ ' + K('attack') + ' — SUPLEX, BARDZO MOCNY RZUT.',
         'RZUT W LOCIE: SKOCZ OBOK WROGA, TRZYMAJ ▼ I NACIŚNIJ ' + K('attack') + '.',
         'POSTAĆ ŁAPIE GO W POWIETRZU I CISKA NIM O ZIEMIĘ.',
-        'RZUTY SĄ KLUCZEM W WYZWANIU „RZUTOWIEC”.'] }
+        'RZUTY SĄ KLUCZEM W WYZWANIU „RZUTOWIEC”.'] },
+      { demo: 'barrel', head: 'BECZKI I ZAGROŻENIA', lines: () => [
+        'STAŃ PRZY BECZCE LUB SKRZYNI, TRZYMAJ ▼ I NACIŚNIJ ' + K('attack') + ' — PODNOSISZ JĄ NAD GŁOWĘ.',
+        K('attack') + ' ALBO ' + K('jump') + ' — RZUT: BECZKA PRZEWRACA WSZYSTKICH NA SWOJEJ DRODZE,',
+        'A BECZKA Z PALIWEM WYBUCHA PRZY UDERZENIU. ' + K('block') + ' — ODSTAWIASZ JĄ NA ZIEMIĘ.',
+        'GDY KTOŚ CIĘ TRAFI, BECZKA SPADA I PĘKA.',
+        'ODRZUĆ WROGA DO LAWY, ŚCIEKÓW ALBO MORZA PRZY PRZYPŁYWIE — „SPŁUKANY!” +1000.',
+        'NA POCIĄGU ZRZUCONY Z PLATFORMY WRÓG ODPADA OD RAZU.'] }
     ] },
     { title: 'OBRONA', pages: [
       { demo: 'block', head: 'BLOK', lines: () => [
@@ -5490,6 +5920,7 @@
         'Z PALIWEM WYBUCHAJĄ I ODPALAJĄ SĄSIEDNIE. PĘKNIĘTE ŚCIANY KRYJĄ SEKRETY.'] },
       { demo: 'hazard', head: 'ZAGROŻENIA I POGODA', lines: () => [
         'LAWA (KOPALNIA) I TOKSYCZNE ŚCIEKI (KANAŁY) RANIĄ KAŻDEGO, KTO W NIE WEJDZIE.',
+        'PODPALACZ ZOSTAWIA NA PODŁODZE OGIEŃ — PALI SIĘ CHWILĘ I RANI KAŻDEGO.',
         'PLAŻA: CO OK. 30 S PRZYPŁYW — W WODZIE RUSZASZ SIĘ DWA RAZY WOLNIEJ.',
         'KANAŁY: FALA ŚCIEKÓW — WEJDŹ NA PODWYŻSZENIE PRZY ŚCIANIE ALBO JĄ PRZESKOCZ.',
         'POGODA ZMIENIA SIĘ Z KAŻDYM PRZEJŚCIEM: W DESZCZU ŚLIZGASZ SIĘ PO BIEGU,',
@@ -5625,6 +6056,15 @@
       case 'melee': {
         ['pipe', 'machete', 'chain', 'rifle'].forEach((w, i) => SP.drawItem(ctx, w, bx + 30 + i * 30, fy - 2, t));
         fig(hb, t % 20 < 10 ? P.swingUp[0] : P.swingDown[0], cx + 70, fy, 1, { weapon: ['pipe', 'machete', 'chain'][cyc(3, 40)] });
+        break;
+      }
+      case 'barrel': {
+        const ph = t % 120;
+        if (ph < 30) { fig(hb, ph < 12 ? P.crouch[0] : P.hammerUp[0], bx + 60, fy, 1); SP.drawBarrel(ctx, bx + 62, fy - (ph < 12 ? 2 : 52), 2, 'barrel'); }
+        else if (ph < 40) { fig(hb, P.throw[0], bx + 60, fy, 1); SP.drawBarrel(ctx, bx + 70 + (ph - 30) * 5, fy - 50 + (ph - 30) * 2, 2, 'barrel'); }
+        else { fig(hb, P.idle[0], bx + 60, fy, 1); const k = Math.min(1, (ph - 40) / 30); if (k < 1) SP.drawBarrel(ctx, bx + 120 + k * 120, fy - 30 + k * 18, 2, 'barrel'); }
+        fig(grunt, ph > 52 && ph < 100 ? P.fall[0] : P.idle[0], bx + 190, fy - (ph > 52 && ph < 100 ? 10 : 0), -1);
+        fig(grunt, ph > 62 && ph < 110 ? P.fall[0] : P.idle[0], bx + 230, fy - (ph > 62 && ph < 110 ? 10 : 0), -1);
         break;
       }
       case 'thrown': {
@@ -5988,6 +6428,7 @@
           if (ST.custom) { sfx('start'); leaveCustom(); break; }
           if (app.gameMode === 'daily') { sfx('start'); unlock('daily'); endRun('daily', dailyRecs()); break; }
           if (G.special === 'cages') goMap(app.cageNext, G.players);
+          else if (G.special === 'train') goMap(app.trainNext || 7, G.players);
           else if (!G.special && G.stageIdx === STAGES.length - 1 && app.gameMode === 'arcade') startEscape(G.players);
           else if (G.special === 'escape' && trueReady()) { saveProgress({ type: 'truefinal' }, G.players); startTrueFinal(G.players); }
           else if (G.stageIdx < STAGES.length - 1) afterStage(G.stageIdx, G.players);
@@ -5997,7 +6438,7 @@
             unlock('beatgame'); if (OPTS.difficulty === 'arcade') unlock('arcade'); if (app.ngpRun) unlock('ngplus'); clearProgress();
             app.newUnlocks = !app.unlocks.ngp || !app.unlocks.baron;
             app.unlocks.ngp = true; app.unlocks.baron = true; safeSet('paleo_unlocks', JSON.stringify(app.unlocks));
-            app.mode = 'ending'; app.t = 0; AU.stopMusic(); AU.play('ending'); G.players.forEach(q => saveHi(q.score));
+            app.mode = 'ending'; app.t = 0; app.epilogShown = false; AU.stopMusic(); AU.play('ending'); G.players.forEach(q => saveHi(q.score));
           }
         }
         break;
@@ -6017,7 +6458,11 @@
         if (app.t >= MAP_END) { sfx('start'); beginStage(app.mapTo, app.mapPlayer); }
         break;
       case 'ending':
-        if ((pressed.start || pressed.attack) && app.t > 300) endGame('★');
+        if ((pressed.start || pressed.attack) && app.t > 300) {
+          // najpierw komiks z zakończeniami postaci, potem tablica wyników
+          if (!app.epilogShown && G && G.players.length) { app.epilogShown = true; sfx('start'); startEpilog(G.players, () => endGame('★')); }
+          else endGame('★');
+        }
         break;
     }
     clearPressed();
@@ -6095,6 +6540,7 @@
         });
         if (!cages && res[0]) text('CZAS ETAPU ' + Math.floor(res[0].secs / 60) + ':' + String(res[0].secs % 60).padStart(2, '0'), W / 2, 50, 5, '#c0c0c0', 'center');
         if (cages) text('NASTĘPNY: ' + shortName(STAGES[app.cageNext]), W / 2, 158, 6, '#c0f0c0', 'center');
+        else if (G.special === 'train') text('NASTĘPNY: ' + shortName(STAGES[app.trainNext || 7]), W / 2, 158, 6, '#c0f0c0', 'center');
         else if (ST.custom) { /* własny etap — bez kolejnego */ }
         else if (G.special === 'escape' && trueReady()) text('NASTĘPNY: ??? — COŚ NADCHODZI OD MORZA', W / 2, 158, 6, '#ffe040', 'center');
         else if (!G.special && G.stageIdx === STAGES.length - 1 && app.gameMode === 'arcade') text('NASTĘPNY: EPILOG — UCIECZKA', W / 2, 158, 6, '#ff9a80', 'center');
@@ -6152,7 +6598,7 @@
   } else boot();
 
   // debug / testy: uchwyty do stanu gry tylko w trybie debug (config.js) albo z parametrem adresu ?hooks=1 (testy automatyczne)
-  if (CFG.debug === true || urlParams.has('hooks')) window.__paleo = { get G() { return G; }, app, pickWeather, customList, buildCustomStage, startCustom, CHARS, ENEMIES, bonus, startStage: i => { startStage(i, G && G.players); app.mode = 'play'; }, startBonus: () => startBonus(G && G.players, 4), startCages: () => startCages(G && G.players, 5), startTraining: () => startTraining(null), startSuper: i => startSuper(G.players[i || 0]), newStage: i => { startStage(i, null); app.mode = 'play'; }, startEscape: () => startEscape(G.players), unlocks: () => app.unlocks, hurt: (t, d, src) => hurt(t, d, 1, false, src), resumeProgress, saveInfo: () => app.save, startRush: () => startRush(null), startSurvival: () => startSurvival(null), unlock, opts: () => OPTS, endGame, inp, joinOrContinue: i => joinOrContinue(i),
+  if (CFG.debug === true || urlParams.has('hooks')) window.__paleo = { get G() { return G; }, app, pickWeather, customList, buildCustomStage, startCustom, CHARS, ENEMIES, bonus, startStage: i => { startStage(i, G && G.players); app.mode = 'play'; }, startBonus: () => startBonus(G && G.players, 4), startCages: () => startCages(G && G.players, 5), startTraining: () => startTraining(null), startSuper: i => startSuper(G.players[i || 0]), newStage: i => { startStage(i, null); app.mode = 'play'; }, startEscape: () => startEscape(G.players), startEpilog: () => startEpilog(G.players, () => endGame('★')), ENDINGS, startTrain: () => { app.gameMode = app.gameMode || 'arcade'; startTrain(G ? G.players : null, 7); }, unlocks: () => app.unlocks, hurt: (t, d, src, knock) => hurt(t, d, 1, !!knock, src), spawn: (type, x, y) => { const e = makeEnemy(type, x, y); if (type !== 'glider' && type !== 'digger') setState(e, 'idle'); G.actors.push(e); return e; }, afterStage, resumeProgress, saveInfo: () => app.save, startRush: () => startRush(null), startSurvival: () => startSurvival(null), unlock, opts: () => OPTS, endGame, inp, joinOrContinue: i => joinOrContinue(i),
     flight, curBonus: () => curBonus(), startFlight: () => startFlight(G ? G.players : null, 6), CHALLENGES, dailyPlan, startDaily: () => startDaily(null),
     startChallenge: id => { app.chDef = CHALLENGES.find(c => c.id === id); app.gameMode = 'challenge'; startChallenge(null); }, STAGES };
 })();

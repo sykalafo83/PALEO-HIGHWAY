@@ -144,6 +144,19 @@
     whitefang: { name: 'BIAŁY KIEŁ', hp: 170, speed: 1.7, score: 10000, beast: true, drop1up: true },
     raptor: { name: 'RAPTOR', hp: 56, speed: 1.3, score: 500, beast: true },
     pachy: { name: 'PACHY', hp: 75, speed: 1.0, score: 600, beast: true },
+    // ---- nowi wrogowie: jeździec na raptorze, podpalacz, lotniarz
+    rraptor: { name: 'JEŹDZIEC', hp: 70, speed: 1.55, score: 900 },
+    flamer: {
+      name: 'PODPALACZ', hp: 48, speed: 0.8, range: 26, score: 650, attacks: ['slap'], ai: 'flamer', weapon: 'flamer',
+      mk: () => build({ hair: 'helmet', scale: 1.05, shoulderW: 13, hipW: 11, limbW: 5.2, details: [{ t: 'plate', c: '#7a3a1a' }, { t: 'belt', c: '#1a1a1a' }],
+        colors: { skin: '#c89070', hair: '#3a3a3a', shirt: '#b8642a', pants: '#3a3028', boots: '#141414', gloves: '#2a2a2a', accent: '#ffb030' } })
+    },
+    glider: {
+      name: 'LOTNIARZ', hp: 32, speed: 1.4, range: 24, score: 700, attacks: ['slash'], ai: 'thin',
+      mk: () => build({ hair: 'bandana', legU: 12.5, legL: 12.5, shoulderW: 10, hipW: 8, limbW: 4, armW: 3.4,
+        details: [{ t: 'bandolier', c: '#e0d4a8' }, { t: 'belt', c: '#2a1a10' }],
+        colors: { skin: '#d0a078', hair: '#c8402a', shirt: '#2a4a6a', pants: '#3a3a3a', boots: '#1a1a1a', gloves: '#2a2a2a', accent: '#c8402a' } })
+    },
     // ---- bossowie
     boss: {
       name: 'KAPITAN RDZA', title: 'KAPITAN RDZA', sub: 'SZEF KŁUSOWNIKÓW', hp: 440, speed: 0.85, range: 46, score: 8000, boss: true, ai: 'hammer', weapon: 'hammer',
@@ -187,6 +200,12 @@
         colors: { skin: '#b89070', hair: '#d8b030', shirt: '#d8b030', pants: '#3a3a2a', boots: '#1a1a14', gloves: '#5a6a3a', accent: '#8a2a22' } })
     },
     kolos: { name: 'BURSZTYNOWY KOLOS', title: 'BURSZTYNOWY KOLOS', sub: 'OSTATNIE DZIEŁO BARONA', hp: 1000, speed: 0.95, score: 50000, boss: true, superArmor: true },
+    digger: {
+      name: 'BRYGADZISTA', title: 'BRYGADZISTA', sub: 'POSTRACH WYKOPÓW', hp: 520, speed: 0.75, score: 12000, boss: true, superArmor: true,
+      mk: () => build({ hair: 'hatbeard', scale: 1.2, belly: 7, bellyCol: 'shirt', shoulderW: 16, hipW: 13, limbW: 6, armW: 5,
+        details: [{ t: 'vest', c: '#f0d040' }, { t: 'belt', c: '#1a1a1a' }],
+        colors: { skin: '#d09468', hair: '#e0b020', shirt: '#5a6a7a', pants: '#3a4048', boots: '#141414', gloves: '#c8a040', accent: '#e0b020' } })
+    },
     deino: { name: 'ZĘBACZ', title: 'ZĘBACZ', sub: 'MUTANT Z KANAŁÓW', hp: 720, speed: 1.0, score: 18000, boss: true, superArmor: true },
     baron: {
       name: 'BARON BURSZTYN', title: 'BARON BURSZTYN', sub: 'WŁADCA IMPERIUM KŁUSOWNIKÓW', hp: 640, speed: 1.2, range: 34, score: 30000, boss: true, ai: 'baron', weapon: 'cane',

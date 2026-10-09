@@ -81,12 +81,16 @@
     ['shield', 'KŁUSOWNIK', 'TARCZOWNIK W HEŁMIE.', 'ZAJDŹ GO OD TYŁU ALBO GO CHWYĆ.'],
     ['sniper', 'KŁUSOWNIK', 'SNAJPER NA RUSZTOWANIU.', 'UCIEKAJ Z CELOWNIKA, ZDEJMIJ GO Z WYSKOKU.'],
     ['netter', 'KŁUSOWNIK', 'ŁOWCA Z SIECIĄ.', 'WCISKAJ PRZYCISKI, BY SIĘ WYRWAĆ.'],
+    ['flamer', 'KŁUSOWNIK', 'PODPALACZ Z MIOTACZEM OGNIA.', 'ZOSTAWIA PŁONĄCĄ PODŁOGĘ — OBCHODŹ OGIEŃ.'],
+    ['glider', 'KŁUSOWNIK', 'LOTNIARZ — ZWIADOWCA NA LOTNI.', 'ZRZUCA SIECI Z GÓRY. STRĄĆ GO Z WYSKOKU.'],
+    ['rraptor', 'KŁUSOWNIK', 'JEŹDZIEC NA OSIODŁANYM RAPTORZE.', 'PRZEWRÓĆ GO — RAPTOR ZOSTANIE TWÓJ.'],
     ['raptor', 'BESTIA', 'SZYBKI DRAPIEŻNIK DŻUNGLI.', 'POKONANY POZWALA SIĘ DOSIĄŚĆ.'],
     ['pachy', 'BESTIA', 'ROŚLINOŻERCA Z TWARDĄ KOPUŁĄ.', 'TARANUJE WSZYSTKO NA SWOJEJ DRODZE.'],
     ['ptera', 'BESTIA', 'LATAJĄCY GAD Z GRZEBIENIEM.', 'ZRZUCA KAMIENIE — PATRZ NA CIEŃ.'],
     ['trike', 'BESTIA', 'TRICERATOPS Z KOŚCISTĄ KRYZĄ.', 'JAKO WIERZCHOWIEC BLOKUJE CIOSY Z PRZODU.'],
     ['para', 'BESTIA', 'PARAZAUROLOF Z RUROWATYM GRZEBIENIEM.', 'JEGO RYK OGŁUSZA WSZYSTKICH W POBLIŻU.'],
     ['whitefang', 'MINI-BOSS', 'ALBINOSKI RAPTOR Z LEGEND.', 'CZEKA ZA POPĘKANYMI ŚCIANAMI.'],
+    ['digger', 'MINI-BOSS', 'BRYGADZISTA W PANCERNEJ KOPARCE.', 'ŁYŻKA Z GÓRY I SZARŻA — UNIKAJ Z BOKU.'],
     ['boss', 'BOSS', 'KAPITAN RDZA — SZEF KŁUSOWNIKÓW.', 'MŁOT ELEKTRYCZNY I SKOK Z FALĄ.'],
     ['zmija', 'BOSS', 'ŻMIJA — KRÓLOWA BAGIEN.', 'BICZ, SALTA I WACHLARZ NOŻY.'],
     ['klin', 'BOSS', 'KLIN — STARSZY Z BRACI TRZASK.', 'SZARŻUJE Z SIŁĄ BULDOŻERA.'],
@@ -111,6 +115,11 @@
     const d = ENEMIES[k];
     if (isHero(k)) { ctx.save(); ctx.translate(x, y); ctx.scale(2, 2); SP.drawFigure(ctx, CHARS[k].build, P.walk[Math.floor(t / 8) % 4], 0, 0, 1, { weapon: CHARS[k].innate }); ctx.restore(); return; }
     if (k === 'raptor' || k === 'whitefang') { SP.drawRaptor(ctx, x, y, 1, t, 'walk', k === 'raptor' ? RAPTOR_COLS[0] : { body: '#e8e6dc', belly: '#ffffff', stripe: '#b8b8c4' }, { scale: 1.7 }); return; }
+    if (k === 'rraptor') { const a = { face: 1, animT: t, state: 'walk', rider: bmCache.rider || (bmCache.rider = ENEMIES.grunt.mk()) };
+      SP.drawRaptor(ctx, x, y, 1, t, 'walk', { body: '#7a5a3a', belly: '#c8a878', stripe: '#3a2a1a' }, { scale: 1.5 });
+      ctx.save(); ctx.translate(x, y); ctx.scale(1.5, 1.5); SP.drawFigure(ctx, a.rider, SEAT, -1, -25, 1, { weapon: 'knife' }); ctx.restore(); return; }
+    if (k === 'digger') { ctx.save(); ctx.translate(x, y); ctx.scale(1.1, 1.1); drawDigger({ face: 1, state: 'idle', animT: t, t: 0 }, 6, 0, false); ctx.restore(); return; }
+    if (k === 'glider') { if (!bmCache[k]) bmCache[k] = d.mk(); ctx.save(); ctx.translate(x, y - 30); ctx.scale(1.6, 1.6); drawGlider({ b: bmCache[k], face: 1, state: 'glide', t: 0 }, 0, 0, false); ctx.restore(); return; }
     if (k === 'rex' || k === 'deino') { SP.drawRaptor(ctx, x + 10, y, 1, t, 'walk', k === 'deino' ? DEINO_COLS : REX_COLS, { scale: 1.25, rex: true }); return; }
     if (k === 'pachy') { ctx.save(); ctx.translate(x, y); ctx.scale(1.7, 1.7); SP.drawPachy(ctx, 0, 0, 1, t, 'walk', PACHY_COLS[0], {}); ctx.restore(); return; }
     if (k === 'trike' || k === 'para') { ctx.save(); ctx.translate(x, y); ctx.scale(1.5, 1.5); (k === 'trike' ? SP.drawTrike : SP.drawPara)(ctx, 0, 0, 1, t, 'walk', k === 'trike' ? TRIKE_COLS[0] : PARA_COLS[0], {}); ctx.restore(); return; }

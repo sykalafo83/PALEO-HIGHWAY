@@ -16,15 +16,19 @@ muzyka i dźwięki są generowane kodem (Canvas 2D + Web Audio).
 
 - **8 etapów** z wyborem trasy (miasto albo kopalnia), mapą regionu, epilogiem z ucieczką i dwoma zakończeniami;
   każdy etap ma własnego bossa, muzykę, scenkę komiksową oraz losową pogodę i porę dnia.
-- **3 etapy bonusowe:** jazda krążownikiem szos, uwalnianie dinozaurów z zagród i lot na pteranodonie.
+- **3 etapy bonusowe:** jazda krążownikiem szos, uwalnianie dinozaurów z zagród i lot na pteranodonie,
+  plus **etap na pędzącym pociągu** z mini-bossem Brygadzistą w koparce.
+- **Zakończenie dla każdej postaci:** krótki komiks o tym, co bohater robi po wszystkim.
 - **Gra we dwóch** (klawiatura i pady), z atakami drużynowymi: wyrzut partnera, podwójny rzut, wspólny super-ruch.
 - **4 bohaterów + 3 do odblokowania**, każdy z własną serią ciosów, specjałem, ruchem komendowym, super-ruchem i okrzykami.
 - **Walka:** kombo, chwyty i rzuty, blok i parowanie, żonglerka w powietrzu, odbicia od ścian, broń biała i rzucana,
-  dosiadanie dinozaurów i pojazdy.
-- **Poradnik „JAK GRAĆ”** w menu głównym: 10 rozdziałów i 24 strony z animowanymi pokazami ruchów,
+  dosiadanie dinozaurów i pojazdy, podnoszenie i rzucanie beczek, wrzucanie wrogów do lawy, ścieków i morza.
+- **Przeciwnicy z charakterem:** m.in. jeździec na raptorze (zrzuć go i przejmij dinozaura), podpalacz z miotaczem ognia
+  i lotniarz zrzucający sieci.
+- **Poradnik „JAK GRAĆ”** w menu głównym: 10 rozdziałów i 25 stron z animowanymi pokazami ruchów,
   klawisze i ikony pada dopasowane do Twoich ustawień.
 - **Tryby:** zwykła gra, Nowa Gra+, trening, Boss Rush, przetrwanie, wyzwania z gwiazdkami i codzienne wyzwanie.
-- **Ekstra:** 29 osiągnięć, bestiariusz, odtwarzacz muzyki, karta z wynikiem do udostępnienia, edytor etapów.
+- **Ekstra:** 32 osiągnięcia, bestiariusz, odtwarzacz muzyki, karta z wynikiem do udostępnienia, edytor etapów.
 - **Wygoda:** zapis postępu, przypisywanie klawiszy i przycisków pada (z wibracjami), sterowanie dotykowe,
   trzy filtry CRT, ramka automatu, tryb opiekuna, praca offline jako aplikacja (PWA).
 

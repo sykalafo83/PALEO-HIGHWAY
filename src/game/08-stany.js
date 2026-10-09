@@ -10,6 +10,8 @@
         return true;
       case 'fall': case 'thrown': {
         a.x += a.vx; a.vz -= GRAV; a.z += a.vz;
+        if (ST.deck && a.state === 'thrown' && !a.fvy && a.team !== 'player') a.fvy = (a.y < (ST.deck.y0 + ST.deck.y1) / 2 ? -1 : 1) * 0.9;
+        if (a.fvy) a.y += a.fvy;   // pociąg: odrzut w stronę krawędzi platformy
         // odbicie od krawędzi ekranu: wróg wraca w powietrzu — można go dobić
         if (a.team !== 'player' && !a.wallBounced && Math.abs(a.vx) > 1.2 && a.kind !== 'rex' && G) {
           const L = G.camX + 8, Rr = G.camX + W - 8;
@@ -30,7 +32,8 @@
           }
         }
         if (a.z <= 0) {
-          a.z = 0;
+          a.z = 0; a.fvy = 0;
+          if (a.team !== 'player' && !isBoss(a) && a.kind !== 'rex' && !a.bounced && ringOut(a)) return true;
           if (a.state === 'thrown') {
             a.hp -= 12; a.lastThrow = true; sfx('heavy'); G.shake = 5; dust(a.x, a.y);
             if (a.hp <= 0 && !a.dying) onDeath(a, a.thrower);
@@ -41,6 +44,10 @@
         }
         return true;
       }
+      case 'hopin':   // wskok na platformę pociągu
+        a.y += a.fvy || 0; a.vz -= GRAV; a.z += a.vz; a.animT++;
+        if (a.z <= 0) { a.z = 0; a.fvy = 0; setState(a, 'idle'); dust(a.x, a.y); sfx('land'); }
+        return true;
       case 'down':
         if (a.t > (a.kind === 'player' ? 46 : 40)) {
           if (a.hp <= 0 && a.tame) setState(a, 'tamed');

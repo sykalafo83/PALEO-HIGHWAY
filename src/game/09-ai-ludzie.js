@@ -63,6 +63,11 @@
           return;
         }
         // dystansowcy
+        if (ai === 'flamer') {
+          if (e.cool <= 0 && ddy < 8 && dist > 20 && dist < 72) { setState(e, 'flame'); e.cool = rnd(130, 180) / ST.diff; sfx('charge'); return; }
+          stepToward(e, p.x + side * 52, p.y, e.def.speed);
+          return;
+        }
         if (ai === 'bomber') {
           if (dist < 30 && ddy < 6 && e.cool <= 0) { startMove(e, MOVES.slash); e.cool = rnd(50, 80); return; }
           if (e.cool <= 0 && dist > 50 && dist < 200) { setState(e, 'lob'); e.cool = rnd(110, 170) / ST.diff; return; }
@@ -100,6 +105,17 @@
       case 'snipeAim':
         if (e.t === 2 && p) { shoot({ type: 'snipe', x: p.x, y: p.y, z: 0, fuse: 52, from: e, life: 999 }); sfx('select'); }
         if (e.t > 58) setState(e, 'idle');
+        return;
+      case 'flame':
+        // strumień ognia: rośnie do 62 px, co 12 klatek zostawia płonącą plamę na podłodze
+        if (e.t > 16 && e.t < 70) {
+          const reach = 22 + Math.min(40, (e.t - 16) * 2);
+          if (e.t % 4 === 0) sfx('whoosh');
+          if (e.t % 12 === 0) addFire(e.x + e.face * reach, e.y);
+          if (e.t % 15 === 0) e.hitSet = null;
+          resolveHits(e, { abs: true, reach, dmg: 6, knock: false, depth: 9, snd: 'zap' });
+        }
+        if (e.t > 84) setState(e, 'idle');
         return;
       case 'throwNet':
         if (e.t === 10) { shoot({ type: 'net', x: e.x + e.face * 12, y: e.y, z: 24 * scaleOf(e), vx: e.face * 3.6, dmg: 0, knock: false, life: 120 }); sfx('whoosh'); }

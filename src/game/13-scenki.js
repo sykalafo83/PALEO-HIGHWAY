@@ -10,10 +10,41 @@
     6: [['h1', 'DROGA DO TWIERDZY PROWADZI POD MIASTEM — STARYMI KANAŁAMI.'], ['h2', 'SŁYSZYSZ? COŚ WIELKIEGO CHODZI W ŚCIEKACH.'], ['deino', 'GRRRHHH... KLAP! KLAP!']],
     7: [['h1', 'BURSZTYNOWA TWIERDZA. TU WSZYSTKO SIĘ ZACZĘŁO.'], ['baron', 'PRZYSZLIŚCIE PO SWOJE ZWIERZAKI? ZOSTANIECIE W BURSZTYNIE NA ZAWSZE.'], ['h2', 'KONIEC Z TWOIM IMPERIUM, BARONIE!']],
     truefinal: [['h1', 'ZACZEKAJ... SŁYSZYSZ? COŚ WYCHODZI Z MORZA.'], ['h2', 'BURSZTYNOWY KOLOS — OSTATNIA BROŃ BARONA!'], ['h1', 'UWOLNIONE DINOZAURY SĄ Z NAMI. KOŃCZYMY TO RAZ NA ZAWSZE!']],
+    train: [['h1', 'POCIĄG Z ŁADUNKIEM DLA BARONA JEDZIE PROSTO DO TWIERDZY.'], ['digger', 'NA MOIM POCIĄGU NIE MA GAPOWICZÓW. MOJA KOPARKA WAS ZE-SKROBIE!'], ['h2', 'TO WSKAKUJEMY. TRZYMAJ SIĘ BURTY!']],
     escape: [['baron', 'JEŚLI JA UPADAM... TO RAZEM Z TWIERDZĄ!'], ['h1', 'WULKAN SIĘ BUDZI! LAWA ZALEWA KORYTARZE!'], ['h2', 'BIEGIEM DO WYJŚCIA! NIE OGLĄDAJ SIĘ!']]
   };
+  // ---- zakończenia postaci: krótki komiks o tym, co każdy bohater robi po wszystkim (tło = jego „miejsce”)
+  const ENDINGS = {
+    kruk: { stage: 0, lines: [['kruk', 'ODBUDOWAŁEM STARĄ STACJĘ PRZY AUTOSTRADZIE. TERAZ TO SCHRONISKO DLA DINOZAURÓW.'],
+      ['kruk', 'MAŁE RAPTORY WCIĄŻ GRYZĄ MI BUTY. CHYBA MNIE LUBIĄ.'], ['rex', 'MRRR... (STARY KIEŁ WPADA CZASEM NA OBIAD)']] },
+    nina: { stage: 2, lines: [['nina', 'W MIEŚCIE CIENI OTWORZYŁAM SZKOŁĘ WALKI. LEKCJA PIERWSZA: NIE ZADZIERAJ Z DINOZAURAMI.'],
+      ['nina', 'NOCAMI WCIĄŻ PATROLUJĘ DACHY. PRZEMYTNICY OMIJAJĄ NASZĄ DZIELNICĘ.'], ['nina', 'A KLAMRA? ZMYWA NACZYNIA W MOJEJ KNAJPIE. ODPRACOWUJE.']] },
+    tur: { stage: 3, lines: [['tur', 'ZAMKNĄŁEM OGNISTE SZYBY NA CZTERY SPUSTY. NIKT JUŻ NIE OBUDZI GÓRY.'],
+      ['tur', 'Z KOPARKI BRYGADZISTY ZROBIŁEM PLAC ZABAW DLA MŁODYCH TRICERATOPSÓW.'], ['tur', 'NAJLEPSZA ROBOTA W MOIM ŻYCIU.']] },
+    borys: { stage: 4, lines: [['borys', 'ZA NAGRODĘ KUPIŁEM STARY KUTER. WYŁAWIAM DINOZAURY Z WRAKU KRAKENA.'],
+      ['borys', 'TRZYDZIEŚCI JUŻ WRÓCIŁO DO DOMU. SZPON PEWNIE ZGRZYTA ZĘBAMI W CELI.'], ['borys', 'MORZE JEST SPOKOJNE. JA TEŻ, PIERWSZY RAZ OD LAT.']] },
+    bursztyn: { stage: 7, lines: [['bursztyn', 'ODDAŁEM TWIERDZĘ DINOZAUROM. BURSZTYNOWE SALE SĄ TERAZ ICH GNIAZDAMI.'],
+      ['bursztyn', 'CODZIENNIE PRZYCHODZĘ PRZEPROSIĆ. NIEKTÓRE JUŻ MNIE NIE GRYZĄ.'], ['bursztyn', 'IMPERIUM? WYSTARCZY MI CIEPŁY KAMIEŃ I SPOKÓJ.']] },
+    padlin: { stage: 5, lines: [['padlin', 'SPRZĄTAM PLAŻĘ, KTÓRĄ SAM ZAŚMIECIŁEM. BECZKA PO BECZCE.'],
+      ['padlin', 'Z ZŁOMU WYRZUCONEGO PRZEZ MORZE BUDUJĘ FALOCHRON DLA GNIAZD.'], ['padlin', 'KOŚCI ZOSTAWIAM W SPOKOJU. NO... PRAWIE WSZYSTKIE.']] },
+    zmijka: { stage: 1, lines: [['zmijka', 'WRÓCIŁAM NA SMOLNE BAGNA. TYM RAZEM JAKO STRAŻNICZKA.'],
+      ['zmijka', 'MÓJ BICZ ODSTRASZA TERAZ KŁUSOWNIKÓW, NIE DINOZAURY.'], ['zmijka', 'SSSPOKÓJ... NIE SĄDZIŁAM, ŻE TAK MI SIĘ SPODOBA.']] }
+  };
+  // strona komiksu dla każdej (różnej) postaci z drużyny, potem done()
+  function startEpilog(team, done) {
+    const keys = [...new Set(team.map(q => q.key))].filter(k => ENDINGS[k]);
+    const next = i => {
+      if (i >= keys.length) { done(); return; }
+      const k = keys[i], key = 'epilog_' + k;
+      STORY[key] = ENDINGS[k].lines;
+      startStory(key, team, () => next(i + 1));
+      if (app.mode === 'story' && app.story.key === key) app.story.stage = STAGES[ENDINGS[k].stage];
+    };
+    next(0);
+  }
   const storyCache = {};
   function storySpeaker(who, team) {
+    if (CHARS[who]) { const q = team.find(t => t.key === who); return { name: CHARS[who].name, b: q ? q.b : CHARS[who].build, hero: true }; }
     if (who === 'h1' || who === 'h2') {
       let q = who === 'h1' ? team[0] : team[1];
       if (!q) { const k = CHAR_KEYS.find(k2 => k2 !== team[0].key); return { name: CHARS[k].name, b: CHARS[k].build, hero: true }; }
@@ -29,7 +60,7 @@
     if (!lines || app.gameMode !== 'arcade') { after(); return; }
     team = team || makeTeam();
     app.mode = 'story'; app.t = 0;
-    app.story = { key, lines, i: 0, t: 0, team, after, stage: key === 'escape' ? window.SPECIAL_STAGES.escape : key === 'truefinal' ? trueFinalStage() : STAGES[key] };
+    app.story = { key, lines, i: 0, t: 0, team, after, stage: key === 'escape' ? window.SPECIAL_STAGES.escape : key === 'train' ? window.SPECIAL_STAGES.train : key === 'truefinal' ? trueFinalStage() : STAGES[key] || STAGES[0] };
   }
   function beginStage(idx, team) {
     team = team || makeTeam();

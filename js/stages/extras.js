@@ -79,4 +79,15 @@
   add(7, 3, 0, [{ type: 'trike', side: 'R', y: 195, delay: 40 }]);
   add(7, 4, 0, [{ type: 'shield', side: 'L', y: 200, delay: 20 }, { type: 'netter', side: 'R', y: 175, delay: 50 }]);
   props(7, [{ x: 2150, y: 200, kind: 'fuel' }, { x: 2700, y: 170, kind: 'fuel' }, { x: 1150, y: 158, kind: 'wall', secret: 'boss' }]);
+  // ---------------------------------------------------------------- nowi wrogowie (jeździec, podpalacz, lotniarz)
+  add(0, 4, 0, [{ type: 'rraptor', side: 'R', y: 190, delay: 50 }]);
+  add(0, 3, 0, [{ type: 'glider', side: 'L', y: 185, delay: 80 }]);
+  add(2, 4, 0, [{ type: 'flamer', side: 'R', y: 190, delay: 40 }]);
+  add(3, 3, 0, [{ type: 'rraptor', side: 'R', y: 185, delay: 60 }]);
+  add(4, 2, 0, [{ type: 'flamer', side: 'L', y: 195, delay: 30 }]);
+  add(4, 4, 0, [{ type: 'glider', side: 'R', y: 180, delay: 60 }]);
+  add(5, 2, 1, [{ type: 'rraptor', side: 'R', y: 175, delay: 50 }]);
+  add(5, 3, 0, [{ type: 'glider', side: 'L', y: 190, delay: 90 }]);
+  add(7, 2, 0, [{ type: 'flamer', side: 'R', y: 185, delay: 40 }]);
+  add(7, 4, 1 < S[7].WAVES[4].groups.length ? 1 : 0, [{ type: 'rraptor', side: 'L', y: 190, delay: 60 }]);
 })();

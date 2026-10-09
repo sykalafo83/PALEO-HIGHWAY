@@ -62,7 +62,14 @@
         'I NACIŚNIJ ' + K('attack') + ' — SUPLEX, BARDZO MOCNY RZUT.',
         'RZUT W LOCIE: SKOCZ OBOK WROGA, TRZYMAJ ▼ I NACIŚNIJ ' + K('attack') + '.',
         'POSTAĆ ŁAPIE GO W POWIETRZU I CISKA NIM O ZIEMIĘ.',
-        'RZUTY SĄ KLUCZEM W WYZWANIU „RZUTOWIEC”.'] }
+        'RZUTY SĄ KLUCZEM W WYZWANIU „RZUTOWIEC”.'] },
+      { demo: 'barrel', head: 'BECZKI I ZAGROŻENIA', lines: () => [
+        'STAŃ PRZY BECZCE LUB SKRZYNI, TRZYMAJ ▼ I NACIŚNIJ ' + K('attack') + ' — PODNOSISZ JĄ NAD GŁOWĘ.',
+        K('attack') + ' ALBO ' + K('jump') + ' — RZUT: BECZKA PRZEWRACA WSZYSTKICH NA SWOJEJ DRODZE,',
+        'A BECZKA Z PALIWEM WYBUCHA PRZY UDERZENIU. ' + K('block') + ' — ODSTAWIASZ JĄ NA ZIEMIĘ.',
+        'GDY KTOŚ CIĘ TRAFI, BECZKA SPADA I PĘKA.',
+        'ODRZUĆ WROGA DO LAWY, ŚCIEKÓW ALBO MORZA PRZY PRZYPŁYWIE — „SPŁUKANY!” +1000.',
+        'NA POCIĄGU ZRZUCONY Z PLATFORMY WRÓG ODPADA OD RAZU.'] }
     ] },
     { title: 'OBRONA', pages: [
       { demo: 'block', head: 'BLOK', lines: () => [
@@ -132,6 +139,7 @@
         'Z PALIWEM WYBUCHAJĄ I ODPALAJĄ SĄSIEDNIE. PĘKNIĘTE ŚCIANY KRYJĄ SEKRETY.'] },
       { demo: 'hazard', head: 'ZAGROŻENIA I POGODA', lines: () => [
         'LAWA (KOPALNIA) I TOKSYCZNE ŚCIEKI (KANAŁY) RANIĄ KAŻDEGO, KTO W NIE WEJDZIE.',
+        'PODPALACZ ZOSTAWIA NA PODŁODZE OGIEŃ — PALI SIĘ CHWILĘ I RANI KAŻDEGO.',
         'PLAŻA: CO OK. 30 S PRZYPŁYW — W WODZIE RUSZASZ SIĘ DWA RAZY WOLNIEJ.',
         'KANAŁY: FALA ŚCIEKÓW — WEJDŹ NA PODWYŻSZENIE PRZY ŚCIANIE ALBO JĄ PRZESKOCZ.',
         'POGODA ZMIENIA SIĘ Z KAŻDYM PRZEJŚCIEM: W DESZCZU ŚLIZGASZ SIĘ PO BIEGU,',
@@ -267,6 +275,15 @@
       case 'melee': {
         ['pipe', 'machete', 'chain', 'rifle'].forEach((w, i) => SP.drawItem(ctx, w, bx + 30 + i * 30, fy - 2, t));
         fig(hb, t % 20 < 10 ? P.swingUp[0] : P.swingDown[0], cx + 70, fy, 1, { weapon: ['pipe', 'machete', 'chain'][cyc(3, 40)] });
+        break;
+      }
+      case 'barrel': {
+        const ph = t % 120;
+        if (ph < 30) { fig(hb, ph < 12 ? P.crouch[0] : P.hammerUp[0], bx + 60, fy, 1); SP.drawBarrel(ctx, bx + 62, fy - (ph < 12 ? 2 : 52), 2, 'barrel'); }
+        else if (ph < 40) { fig(hb, P.throw[0], bx + 60, fy, 1); SP.drawBarrel(ctx, bx + 70 + (ph - 30) * 5, fy - 50 + (ph - 30) * 2, 2, 'barrel'); }
+        else { fig(hb, P.idle[0], bx + 60, fy, 1); const k = Math.min(1, (ph - 40) / 30); if (k < 1) SP.drawBarrel(ctx, bx + 120 + k * 120, fy - 30 + k * 18, 2, 'barrel'); }
+        fig(grunt, ph > 52 && ph < 100 ? P.fall[0] : P.idle[0], bx + 190, fy - (ph > 52 && ph < 100 ? 10 : 0), -1);
+        fig(grunt, ph > 62 && ph < 110 ? P.fall[0] : P.idle[0], bx + 230, fy - (ph > 62 && ph < 110 ? 10 : 0), -1);
         break;
       }
       case 'thrown': {

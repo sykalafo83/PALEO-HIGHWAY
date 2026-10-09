@@ -30,7 +30,7 @@ for (const f of files) {
   try {
     page = await openPage(gameUrl(test.page || 'index.html', test.query ?? 'hooks=1'), { outDir, width: test.width, height: test.height });
     const ctx = Object.assign({}, page, {
-      assert(cond, msg) { if (!cond) throw new Error('Asercja: ' + msg); },
+      assert(cond, msg) { if (!cond) throw new Error('Asercja: ' + msg + (page.errors.length ? ' [wyjątki: ' + page.errors.slice(0, 2).join(' || ') + ']' : '')); },
       log: (...a) => { if (process.env.VERBOSE) console.log('      ', ...a); },
       shot: name => page.shot(f.replace('.mjs', '') + '-' + name)
     });

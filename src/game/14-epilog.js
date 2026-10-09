@@ -19,6 +19,13 @@
       app.mode = 'play'; app.t = 0;
     });
   }
+  // ---- etap specjalny: pociąg do Twierdzy (między Kanałami a Twierdzą)
+  function startTrain(team, nextIdx) {
+    team = team || makeTeam();
+    saveProgress({ type: 'train', next: nextIdx }, team);
+    app.trainNext = nextIdx;
+    startStory('train', team, () => { startStage(6, team, window.SPECIAL_STAGES.train); app.mode = 'play'; app.t = 0; });
+  }
   function startEscape(team) {
     saveProgress({ type: 'escape' }, team);
     startStory('escape', team, () => { startStage(STAGES.length - 1, team, window.SPECIAL_STAGES.escape); app.mode = 'play'; app.t = 0; });

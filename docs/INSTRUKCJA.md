@@ -208,6 +208,17 @@ Podnoszona atakiem, zużywa się z każdym trafieniem (licznik przy panelu gracz
 
 Bronie leżą w beczkach i skrzyniach (m.in. etapy 1, 2, 3A, 4, Plaża, Kanały) i na arenie treningowej.
 
+### Beczki i skrzynie
+- **▼ + ATAK** przy beczce lub skrzyni — podnosisz ją nad głowę (idziesz wolniej).
+- **ATAK** albo **SKOK** — rzut: beczka przewraca **wszystkich** na swojej drodze, a po upadku pęka i zostawia łup.
+- **Beczka z paliwem** wybucha przy pierwszym uderzeniu we wroga.
+- **BLOK** — odstawiasz beczkę na ziemię. Gdy ktoś cię trafi albo złapie w sieć, beczka spada i pęka.
+
+### Wrzucanie w zagrożenia
+Wróg odrzucony lub rzucony prosto do **lawy** (3B), **ścieków** (Kanały) albo do **morza przy przypływie** (Plaża)
+znika od razu — „W LAWIE!” / „SPŁUKANY!”, **+1000 pkt**. Na pociągu wróg zrzucony poza platformę odpada („ZRZUCONY!”).
+Bossów nie da się tak pokonać.
+
 ### Żonglerka i odbicia
 - **▲ + ATAK (stojąc w miejscu)** — wybicie: wróg leci pionowo w górę.
 - Wroga w powietrzu można podbić jeszcze 3 razy — każde podbicie to „ŻONGLERKA ×n”, punkty (200 × n) i dodatkowe trafienie w kombo.
@@ -253,6 +264,13 @@ strażnicy nadbiegają co kilka sekund. 1000 pkt za każdego uwolnionego, komple
   Zdejmiesz go kopnięciem z wyskoku albo strzelbą; po upadku walczy wręcz.
 - **Sieciarz** — rzuca sieć, która unieruchamia; szybko wciskaj przyciski, by się uwolnić.
 - **Pteranodon** — krąży wysoko i zrzuca kamienie (patrz na cień), czasem pikuje; trafisz go z wyskoku.
+- **Jeździec** — kłusownik na osiodłanym raptorze. Przewróć go (cios kończący, kopnięcie z wyskoku, rzut),
+  a spadnie z siodła — raptor zostaje oszołomiony i możesz go od razu dosiąść.
+- **Podpalacz** — miotacz ognia o krótkim zasięgu; zostawia na podłodze płonące plamy, które ranią każdego (także wrogów).
+- **Lotniarz** — przelatuje nad ekranem na lotni i zrzuca sieci tam, gdzie stoisz (uciekaj spod cienia).
+  Po trzech przelotach ląduje; trafiony z wyskoku spada od razu i walczy wręcz.
+- **Brygadzista** (mini-boss pociągu) — koparka z pancerzem: zamach łyżką z góry (pole rażenia przed maszyną)
+  i szarża z łyżką przy ziemi. Uderzaj z boku i odskakuj przed szarżą.
 
 ### Sekrety
 - **Popękane ściany** (rozbijalne): skarb (klejnoty, mięso, czasem bursztynowe jajo = dodatkowe życie)
@@ -308,7 +326,7 @@ W NG+ zamiast pogody obowiązuje jego własna noc i jesień.
 Własne etapy nie dają osiągnięć i nie trafiają do tabeli wyników. `js/stages/custom.js` zawiera przykładowy etap.
 
 ## Etapy
-Kolejność: 1 → 2 → 3A lub 3B (wybór trasy) → 4 → 5 → 6 → 7 (finał), potem epilog „Ucieczka”.
+Kolejność: 1 → 2 → 3A lub 3B (wybór trasy) → 4 → 5 → 6 → pociąg → 7 (finał), potem epilog „Ucieczka”.
 
 | # | Etap | Nowości | Boss |
 |---|---|---|---|
@@ -320,6 +338,14 @@ Kolejność: 1 → 2 → 3A lub 3B (wybór trasy) → 4 → 5 → 6 → 7 (fina�
 | 5 | **Opuszczona Plaża** — zaśmiecony brzeg, brudne fale z ropą, wrak tankowca, wieża ratownika, przewrócone łodzie, góry śmieci, opony i wielkie szkielety dinozaurów; muchy nad śmieciami | parazaurolofy i pteranodony nad brzegiem, triceratops, jeep do przejęcia, beczki z paliwem | **Padliniarz** — Król Śmietniska w żółtym sztormiaku: ciężka kotwica, szarża, skok z falą uderzeniową, wzywa zbieraczy |
 | 6 | **Kanały Otchłani** — ceglane tunele pod miastem, rury, kraty, graffiti, migające lampy, rynna ze ściekami, kapiąca woda | **toksyczne kałuże** (ranią każdego, kto w nie wejdzie), Biały Kieł w ciemnościach, stada raptorów | **Zębacz** — mutant z kanałów, zdziczały kuzyn Starego Kła: ugryzienie, ogon, ryk, szarża |
 | 7 | **Bursztynowa Twierdza** — burza, hangar, laboratorium, sala tronowa | powrót Klina i Żmii jako mini-bossów | **Baron Bursztyn** — teleport za plecy, kombo laską, fale energii po ziemi (przeskakuj), druga faza |
+
+### Etap specjalny — „Pociąg do Twierdzy” (po etapie 6)
+Walka na platformach pędzącego pociągu: tło przesuwa się szybko, wrogowie wskakują z obu stron toru,
+a każdy wróg strącony poza krawędź platformy odpada od razu. Na końcu czeka **Brygadzista** w koparce.
+
+### Zakończenia postaci
+Po napisach końcowych ENTER pokazuje krótki komiks dla każdej postaci z drużyny (w co-opie — dla obu):
+Kruk, Nina, Tur, Borys, Baron, Padliniarz i Żmija mają własne zakończenia.
 
 ### Etap bonusowy — „Lot nad Zatoką” (po etapie 5)
 Lot na pteranodonie wzdłuż wybrzeża przez 50 s: **▲▼◄►** lot, **ATAK** — zrzuć kamień, **SKOK** — zryw do przodu.
