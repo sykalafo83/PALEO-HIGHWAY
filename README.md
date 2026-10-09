@@ -123,4 +123,6 @@ oryginalne i powstają w kodzie. Projekt nie zawiera cudzych zasobów. Jedyny ze
 
 ## Licencja
 
-Projekt nie ma jeszcze pliku licencji. Przed publikacją dodaj plik `LICENSE` z wybraną licencją (np. MIT).
+Projekt jest udostępniony na licencji **MIT** — patrz plik [`LICENSE`](LICENSE). Możesz grę i jej kod swobodnie
+używać, kopiować, zmieniać i rozpowszechniać (także komercyjnie), pod warunkiem zachowania informacji o prawach
+autorskich i treści licencji. Czcionki *Press Start 2P* i *Tiny5* mają własną licencję SIL Open Font License.
