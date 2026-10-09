@@ -29,7 +29,7 @@ Na ekranie tytułowym pojawia się **KONTYNUUJ** z opisem zapisu (etap, postacie
 
 **Tryb debug / wybór etapu:** ustaw `debug: true` w pliku `config.js` i odśwież stronę. Po wyborze
 postaci (i ekranie kodów) pojawi się ekran **WYBÓR ETAPU**: ▲/▼ wybór, Enter/atak start, skok/Esc powrót.
-Ten sam ekran odblokowuje kod z ikon KOŚĆ · BURSZTYN · KOŚĆ · JAJO (patrz [Kody z ikon](#kody-z-ikon)).
+Ten sam ekran odblokowuje jeden z tajnych kodów z ikon (patrz [Kody z ikon](#kody-z-ikon)).
 
 ### Menu główne
 **JAK GRAĆ** — wbudowany poradnik: 11 rozdziałów (podstawy, walka, chwyty i rzuty, obrona, specjały i furia, broń,
@@ -317,7 +317,7 @@ Poprawny kod od razu uruchamia grę; bez kodu wybierz pozycję GRAJ (na wpisanie
 Jeden kod włącza wybór etapu (jak w trybie debug), dziesięć pozostałych to smaczki: wielkie głowy, niska grawitacja,
 wieczna furia, dziewięć żyć, jeden cios, wierny raptor, kino nieme, karzełki, złota gorączka i hel.
 Kody działają do końca przejścia. Kody dające przewagę wyłączają w tym przejściu osiągnięcia i wpis do tabeli wyników.
-Kombinacje: plik **iconcodes.html** w katalogu gry.
+Kombinacje są tajne — trzeba je odkryć samemu.
 
 ![Kody z ikon](screenshots/10-kody.png)
 
@@ -469,7 +469,6 @@ Wynik, życia i postać przechodzą między etapami; dodatkowe życie co 50 000 
 ```
 index.html              gra
 editor.html, js/editor.js  edytor etapów
-iconcodes.html          spis kodów z ikon
 config.js               konfiguracja: debug, domyślna trudność, życia, głośność, sterowanie dotykowe, CRT, ramka
 export.html             odsłuch i eksport audio do WAV
 src/game/*.js           źródła silnika gry (30 części) — z nich powstaje js/game.js (node tools/build.mjs)

@@ -5386,7 +5386,7 @@
   // =============================================================== KODY Z IKON
   // Po wybraniu postaci w zwykłej grze: 4 kafle z ikonami (◄► kafel, ▲▼ ikona, ENTER — sprawdź kod).
   // Poprawny kod: krótki napis „KOD: …!” i gra rusza sama.
-  // Spis kodów dla graczy: iconcodes.html. Kody działają do końca przejścia (nie zapisują się).
+  // Kombinacje są tajne (tylko tutaj i w testach). Kody działają do końca przejścia (nie zapisują się).
   const CODE_ICONS = ['JAJO', 'KOŚĆ', 'KIEŁ', 'BURSZTYN', 'LIŚĆ', 'CZASZKA'];
   const CODES = [
     { id: 'stagesel', name: 'WYBÓR ETAPU', desc: 'WYBIERASZ ETAP, OD KTÓREGO ZACZYNASZ', combo: [1, 3, 1, 0] },
@@ -5442,7 +5442,7 @@
     }
     if (C.bump && C.bump.t > 0) C.bump.t--;
   }
-  // ikony rysowane kodem (te same kształty co w iconcodes.html)
+  // ikony rysowane kodem
   function drawCodeIcon(i, cx, cy, s) {
     const O = '#140c10';
     ctx.save(); ctx.translate(cx, cy); ctx.scale(s, s);

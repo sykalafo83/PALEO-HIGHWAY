@@ -65,8 +65,8 @@ await P.tap('Escape'); await P.sleep(2600); await shot('08-mapa');
 // 9. Lot nad Zatoką
 await P.ev(`__paleo.startFlight()`); await P.sleep(5200); await shot('09-lot');
 
-// 10. Kody z ikon
-await P.ev(`(() => { const a = __paleo.app; a.mode = 'title'; a.gameMode = 'arcade'; __paleo.openCodes(); a.codes.tiles = [2, 4, 2, 0]; a.codes.cur = 1; })()`);
+// 10. Kody z ikon (kafle celowo NIE tworzą żadnego kodu — kombinacje są tajne)
+await P.ev(`(() => { const a = __paleo.app; a.mode = 'title'; a.gameMode = 'arcade'; __paleo.openCodes(); a.codes.tiles = [5, 2, 3, 1]; a.codes.cur = 1; })()`);
 await P.sleep(600); await shot('10-kody');
 
 // 11. Poradnik „Jak grać”

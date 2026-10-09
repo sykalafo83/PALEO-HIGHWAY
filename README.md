@@ -39,7 +39,7 @@ muzyka i dźwięki są generowane kodem (Canvas 2D + Web Audio).
 - **Dźwięk:** utwory ze wstępem oraz częściami A i B, płynne wejście muzyki bossa, dźwięki otoczenia (fale, krople,
   wiatr, deszcz, pociąg), osobne odgłosy pięści, rury, łańcucha, ostrza i tarczy, siedem głosów wrogów.
 - **Kody z ikon:** po wybraniu postaci 4 kafle z ikonami; tajne kombinacje włączają wybór etapu i 10 smaczków
-  (wielkie głowy, niska grawitacja, kino nieme, hel…). Spis: [iconcodes.html](iconcodes.html).
+  (wielkie głowy, niska grawitacja, kino nieme, hel…). Kombinacje są tajne.
 - **Tryby:** zwykła gra, Nowa Gra+, trening, Boss Rush, przetrwanie, wyzwania z gwiazdkami i codzienne wyzwanie.
 - **Ekstra:** 32 osiągnięcia, bestiariusz, odtwarzacz muzyki, karta z wynikiem do udostępnienia, edytor etapów.
 - **Wygoda:** zapis postępu, przypisywanie klawiszy i przycisków pada (z wibracjami), sterowanie dotykowe,
@@ -107,7 +107,6 @@ i eksportują do [`js/stages/custom.js`](js/stages/custom.js), który zawiera pr
 ```
 index.html              gra
 editor.html             edytor etapów
-iconcodes.html          spis kodów z ikon (dla graczy)
 export.html             odsłuch i eksport muzyki oraz efektów do WAV
 config.js               ustawienia domyślne
 src/game/               źródła silnika gry w 30 częściach (wejście, gracz, AI, nowi wrogowie, tryby, HUD, kody, poradnik, pętla…)
