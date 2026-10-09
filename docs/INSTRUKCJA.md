@@ -2,7 +2,15 @@
 
 Bijatyka side-scroll w stylu automatów z lat 90. (gatunek *Cadillacs and Dinosaurs*), z w pełni
 **oryginalnymi** postaciami, grafiką, muzyką i dźwiękami. Wszystko jest generowane kodem
-(Canvas 2D + Web Audio), bez zewnętrznych zasobów. 8 etapów (z rozwidleniem trasy), 3 etapy bonusowe, epilog i dwa zakończenia.
+(Canvas 2D + Web Audio), bez zewnętrznych zasobów. 8 etapów (z rozwidleniem trasy), etap na pociągu, 3 etapy bonusowe,
+epilog, dwa zakończenia i osobny komiks-zakończenie dla każdej postaci.
+
+![Ekran tytułowy](screenshots/01-tytul.png)
+
+## Spis treści
+- [Uruchomienie](#uruchomienie) · [Menu główne](#menu-główne) · [Sterowanie](#sterowanie-12-graczy)
+- [Walka i broń](#broń-biała) · [Przebieg gry](#przebieg-gry) · [Kody z ikon](#kody-z-ikon) · [Oprawa i tryb demo](#oprawa-i-tryb-demo)
+- [Edytor etapów](#edytor-etapów) · [Etapy](#etapy) · [Audio](#audio) · [Struktura](#struktura)
 
 ## Uruchomienie
 **Najprościej:** otwórz `index.html` w przeglądarce (działa bezpośrednio z dysku, `file://`).
@@ -20,13 +28,16 @@ Na ekranie tytułowym pojawia się **KONTYNUUJ** z opisem zapisu (etap, postacie
 (koniec kontynuacji) i po ukończeniu gry. Wyjście z gry przez pauzę zostawia ostatni zapis.
 
 **Tryb debug / wybór etapu:** ustaw `debug: true` w pliku `config.js` i odśwież stronę. Po wyborze
-postaci pojawi się ekran **WYBÓR ETAPU**: ▲/▼ wybór, Enter/atak start, skok/Esc powrót.
+postaci (i ekranie kodów) pojawi się ekran **WYBÓR ETAPU**: ▲/▼ wybór, Enter/atak start, skok/Esc powrót.
+Ten sam ekran odblokowuje kod z ikon KOŚĆ · BURSZTYN · KOŚĆ · JAJO (patrz [Kody z ikon](#kody-z-ikon)).
 
 ### Menu główne
 **JAK GRAĆ** — wbudowany poradnik: 11 rozdziałów (podstawy, walka, chwyty i rzuty, obrona, specjały i furia, broń,
 dinozaury i pojazdy, etapy, gra we dwóch, opcje i wyniki, tryby i rady), 36 stron z animowanymi pokazami. ▲▼ rozdział, ◄► / Enter
 strona, Esc powrót; klawisze w tekście są brane z Twoich ustawień, przy padzie pokazują się ikony przycisków.
 Ostatnia strona prowadzi prosto do treningu.
+
+![Poradnik „Jak grać”](screenshots/11-poradnik.png)
 
 **START GRY**, **JAK GRAĆ**, **TRENING**, **WYZWANIA**, **BOSS RUSH**, **PRZETRWANIE**, **EKSTRA**, **OPCJE**, **NAJLEPSZE WYNIKI**
 (▲▼ wybór, Enter/atak zatwierdza).
@@ -63,11 +74,12 @@ co 5. fala — Biały Kieł, co 10. — prawdziwy boss. Premia za każdą falę,
 
 **Ekstra:**
 - **Własne etapy** — etapy z edytora i z pliku `js/stages/custom.js`; stąd też otwierasz edytor.
-- **Osiągnięcia** (29, m.in. „Sprzątacz plaży” — wszystkie beczki i skrzynie na Plaży, „Szczurołap” — 10 szczurów
+- **Osiągnięcia** (32, m.in. „Spłukany!” — wróg wrzucony w lawę, ścieki, morze albo zrzucony z pociągu,
+  „Kręgle” — rzucona beczka przewraca trzech wrogów, „Złomiarz” — zezłomowana koparka Brygadzisty, „Sprzątacz plaży” — wszystkie beczki i skrzynie na Plaży, „Szczurołap” — 10 szczurów
   w Kanałach (przebiegają po chodniku: łap je ciosem albo skokiem), „Ponad falą” — 3 fale ścieków bez zalania; m.in. „Zgrana drużyna” za atak drużynowy i „Żongler” za trzy podbicia), np. „Bez zadrapania” (etap bez obrażeń), „Dynamitowy łowca” (Stary Kieł pokonany dynamitem),
   „Czysty lakier” (autostrada bez zadrapania), „Mistrz kombo” (20 trafień), „Jeździec”, „Reakcja łańcuchowa”, „Pogromca bossów”…
   Odblokowanie pokazuje komunikat u góry ekranu; licznik widać na ekranie tytułowym.
-- **Bestiariusz** — 25 wpisów (bohaterowie, kłusownicy, bestie, bossowie) z animowanym modelem, opisem i parametrami;
+- **Bestiariusz** — 31 wpisów (bohaterowie, kłusownicy, bestie, bossowie) z animowanym modelem, opisem i parametrami;
   wpis odblokowuje się po pierwszym spotkaniu.
 - **Odtwarzacz muzyki** — 17 utworów z wizualizacją widma; utwór odblokowuje się, gdy raz zabrzmi w grze.
 
@@ -184,10 +196,13 @@ oszołomiony (gwiazdki, „ATAK — DOSIĄDŹ!”). Podejdź i naciśnij atak. S
 
 **Pasek furii i super-ruchy:** cienki pomarańczowy pasek pod życiem ładuje się, gdy zadajesz i otrzymujesz obrażenia.
 Pełny (miga, „FURIA! SPECJAŁ”) zamienia specjał w super-ruch z przerywnikiem: KRUK — *Burza kluczy*,
-NINA — *Taniec cieni* (teleport od wroga do wroga), TUR — *Fala sejsmiczna* (cały ekran), BORYS — *Grad laski*.
+NINA — *Taniec cieni* (teleport od wroga do wroga), TUR — *Fala sejsmiczna* (cały ekran), BORYS — *Grad laski*,
+BARON — *Bursztynowa burza*, PADLINIARZ — *Kotwica Zagłady*, ŻMIJA — *Taniec bicza*.
 
 **Parowanie:** naciśnij atak tuż przed ciosem wroga od przodu (≈ 1/8 s) — cios nie wchodzi, napastnik zostaje
 ogłuszony (boss zachwiany, Stary Kieł oszołomiony), dostajesz furię i 300 pkt. Nie działa na pociski i wybuchy.
+
+![Obóz z ulepszeniami](screenshots/07-oboz.png)
 
 **Obóz z ulepszeniami:** z pokonanych wrogów wypadają bursztyny (bossowie — 4), każdy klejnot to też +1 bursztyn.
 Przed każdą mapą trasy odwiedzasz obóz: +10% życia (3 poziomy), dłuższe kombo, mocniejsze bomby, dłuższa jazda,
@@ -232,10 +247,16 @@ Bomba trafiająca w locie wroga spada mu pod nogi. Wybuchy ranią wrogów i boss
 Dynamit wypada z Miotaczy, granaty ze Strzelców; są też w beczkach i skrzyniach na każdym etapie.
 
 ## Przebieg gry
-**1 → 2 → [3A Miasto Cieni | 3B Ogniste Szyby] → bonus „Autostrada 7” → 4 Port → bonus „Zagroda” → 5 Twierdza → epilog „Ucieczka”**
+**1 Zielona Rdza → 2 Smolne Bagna → [3A Miasto Cieni | 3B Ogniste Szyby] → bonus „Autostrada 7” → 4 Port →
+bonus „Zagroda” → 5 Opuszczona Plaża → bonus „Lot nad Zatoką” → 6 Kanały Otchłani → „Pociąg do Twierdzy” →
+7 Bursztynowa Twierdza → epilog „Ucieczka” (→ przy spełnionych warunkach: finał z Bursztynowym Kolosem)**
 
-**Scenki fabularne:** przed każdym etapem i epilogiem — komiksowe plansze z portretami i dialogami
+![Mapa regionu z wyborem trasy](screenshots/08-mapa.png)
+
+**Scenki fabularne:** przed każdym etapem, pociągiem i epilogiem — komiksowe plansze z portretami i dialogami
 (mówią bohaterowie z twojej drużyny i bossowie). Enter — dalej, Esc — pomiń.
+
+![Komiksowy przerywnik](screenshots/04-komiks.png)
 
 **Epilog „Ucieczka”:** po pokonaniu Barona twierdza płonie. Kamera przewija się sama i przyspiesza,
 od lewej goni ściana lawy (rani każdego, kto zostanie w tyle), z sufitu lecą odłamki (patrz na cień),
@@ -251,7 +272,7 @@ w kopalni wagonik na torach (miażdży wszystko po drodze, jedzie do końca tor�
   od tyłu najbliższego wroga), dół, przód + atak — *Fala energii*, super-ruch *Bursztynowa burza*.
 
 Po etapie 2 na mapie wybierasz trasę (◄ ►, Enter): miasto z Braćmi Trzask albo kopalnię ze Starym Kłem.
-Drugą lokację pomijasz — jedno przejście to 5 etapów + 2 bonusy.
+Drugą lokację pomijasz — jedno przejście to 7 etapów, pociąg, 3 bonusy i epilog.
 
 ### Bonus 2 — „Zagroda”
 Nocny obóz kłusowników: rozbij 10 klatek z młodymi dinozaurami w 45 s (każda wytrzymuje 4 ciosy),
@@ -271,6 +292,12 @@ strażnicy nadbiegają co kilka sekund. 1000 pkt za każdego uwolnionego, komple
   Po trzech przelotach ląduje; trafiony z wyskoku spada od razu i walczy wręcz.
 - **Brygadzista** (mini-boss pociągu) — koparka z pancerzem: zamach łyżką z góry (pole rażenia przed maszyną)
   i szarża z łyżką przy ziemi. Uderzaj z boku i odskakuj przed szarżą.
+
+**Klasyczni przeciwnicy:** Szakal (kłusownik z nożem), Ćwiek (doskok z kopnięciem), Głaz (szarża brzuchem),
+Miotacz (dynamit), Strzelec (celownik laserowy), a z dinozaurów raptory, pachy, triceratopsy, parazaurolofy i pteranodony.
+Każdy typ kłusownika ma rozpoznawalny dodatek (patrz [Oprawa i tryb demo](#oprawa-i-tryb-demo)).
+
+![Opuszczona Plaża — jeździec na raptorze i podpalacz](screenshots/02-plaza.png)
 
 ### Sekrety
 - **Popękane ściany** (rozbijalne): skarb (klejnoty, mięso, czasem bursztynowe jajo = dodatkowe życie)
@@ -292,6 +319,8 @@ wieczna furia, dziewięć żyć, jeden cios, wierny raptor, kino nieme, karzełk
 Kody działają do końca przejścia. Kody dające przewagę wyłączają w tym przejściu osiągnięcia i wpis do tabeli wyników.
 Kombinacje: plik **iconcodes.html** w katalogu gry.
 
+![Kody z ikon](screenshots/10-kody.png)
+
 ### Oprawa i tryb demo
 - **Portret w HUD** reaguje na walkę: po trafieniu krzywi się z bólu, przy niskim życiu (poniżej 25%) tło pulsuje
   na czerwono i pojawia się pot, a przy pełnej furii portret płonie i ma gniewne spojrzenie.
@@ -301,6 +330,12 @@ Kombinacje: plik **iconcodes.html** w katalogu gry.
   rozbłyskują; w deszczu na ziemi stoją kałuże, w których odbijają się postacie.
 - **Tryb demo:** po chwili bezczynności na ekranie tytułowym komputer sam gra kawałek losowego etapu
   (na zmianę z tabelą wyników). Dowolny przycisk wraca do menu. Demo niczego nie zapisuje.
+- **Animacja postaci:** dwutonowe cieniowanie i wyraźny obrys, oddech w miejscu, zamach przed ciosem, mina bólu;
+  przy trafieniu cała postać na moment bieleje, iskry są większe, a kopnięcia zostawiają białą smugę.
+
+![Deszcz: kałuże z odbiciami, smuga kopnięcia i wrogowie z dodatkami](screenshots/06-deszcz.png)
+
+![Kanały Otchłani — światło lamp i wybuchu](screenshots/03-kanaly.png)
 
 ### Komiksowe przerywniki
 Scenki przed etapami to strony komiksu: każda kwestia to osobny kadr (tło etapu, postać w zbliżeniu, dymek, podpis),
@@ -318,7 +353,10 @@ Nazwa pogody pojawia się pod tytułem etapu.
 | 3A — Miasto Cieni | pogodnie, zmierzch, mgła (+ stałe ulewy) |
 | 3B — Ogniste Szyby | burza piaskowa (najczęściej), deszcz popiołu, pogodnie |
 | 4 — Port Przemytników | zachód słońca (najczęściej), pogodnie, mgła |
-| 5 — Bursztynowa Twierdza | pogodnie, zmierzch, deszcz, zachód słońca |
+| 5 — Opuszczona Plaża | mgła, zachód słońca, deszcz, pogodnie |
+| 6 — Kanały Otchłani | bez pogody (pod ziemią) |
+| 7 — Bursztynowa Twierdza | pogodnie, zmierzch, deszcz, zachód słońca |
+| Pociąg do Twierdzy | zawsze zachód słońca |
 
 W NG+ zamiast pogody obowiązuje jego własna noc i jesień.
 
@@ -330,10 +368,10 @@ W NG+ zamiast pogody obowiązuje jego własna noc i jesień.
 
 ## Edytor etapów
 `editor.html` (albo EKSTRA → WŁASNE ETAPY → OTWÓRZ EDYTOR ETAPÓW) — edytor w przeglądarce:
-- **Ustawienia:** nazwa, podtytuł, tło (jeden z sześciu etapów gry), długość, muzyka etapu i bossa, trudność, pogoda.
+- **Ustawienia:** nazwa, podtytuł, tło (jeden z ośmiu etapów gry), długość, muzyka etapu i bossa, trudność, pogoda.
 - **Podgląd** z prawdziwym tłem, suwak i minimapa całej planszy; przewijanie kółkiem lub strzałkami.
 - **Narzędzia:** beczka, skrzynia, beczka z paliwem, ściana z sekretem (skarb, skarb + życie albo Biały Kieł),
-  przedmiot, jeep, wagonik, wróg w fali. Klik stawia, przeciąganie przesuwa, Delete usuwa, Ctrl+Z cofa.
+  przedmiot, jeep, wagonik, wróg w fali (także podpalacz, lotniarz, jeździec na raptorze i Brygadzista). Klik stawia, przeciąganie przesuwa, Delete usuwa, Ctrl+Z cofa.
 - **Fale:** „+ Fala w bieżącym widoku” blokuje kamerę w tym miejscu; każda fala ma grupy wrogów (typ, strona wejścia,
   wysokość, opóźnienie), kolejna grupa wchodzi, gdy zostanie podana liczba wrogów. Fala z bossem kończy etap;
   bez bossa etap kończy się po ostatniej fali na końcu planszy.
@@ -343,6 +381,8 @@ W NG+ zamiast pogody obowiązuje jego własna noc i jesień.
 - **Eksport custom.js** — wszystkie etapy (biblioteka + obecny plik) jako `js/stages/custom.js`; podmień plik,
   a etapy będą w grze na każdym komputerze. **Eksport .json / Import…** — pojedyncze etapy i wczytywanie plików.
 Własne etapy nie dają osiągnięć i nie trafiają do tabeli wyników. `js/stages/custom.js` zawiera przykładowy etap.
+
+![Edytor etapów](screenshots/13-edytor.png)
 
 ## Etapy
 Kolejność: 1 → 2 → 3A lub 3B (wybór trasy) → 4 → 5 → 6 → pociąg → 7 (finał), potem epilog „Ucieczka”.
@@ -362,15 +402,21 @@ Kolejność: 1 → 2 → 3A lub 3B (wybór trasy) → 4 → 5 → 6 → pociąg 
 Walka na platformach pędzącego pociągu: tło przesuwa się szybko, wrogowie wskakują z obu stron toru,
 a każdy wróg strącony poza krawędź platformy odpada od razu. Na końcu czeka **Brygadzista** w koparce.
 
+![Pociąg do Twierdzy — koparka Brygadzisty](screenshots/05-pociag.png)
+
 ### Zakończenia postaci
 Po napisach końcowych ENTER pokazuje krótki komiks dla każdej postaci z drużyny (w co-opie — dla obu):
 Kruk, Nina, Tur, Borys, Baron, Padliniarz i Żmija mają własne zakończenia.
+
+![Zakończenie postaci](screenshots/12-zakonczenie.png)
 
 ### Etap bonusowy — „Lot nad Zatoką” (po etapie 5)
 Lot na pteranodonie wzdłuż wybrzeża przez 50 s: **▲▼◄►** lot, **ATAK** — zrzuć kamień, **SKOK** — zryw do przodu.
 Zatapiaj łodzie kłusowników: pontony (1 trafienie), kutry z dinozaurem w klatce (2 — zatopienie go uwalnia)
 i kanonierki (3 — strzelają harpunami w pteranodona). Omijaj klucze mew, zbieraj bursztyny w chmurach.
 Zestrzelenie pteranodona tylko kończy bonus. 12 zatopionych łodzi = osiągnięcie „Podniebny bombardier”.
+
+![Bonus: lot nad zatoką](screenshots/09-lot.png)
 
 ### Prawdziwe zakończenie
 W jednym przejściu gry **uwolnij wszystkie dinozaury w Zagrodzie** i **odkryj co najmniej 3 sekrety** (rozbijalne ściany).
@@ -387,7 +433,8 @@ W trybie debug oba bonusy są dostępne na liście wyboru etapu.
 ### Tabela wyników
 Top 10 zapisywane w przeglądarce (localStorage). Po końcu gry lub po zakończeniu, jeśli wynik się kwalifikuje,
 wpisujesz 3 inicjały (▲▼ litera, ◄► pozycja, atak/Enter zatwierdza; dostępne też polskie litery).
-Na ekranie tytułowym tabela pokazuje się co ok. 12 s (tryb „attract” jak w automatach).
+Na ekranie tytułowym po ok. 15 s bezczynności na zmianę pokazuje się tabela wyników i pokaz gry (tryb „attract” jak w automatach).
+Z kodami dającymi przewagę (patrz [Kody z ikon](#kody-z-ikon)) wynik nie trafia do tabeli.
 Kontynuacja po przegranej zachowuje wynik.
 
 Przed każdym etapem pojawia się **mapa regionu** (w stylu Final Fight): czerwony szlak z już
@@ -422,12 +469,15 @@ Wynik, życia i postać przechodzą między etapami; dodatkowe życie co 50 000 
 ```
 index.html              gra
 editor.html, js/editor.js  edytor etapów
-config.js               konfiguracja: debug, domyślna trudność, życia, głośność, sterowanie dotykowe
+iconcodes.html          spis kodów z ikon
+config.js               konfiguracja: debug, domyślna trudność, życia, głośność, sterowanie dotykowe, CRT, ramka
 export.html             odsłuch i eksport audio do WAV
-js/audio.js             syntezator SFX, instrumenty, sekwencer, utwory, eksport offline
-js/sprites.js           szkieletowy renderer postaci, pozy, raptor/pachy/olbrzym, bronie, pociski, efekty
+src/game/*.js           źródła silnika gry (30 części) — z nich powstaje js/game.js (node tools/build.mjs)
+js/audio.js             syntezator SFX, instrumenty, sekwencer, utwory (wstęp + część A i B), otoczenie, głosy
+js/sprites.js           szkieletowy renderer postaci z cieniowaniem, pozy, dodatki wrogów, dinozaury, bronie, efekty
 js/scenery.js           wspólne elementy scenerii + fabryka etapów (warstwy paralaksy)
-js/stages/stage1..8.js  tła, animacje, fale wrogów i obiekty każdego etapu (stage7 = plaża, stage8 = kanały)
+js/stages/stage1..8.js  tła, animacje, fale wrogów i obiekty etapów (stage6 = twierdza, stage7 = plaża, stage8 = kanały)
+js/stages/train.js      etap specjalny „Pociąg do Twierdzy”
 js/stages/cages.js      bonus „Zagroda”
 js/stages/training.js   arena treningowa
 js/stages/survival.js   arena trybu przetrwania
@@ -436,7 +486,10 @@ js/stages/custom.js     własne etapy z edytora (window.CUSTOM_STAGES)
 js/stages/extras.js     nowi wrogowie, sekrety, paliwo, lawa, wagoniki, ulewa (uzupełnienia etapów)
 js/bonus.js             etap bonusowy z jazdą samochodem
 js/flight.js            etap bonusowy — lot na pteranodonie
-js/game.js              pętla gry, sterowanie, walka, AI wrogów i bossów, kamera, HUD, ekrany
+js/game.js              silnik zbudowany z src/game/ (pętla, sterowanie, walka, AI, kamera, HUD, ekrany) — nie edytuj ręcznie
+tools/build.mjs         składa js/game.js ze źródeł
+tools/tests/            testy automatyczne w przeglądarce bez okna (node tools/tests/run.mjs)
+tools/screenshots.mjs   zrzuty ekranu do docs/screenshots/
 tools/export-audio.mjs  wsadowy eksport audio przez headless Chromium
 tools/serve.mjs         lokalny serwer (tryb offline / instalacja PWA); uruchom-serwer.bat — skrót
 tools/icon.html         generator ikon aplikacji

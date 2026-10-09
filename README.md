@@ -8,17 +8,22 @@ muzyka i dźwięki są generowane kodem (Canvas 2D + Web Audio).
 
 | | |
 |---|---|
-| ![Opuszczona Plaża — gra we dwóch](docs/screenshots/02-plaza.png) | ![Kanały Otchłani](docs/screenshots/03-kanaly.png) |
-| ![Komiksowy przerywnik](docs/screenshots/04-komiks.png) | ![Mapa trasy](docs/screenshots/05-mapa.png) |
-| ![Bonus: lot na pteranodonie](docs/screenshots/06-lot.png) | ![Edytor etapów](docs/screenshots/07-edytor.png) |
+| ![Opuszczona Plaża — gra we dwóch, jeździec na raptorze i podpalacz](docs/screenshots/02-plaza.png) | ![Kanały Otchłani — światło lamp i wybuchu](docs/screenshots/03-kanaly.png) |
+| ![Pociąg do Twierdzy — koparka Brygadzisty](docs/screenshots/05-pociag.png) | ![Deszcz: kałuże, smuga kopnięcia, wrogowie z dodatkami](docs/screenshots/06-deszcz.png) |
+| ![Komiksowy przerywnik](docs/screenshots/04-komiks.png) | ![Zakończenie postaci](docs/screenshots/12-zakonczenie.png) |
+| ![Obóz z ulepszeniami](docs/screenshots/07-oboz.png) | ![Mapa regionu z wyborem trasy](docs/screenshots/08-mapa.png) |
+| ![Bonus: lot nad zatoką](docs/screenshots/09-lot.png) | ![Kody z ikon](docs/screenshots/10-kody.png) |
+| ![Poradnik „Jak grać”](docs/screenshots/11-poradnik.png) | ![Edytor etapów](docs/screenshots/13-edytor.png) |
 
 ## Co jest w grze
 
-- **8 etapów** z wyborem trasy (miasto albo kopalnia), mapą regionu, epilogiem z ucieczką i dwoma zakończeniami;
-  każdy etap ma własnego bossa, muzykę, scenkę komiksową oraz losową pogodę i porę dnia.
+- **8 etapów** z wyborem trasy (miasto albo kopalnia), mapą regionu, obozem z ulepszeniami, epilogiem z ucieczką
+  i dwoma zakończeniami; każdy etap ma własnego bossa, muzykę, scenkę komiksową, wydarzenia (przypływ, fala ścieków,
+  wagoniki, ulewa) oraz losową pogodę i porę dnia, która wpływa na rozgrywkę.
 - **3 etapy bonusowe:** jazda krążownikiem szos, uwalnianie dinozaurów z zagród i lot na pteranodonie,
   plus **etap na pędzącym pociągu** z mini-bossem Brygadzistą w koparce.
 - **Zakończenie dla każdej postaci:** krótki komiks o tym, co bohater robi po wszystkim.
+- **Sekrety:** pękające ściany ze skarbami i Białym Kłem, prawdziwe zakończenie z Bursztynowym Kolosem.
 - **Gra we dwóch** (klawiatura i pady), z atakami drużynowymi: wyrzut partnera, podwójny rzut, wspólny super-ruch.
 - **4 bohaterów + 3 do odblokowania**, każdy z własną serią ciosów, specjałem, ruchem komendowym, super-ruchem i okrzykami.
 - **Walka:** kombo, chwyty i rzuty, blok i parowanie, żonglerka w powietrzu, odbicia od ścian, broń biała i rzucana,
@@ -78,7 +83,7 @@ Domyślne ustawienia są w [`config.js`](config.js); zmiany z menu OPCJE zapisuj
 
 | Klucz | Znaczenie |
 |---|---|
-| `debug` | `true` — po wyborze postaci ekran wyboru etapu (także bonusów) |
+| `debug` | `true` — po wyborze postaci ekran wyboru etapu (także bonusów; to samo daje kod z ikon) i uchwyty testowe |
 | `difficulty` | `'easy'`, `'normal'`, `'arcade'` |
 | `lives` | liczba żyć na start (1–5) |
 | `musicVolume`, `sfxVolume` | głośność 0–10 |
@@ -102,20 +107,21 @@ i eksportują do [`js/stages/custom.js`](js/stages/custom.js), który zawiera pr
 ```
 index.html              gra
 editor.html             edytor etapów
+iconcodes.html          spis kodów z ikon (dla graczy)
 export.html             odsłuch i eksport muzyki oraz efektów do WAV
 config.js               ustawienia domyślne
-src/game/               źródła silnika gry w 27 częściach (wejście, gracz, AI, tryby, HUD, mapa, pętla…)
+src/game/               źródła silnika gry w 30 częściach (wejście, gracz, AI, nowi wrogowie, tryby, HUD, kody, poradnik, pętla…)
 js/game.js              silnik zbudowany z src/game/ (plik generowany — nie edytuj ręcznie)
 js/audio.js             syntezator dźwięków, instrumenty, sekwencer, utwory, okrzyki postaci
 js/sprites.js           szkieletowe postacie, dinozaury, pojazdy, bronie, przedmioty
 js/scenery.js           elementy scenerii i fabryka etapów (warstwy paralaksy)
 js/bonus.js, flight.js  etapy bonusowe: jazda autem i lot na pteranodonie
 js/editor.js            logika edytora etapów
-js/stages/              etapy (stage1–8), areny specjalne, rozszerzenia i własne etapy
+js/stages/              etapy (stage1–8), pociąg (train.js), areny specjalne, rozszerzenia i własne etapy
 assets/audio/           wyeksportowana muzyka i efekty (WAV)
 icons/, manifest.webmanifest, sw.js   aplikacja PWA i praca offline
 tools/                  budowanie, testy automatyczne, serwer lokalny, eksport audio, generator ikon
-docs/                   instrukcja gry i zrzuty ekranu
+docs/                   instrukcja gry i zrzuty ekranu (docs/screenshots/)
 ```
 
 ## Narzędzia
@@ -128,6 +134,7 @@ Wymagają Node.js 22+; eksport audio dodatkowo przeglądarki Edge lub Chrome.
 | `node tools/tests/run.mjs [nazwa…]` | testy automatyczne w przeglądarce bez okna (wszystkie albo wybrane); zrzuty w `tools/tests/out/` |
 | `node tools/serve.mjs [port]` | lokalny serwer (domyślnie port 8080) |
 | `node tools/export-audio.mjs` | renderuje wszystkie utwory i efekty do `assets/audio/` |
+| `node tools/screenshots.mjs` | robi aktualne zrzuty ekranu do `docs/screenshots/` (README i instrukcja) |
 | `tools/icon.html` | generator ikon aplikacji |
 
 Po zmianie listy plików gry podbij wersję `CACHE` w [`sw.js`](sw.js), żeby zainstalowana aplikacja pobrała nowe pliki.
@@ -136,9 +143,11 @@ Po zmianie listy plików gry podbij wersję `CACHE` w [`sw.js`](sw.js), żeby za
 
 1. Zmieniaj pliki w `src/game/` (silnik) albo `js/` (pozostałe moduły), nie `js/game.js`.
 2. Zbuduj silnik: `node tools/build.mjs`.
-3. Uruchom testy: `node tools/tests/run.mjs` — 12 scenariuszy sprawdza m.in. wszystkie etapy i bossów, walkę,
-   pady, tryby, wydarzenia, komiks, lot, zakończenia, edytor i oprawę; test kończy się błędem także przy każdym
-   wyjątku JavaScript w grze. Testy same budują silnik przed startem.
+3. Uruchom testy: `node tools/tests/run.mjs` — 17 scenariuszy sprawdza m.in. wszystkie etapy i bossów, walkę,
+   pady, tryby, wydarzenia i pogodę, komiks, lot, zakończenia, edytor, poradnik, beczki i nowych wrogów, pociąg,
+   grafikę i tryb demo, muzykę i dźwięki oraz kody z ikon; test kończy się błędem także przy każdym wyjątku
+   JavaScript w grze. Testy same budują silnik przed startem.
+4. Po zmianach w wyglądzie odśwież zrzuty: `node tools/screenshots.mjs`.
 
 Uchwyty testowe (`window.__paleo`) są dostępne tylko z `debug: true` w `config.js` albo z parametrem adresu `?hooks=1`.
 
