@@ -1,5 +1,6 @@
   // =============================================================== KODY Z IKON
   // Po wybraniu postaci w zwykłej grze: 4 kafle z ikonami (◄► kafel, ▲▼ ikona, ENTER — sprawdź kod).
+  // Poprawny kod: krótki napis „KOD: …!” i gra rusza sama.
   // Spis kodów dla graczy: iconcodes.html. Kody działają do końca przejścia (nie zapisują się).
   const CODE_ICONS = ['JAJO', 'KOŚĆ', 'KIEŁ', 'BURSZTYN', 'LIŚĆ', 'CZASZKA'];
   const CODES = [
@@ -40,6 +41,8 @@
   function updateCodes() {
     const C = app.codes;
     if (C.msgT > 0) C.msgT--;
+    if (C.flash > 0) C.flash--;
+    if (C.go > 0) { if (--C.go === 0) startWithCodes(); return; }   // po poprawnym kodzie — start
     if (pressed.pause || pressed.jump) { clearCheats(); app.mode = 'select'; app.t = 0; sfx('select'); return; }
     if (--C.time <= 0) { startWithCodes(); return; }
     if (pressed.left) { C.cur = (C.cur + 4) % 5; sfx('select'); }
@@ -49,12 +52,10 @@
       if (C.cur === 4) { startWithCodes(); return; }
       const code = CODES.find(c => c.combo.every((v, i) => v === C.tiles[i]));
       if (!code) { C.msg = 'NIEPRAWIDŁOWY KOD'; C.ok = false; sfx('empty'); }
-      else if (app.cheats.has(code.id)) { C.msg = code.name + ' — JUŻ AKTYWNY'; C.ok = true; sfx('select'); }
-      else { app.cheats.add(code.id); C.msg = 'KOD: ' + code.name + '!'; C.ok = true; sfx('oneup'); C.flash = 20; applyCheatMods(); }
+      else { app.cheats.add(code.id); C.msg = 'KOD: ' + code.name + '!'; C.ok = true; sfx('oneup'); C.flash = 20; C.go = 70; applyCheatMods(); }
       C.msgT = 150;
     }
     if (C.bump && C.bump.t > 0) C.bump.t--;
-    if (C.flash > 0) C.flash--;
   }
   // ikony rysowane kodem (te same kształty co w iconcodes.html)
   function drawCodeIcon(i, cx, cy, s) {
@@ -136,7 +137,7 @@
   function drawCodesText() {
     const C = app.codes;
     text('KODY', W / 2, 14, 12, '#ffe080', 'center');
-    text('ZNASZ KOD? USTAW IKONY I ZATWIERDŹ', W / 2, 36, 5, '#c0c0d0', 'center');
+    text(C.go > 0 ? 'START!' : 'ZNASZ KOD? USTAW IKONY I ZATWIERDŹ', W / 2, 36, 5, C.go > 0 ? '#7cff7c' : '#c0c0d0', 'center');
     for (let i = 0; i < 4; i++) text(CODE_ICONS[C.tiles[i]], TILES_X + i * (TILE + TILE_GAP) + TILE / 2, TILES_Y + TILE + 15, 4, C.cur === i ? '#ffe040' : '#a0a0b0', 'center');
     text('GRAJ', W / 2, 153, 7, C.cur === 4 ? '#7cff7c' : '#90b090', 'center');
     if (C.msgT > 0 && C.msg) text(C.msg, W / 2, 56, 6, C.ok ? '#7cff7c' : '#ff6060', 'center');

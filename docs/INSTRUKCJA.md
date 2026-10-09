@@ -285,8 +285,8 @@ strażnicy nadbiegają co kilka sekund. 1000 pkt za każdego uwolnionego, komple
 
 ### Kody z ikon
 Po wybraniu postaci w zwykłej grze (i w Nowej Grze+) pojawiają się 4 kwadratowe kafle z ikonami
-(jajo, kość, kieł, bursztyn, liść, czaszka). ◄► wybiera kafel, ▲▼ zmienia ikonę, Enter sprawdza kod, a pozycja
-GRAJ rusza z grą (na wpisanie kodów jest 20 s, Esc wraca do wyboru postaci). Można wpisać kilka kodów po kolei.
+(jajo, kość, kieł, bursztyn, liść, czaszka). ◄► wybiera kafel, ▲▼ zmienia ikonę, Enter sprawdza kod.
+Poprawny kod od razu uruchamia grę; bez kodu wybierz pozycję GRAJ (na wpisanie kodu jest 20 s, Esc wraca do wyboru postaci).
 Jeden kod włącza wybór etapu (jak w trybie debug), dziesięć pozostałych to smaczki: wielkie głowy, niska grawitacja,
 wieczna furia, dziewięć żyć, jeden cios, wierny raptor, kino nieme, karzełki, złota gorączka i hel.
 Kody działają do końca przejścia. Kody dające przewagę wyłączają w tym przejściu osiągnięcia i wpis do tabeli wyników.

@@ -25,25 +25,28 @@ export default {
     await t.ev(`__paleo.app.codes.cur = 0`);
     t.assert(await t.ev(`__paleo.app.codes.tiles.join() === '1,3,1,0'`), 'kafle ustawione strzałkami');
     await t.tap('Enter'); await t.sleep(150);
-    t.assert(await t.ev(`__paleo.cheats().has('stagesel')`), 'kod WYBÓR ETAPU aktywny');
-    // kilka smaczków wpisanych po kolei
-    for (const id of ['bighead', 'film', 'helium', 'lives']) {
+    t.assert(await t.ev(`__paleo.cheats().has('stagesel') && __paleo.app.codes.msg === 'KOD: WYBÓR ETAPU!'`), 'kod WYBÓR ETAPU aktywny');
+    await t.shot('ekran-kodow');
+    // poprawny kod sam uruchamia grę — tu: lista etapów
+    t.assert(await t.until(`__paleo.app.mode === 'stagesel'`, 2500), 'po poprawnym kodzie gra przechodzi dalej (wybór etapu)');
+    await t.tap('ArrowDown'); await t.tap('ArrowDown'); await t.tap('Enter'); await t.sleep(400);
+    t.assert(await t.ev(`__paleo.app.mode === 'map' || __paleo.app.mode === 'story' || __paleo.app.mode === 'shop'`), 'start z wybranego etapu');
+    // smaczki: każdy poprawny kod też od razu uruchamia grę
+    for (const id of ['bighead', 'film', 'helium']) {
+      await t.ev(`(() => { __paleo.app.gameMode = 'arcade'; __paleo.openCodes(); })()`); await t.sleep(250);
       const combo = await t.ev(`__paleo.CODES.find(c => c.id === '${id}').combo`);
       await t.ev(`__paleo.app.codes.tiles = ${JSON.stringify(combo)}; __paleo.app.codes.cur = 0`);
       await t.tap('Enter'); await t.sleep(120);
       t.assert(await t.ev(`__paleo.cheats().has('${id}')`), 'kod ' + id);
+      t.assert(await t.until(`__paleo.app.mode !== 'codes'`, 2500), 'kod ' + id + ': gra rusza');
     }
-    await t.sleep(300); await t.shot('ekran-kodow');
-    t.assert(await t.ev(`__paleo.Sprites ? true : window.Sprites.mods.bigHead > 1.5`), 'wielkie głowy');
-    t.assert(await t.ev(`document.getElementById('screen').style.filter.includes('grayscale')`), 'kino nieme');
-    t.assert(await t.ev(`__paleo.AU.voicePitch > 1.5`), 'hel');
-    // GRAJ → lista etapów
-    await t.ev(`__paleo.app.codes.cur = 4`); await t.tap('Enter'); await t.sleep(300);
-    t.assert(await t.ev(`__paleo.app.mode === 'stagesel'`), 'GRAJ otwiera wybór etapu');
-    await t.tap('ArrowDown'); await t.tap('ArrowDown'); await t.tap('Enter'); await t.sleep(400);
-    t.assert(await t.ev(`__paleo.app.mode === 'map' || __paleo.app.mode === 'story' || __paleo.app.mode === 'shop'`), 'start z wybranego etapu');
+    t.assert(await t.ev(`window.Sprites.mods.bigHead === 1 && __paleo.AU.voicePitch > 1.5 && !document.getElementById('screen').style.filter`), 'nowy ekran kodów zeruje poprzednie kody');
+    // bez kodu: GRAJ
+    await t.ev(`(() => { __paleo.app.gameMode = 'arcade'; __paleo.openCodes(); __paleo.app.codes.cur = 4; })()`); await t.sleep(200);
+    await t.tap('Enter'); await t.sleep(300);
+    t.assert(await t.ev(`__paleo.app.mode !== 'codes' && __paleo.cheats().size === 0`), 'GRAJ bez kodu');
     // efekty w grze: 9 żyć, karzełki, złota gorączka, wierny raptor, wieczna furia, jeden cios, niska grawitacja
-    await t.ev(`(() => { const a = __paleo.app; ['tiny', 'gold', 'raptor', 'fury', 'onehit', 'lowgrav'].forEach(c => __paleo.cheats().add(c)); __paleo.applyCheatMods(); __paleo.newStage(0); })()`);
+    await t.ev(`(() => { const a = __paleo.app; ['lives', 'tiny', 'gold', 'raptor', 'fury', 'onehit', 'lowgrav'].forEach(c => __paleo.cheats().add(c)); __paleo.applyCheatMods(); __paleo.newStage(0); })()`);
     await t.sleep(200);
     t.assert(await t.ev(`__paleo.G.players[0].lives === 8`), '9 żyć');
     t.assert(await t.ev(`__paleo.G.actors.some(a => a.type === 'raptor' && a.state === 'tamed')`), 'wierny raptor czeka');
