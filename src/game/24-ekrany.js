@@ -108,7 +108,7 @@
     ['final', 'BARON BURSZTYN'], ['drive', 'AUTOSTRADA 7'], ['clear', 'ETAP UKOŃCZONY'], ['gameover', 'KONIEC GRY'], ['ending', 'ZAKOŃCZENIE']];
   // zapamiętaj usłyszane utwory (odblokowanie w odtwarzaczu)
   const _play = AU.play.bind(AU);
-  AU.play = name => { if (!app.heard[name]) { app.heard[name] = 1; safeSet('paleo_heard', JSON.stringify(app.heard)); } _play(name); };
+  AU.play = (name, opt) => { if (!app.heard[name]) { app.heard[name] = 1; safeSet('paleo_heard', JSON.stringify(app.heard)); } _play(name, opt); };
   const songUnlocked = k => k === 'title' || k === 'map' || !!app.heard[k];
   const bmCache = {};
   function drawModel(k, x, y, t) {

@@ -82,7 +82,7 @@
     t.x -= t.face * (knock ? 7 : 3);
     t.fury = Math.min(100, (t.fury || 0) + dmg * 0.3 * furyMul(t));
     if (t.st) t.st.dmg += chip;
-    sfx('hit'); sfx('empty'); spark(t.x + t.face * 10, t.y, 30, false); G.hitstop = Math.max(G.hitstop, 3);
+    sfx('block'); spark(t.x + t.face * 10, t.y, 30, false); G.hitstop = Math.max(G.hitstop, 3);
     rumble(t.pIdx, 0.2, 0.45, 70);
     if (Math.random() < 0.35) G.popups.push({ x: t.x, y: t.y - 58, txt: 'BLOK!', t: 0, col: '#80f0ff' });
     return true;
@@ -108,7 +108,7 @@
     }
     // tarczownik blokuje ciosy z przodu (nie: wybuchy, rzuty, specjały, ataki z góry)
     if (t.def && t.def.shield && !opt.unblock && src && t.hp > 0 && (src.z || 0) < 16 && ['idle', 'walk', 'attack', 'recover'].includes(t.state) && (Math.sign(src.x - t.x) || 1) === t.face) {
-      sfx('hit'); sfx('empty'); spark(t.x + t.face * 10, t.y, 26, false); G.hitstop = 3;
+      sfx('shieldHit'); spark(t.x + t.face * 10, t.y, 26, false); G.hitstop = 3;
       if (src.kind === 'player') { src.x -= src.face * 5; if (Math.random() < 0.5) G.popups.push({ x: t.x, y: t.y - 54, txt: 'BLOK!', t: 0, col: '#c0d0e0' }); }
       return;
     }
@@ -129,7 +129,7 @@
     else if (src && src.kind === 'player' && dmg > 0) rumble(src.pIdx, knock ? 0.35 : 0, knock ? 0.5 : 0.28, knock ? 90 : 45);
     else if (t.kind === 'raptor' || t.kind === 'pachy') { if (Math.random() < 0.5) sfx('screech'); }
     else if (t.kind === 'rex') { if (Math.random() < 0.3) sfx('roar'); }
-    else if (Math.random() < 0.6) sfx('eHurt');
+    else if (Math.random() < 0.6) evoice(t, 'hurt');
     if (t.grabbing) { release(t.grabbing); t.grabbing = null; }
     if (t.carry) dropCarry(t);
     if (t.grabbedBy) { t.grabbedBy.grabbing = null; t.grabbedBy = null; }
@@ -156,12 +156,21 @@
       setState(t, 'hurt'); t.vx = dirX * 0.9; t.hurtCount++;
     }
   }
+  // okrzyki wrogów: każdy typ ma swój głos (profil w audio.js), najwyżej jeden okrzyk na 12 klatek
+  const EVOICE_OF = { grunt: 'grunt', bomber: 'grunt', netter: 'grunt', thin: 'thin', glider: 'thin', klamra: 'thin', brute: 'brute', klin: 'brute',
+    padliniarz: 'brute', gunner: 'gruff', sniper: 'gruff', shield: 'gruff', flamer: 'masked', boss: 'boss', szpon: 'boss', baron: 'boss', digger: 'boss', zmija: 'hag' };
+  function evoice(e, kind, force) {
+    if (!e || e.kind === 'player') return;
+    const pr = EVOICE_OF[e.type]; if (!pr) { if (kind === 'die') sfx('eDie'); else if (kind === 'hurt') sfx('eHurt'); return; }
+    if (!force && G.frame - (G.voiceF || -99) < 12) return;
+    G.voiceF = G.frame; sfx('e_' + pr + '_' + kind);
+  }
   function onDeath(t, src) {
     if (t.dying) return;
     t.dying = true;
     if (G.ch && t.team !== 'player' && t.lastThrow) G.ch.throws++;
     if (t.kind === 'player') { sfx('ko'); return; }
-    sfx(t.kind === 'raptor' || t.kind === 'pachy' ? 'screech' : t.kind === 'rex' ? 'roar' : 'eDie');
+    if (t.kind === 'raptor' || t.kind === 'pachy') sfx('screech'); else if (t.kind === 'rex') sfx('roar'); else evoice(t, 'die', true);
     if (src && src.kind === 'player') {
       if (src.st) src.st.kills++;
       addScore(src, t.def.score);

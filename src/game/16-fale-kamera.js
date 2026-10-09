@@ -4,7 +4,7 @@
     if (!G.wave && G.waveIdx < WV.length && G.camX >= WV[G.waveIdx].lock - 0.5) {
       G.wave = WV[G.waveIdx]; G.groupIdx = 0; G.lockX = G.wave.lock;
       queueGroup(G.wave.groups[0]);
-      if (G.wave.boss) AU.play(ST.bossMusic);
+      if (G.wave.boss) AU.play(ST.bossMusic, { xfade: 2.5 });
     }
     customEnd();
     for (let i = G.pending.length - 1; i >= 0; i--) {

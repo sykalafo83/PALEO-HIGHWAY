@@ -21,17 +21,17 @@
     jab: { pose: 'jab', start: 3, active: 3, rec: 7, dmg: 5, reach: 26, snd: 'punch' },
     cross: { pose: 'cross', start: 3, active: 3, rec: 8, dmg: 6, reach: 27, snd: 'punch' },
     upper: { pose: 'upper', wind: 'crouch', start: 5, active: 4, rec: 15, dmg: 10, reach: 24, knock: true, snd: 'heavy' },
-    kick: { pose: 'kick', start: 6, active: 4, rec: 14, dmg: 11, reach: 34, knock: true, snd: 'heavy' },
-    spinkick: { pose: 'spinkick', start: 6, active: 4, rec: 15, dmg: 12, reach: 32, knock: true, snd: 'heavy' },
+    kick: { pose: 'kick', start: 6, active: 4, rec: 14, dmg: 11, reach: 34, knock: true, snd: 'kickHit' },
+    spinkick: { pose: 'spinkick', start: 6, active: 4, rec: 15, dmg: 12, reach: 32, knock: true, snd: 'kickHit' },
     hammer: { pose: 'hammerDown', wind: 'hammerUp', start: 9, active: 4, rec: 16, dmg: 15, reach: 27, knock: true, snd: 'heavy', shake: 4 },
-    pipe: { pose: 'swingDown', wind: 'swingUp', start: 7, active: 4, rec: 10, dmg: 13, reach: 38, snd: 'hit' },
-    machete: { pose: 'swingDown', wind: 'swingUp', start: 4, active: 3, rec: 6, dmg: 15, reach: 34, snd: 'hit' },
-    chain: { pose: 'swingDown', wind: 'swingUp', start: 9, active: 6, rec: 12, dmg: 12, reach: 58, depth: 14, snd: 'hit' },
-    chainSpin: { pose: 'spin', start: 6, active: 10, rec: 14, dmg: 14, reach: 52, depth: 16, knock: true, around: true, launch: true, snd: 'heavy' },
+    pipe: { pose: 'swingDown', wind: 'swingUp', start: 7, active: 4, rec: 10, dmg: 13, reach: 38, snd: 'pipeHit' },
+    machete: { pose: 'swingDown', wind: 'swingUp', start: 4, active: 3, rec: 6, dmg: 15, reach: 34, snd: 'blade' },
+    chain: { pose: 'swingDown', wind: 'swingUp', start: 9, active: 6, rec: 12, dmg: 12, reach: 58, depth: 14, snd: 'chainHit' },
+    chainSpin: { pose: 'spin', start: 6, active: 10, rec: 14, dmg: 14, reach: 52, depth: 16, knock: true, around: true, launch: true, snd: 'chainHit' },
     launcher: { pose: 'upper', wind: 'crouch', start: 5, active: 4, rec: 9, dmg: 9, reach: 28, knock: true, launch: true, snd: 'heavy' },
     rampage: { reach: 24, dmg: 16, depth: 12, height: 44, knock: true, snd: 'heavy' },
     // wrogowie
-    stab: { pose: 'stab', wind: 'crouch', start: 14, active: 4, rec: 22, dmg: 7, reach: 28, snd: 'hit' },
+    stab: { pose: 'stab', wind: 'crouch', start: 14, active: 4, rec: 22, dmg: 7, reach: 28, snd: 'blade' },
     slash: { pose: 'jab', start: 10, active: 3, rec: 18, dmg: 5, reach: 26, snd: 'punch' },
     slap: { pose: 'hammerDown', wind: 'hammerUp', start: 18, active: 4, rec: 24, dmg: 12, reach: 30, knock: true, snd: 'heavy', shake: 3 },
     bossSwing: { pose: 'hammerDown', wind: 'hammerUp', start: 20, active: 5, rec: 26, dmg: 16, reach: 48, depth: 14, knock: true, snd: 'slam', shake: 8 },
@@ -865,7 +865,7 @@
     t.x -= t.face * (knock ? 7 : 3);
     t.fury = Math.min(100, (t.fury || 0) + dmg * 0.3 * furyMul(t));
     if (t.st) t.st.dmg += chip;
-    sfx('hit'); sfx('empty'); spark(t.x + t.face * 10, t.y, 30, false); G.hitstop = Math.max(G.hitstop, 3);
+    sfx('block'); spark(t.x + t.face * 10, t.y, 30, false); G.hitstop = Math.max(G.hitstop, 3);
     rumble(t.pIdx, 0.2, 0.45, 70);
     if (Math.random() < 0.35) G.popups.push({ x: t.x, y: t.y - 58, txt: 'BLOK!', t: 0, col: '#80f0ff' });
     return true;
@@ -891,7 +891,7 @@
     }
     // tarczownik blokuje ciosy z przodu (nie: wybuchy, rzuty, specjały, ataki z góry)
     if (t.def && t.def.shield && !opt.unblock && src && t.hp > 0 && (src.z || 0) < 16 && ['idle', 'walk', 'attack', 'recover'].includes(t.state) && (Math.sign(src.x - t.x) || 1) === t.face) {
-      sfx('hit'); sfx('empty'); spark(t.x + t.face * 10, t.y, 26, false); G.hitstop = 3;
+      sfx('shieldHit'); spark(t.x + t.face * 10, t.y, 26, false); G.hitstop = 3;
       if (src.kind === 'player') { src.x -= src.face * 5; if (Math.random() < 0.5) G.popups.push({ x: t.x, y: t.y - 54, txt: 'BLOK!', t: 0, col: '#c0d0e0' }); }
       return;
     }
@@ -912,7 +912,7 @@
     else if (src && src.kind === 'player' && dmg > 0) rumble(src.pIdx, knock ? 0.35 : 0, knock ? 0.5 : 0.28, knock ? 90 : 45);
     else if (t.kind === 'raptor' || t.kind === 'pachy') { if (Math.random() < 0.5) sfx('screech'); }
     else if (t.kind === 'rex') { if (Math.random() < 0.3) sfx('roar'); }
-    else if (Math.random() < 0.6) sfx('eHurt');
+    else if (Math.random() < 0.6) evoice(t, 'hurt');
     if (t.grabbing) { release(t.grabbing); t.grabbing = null; }
     if (t.carry) dropCarry(t);
     if (t.grabbedBy) { t.grabbedBy.grabbing = null; t.grabbedBy = null; }
@@ -939,12 +939,21 @@
       setState(t, 'hurt'); t.vx = dirX * 0.9; t.hurtCount++;
     }
   }
+  // okrzyki wrogów: każdy typ ma swój głos (profil w audio.js), najwyżej jeden okrzyk na 12 klatek
+  const EVOICE_OF = { grunt: 'grunt', bomber: 'grunt', netter: 'grunt', thin: 'thin', glider: 'thin', klamra: 'thin', brute: 'brute', klin: 'brute',
+    padliniarz: 'brute', gunner: 'gruff', sniper: 'gruff', shield: 'gruff', flamer: 'masked', boss: 'boss', szpon: 'boss', baron: 'boss', digger: 'boss', zmija: 'hag' };
+  function evoice(e, kind, force) {
+    if (!e || e.kind === 'player') return;
+    const pr = EVOICE_OF[e.type]; if (!pr) { if (kind === 'die') sfx('eDie'); else if (kind === 'hurt') sfx('eHurt'); return; }
+    if (!force && G.frame - (G.voiceF || -99) < 12) return;
+    G.voiceF = G.frame; sfx('e_' + pr + '_' + kind);
+  }
   function onDeath(t, src) {
     if (t.dying) return;
     t.dying = true;
     if (G.ch && t.team !== 'player' && t.lastThrow) G.ch.throws++;
     if (t.kind === 'player') { sfx('ko'); return; }
-    sfx(t.kind === 'raptor' || t.kind === 'pachy' ? 'screech' : t.kind === 'rex' ? 'roar' : 'eDie');
+    if (t.kind === 'raptor' || t.kind === 'pachy') sfx('screech'); else if (t.kind === 'rex') sfx('roar'); else evoice(t, 'die', true);
     if (src && src.kind === 'player') {
       if (src.st) src.st.kills++;
       addScore(src, t.def.score);
@@ -2118,10 +2127,11 @@
     switch (e.state) {
       case 'enter':
         enterScreen(e);
+        if (e.state === 'idle' && !boss && Math.random() < 0.25) evoice(e, 'taunt');
         if (e.state === 'idle' && boss && !G.introBoss) { G.introBoss = e; setState(e, 'intro'); }
         return;
       case 'intro':
-        if (e.t === 1) { sfx('roar'); G.shake = 8; }
+        if (e.t === 1) { evoice(e, 'taunt', true); sfx('charge'); G.shake = 8; }
         if (e.t > 80) { setState(e, 'idle'); G.introBoss = null; }
         return;
       case 'idle': case 'walk': {
@@ -2176,7 +2186,7 @@
         }
         if (e.mode === 'approach' && dist < e.def.range + 6 && ddy < 6 && e.cool <= 0 && p.state !== 'down') {
           const m = MOVES[e.def.attacks[Math.random() * e.def.attacks.length | 0]];
-          startMove(e, m); e.cool = rnd(50, 100) / (boss ? 1.6 * spMul : ST.diff); return;
+          startMove(e, m); if (Math.random() < 0.3) evoice(e, 'attack'); e.cool = rnd(50, 100) / (boss ? 1.6 * spMul : ST.diff); return;
         }
         if (e.mode === 'approach') stepToward(e, p.x + side * (e.def.range - 4), p.y, e.def.speed * spMul);
         else stepToward(e, p.x + side * 95, e.hoverY, e.def.speed * 0.7);
@@ -3737,7 +3747,7 @@
     if (!G.wave && G.waveIdx < WV.length && G.camX >= WV[G.waveIdx].lock - 0.5) {
       G.wave = WV[G.waveIdx]; G.groupIdx = 0; G.lockX = G.wave.lock;
       queueGroup(G.wave.groups[0]);
-      if (G.wave.boss) AU.play(ST.bossMusic);
+      if (G.wave.boss) AU.play(ST.bossMusic, { xfade: 2.5 });
     }
     customEnd();
     for (let i = G.pending.length - 1; i >= 0; i--) {
@@ -5128,7 +5138,7 @@
     ['final', 'BARON BURSZTYN'], ['drive', 'AUTOSTRADA 7'], ['clear', 'ETAP UKOŃCZONY'], ['gameover', 'KONIEC GRY'], ['ending', 'ZAKOŃCZENIE']];
   // zapamiętaj usłyszane utwory (odblokowanie w odtwarzaczu)
   const _play = AU.play.bind(AU);
-  AU.play = name => { if (!app.heard[name]) { app.heard[name] = 1; safeSet('paleo_heard', JSON.stringify(app.heard)); } _play(name); };
+  AU.play = (name, opt) => { if (!app.heard[name]) { app.heard[name] = 1; safeSet('paleo_heard', JSON.stringify(app.heard)); } _play(name, opt); };
   const songUnlocked = k => k === 'title' || k === 'map' || !!app.heard[k];
   const bmCache = {};
   function drawModel(k, x, y, t) {
@@ -6293,6 +6303,18 @@
     if (pressed.pause || pressed.jump) { app.mode = 'title'; app.t = 0; sfx('select'); }
   }
   // =============================================================== PĘTLA
+  // ---- DŹWIĘKI OTOCZENIA: fale na plaży, krople w kanałach, wiatr w burzy piaskowej, deszcz, stukot pociągu
+  function ambienceFor() {
+    if (!G || !['play', 'pause', 'gameover'].includes(app.mode)) return null;
+    if (G.special === 'train') return 'train';
+    if (G.wx && G.wx.sand) return 'wind';
+    if (G.wx && G.wx.rain) return 'rain';
+    if (G.special || ST.custom) return null;
+    if (G.stageIdx === 5) return 'waves';
+    if (G.stageIdx === 6) return 'drips';
+    if (G.stageIdx === 2) return 'rain';   // Miasto Cieni — nocna ulewa
+    return null;
+  }
   // ---- TRYB DEMO (attract mode)
   const DEMO_STAGES = [0, 1, 2, 3, 4, 5];
   function startDemo() {
@@ -6353,6 +6375,7 @@
     if (app.demo && app.mode !== 'play') endDemo();
     if (pressed.mute) AU.toggleMute();
     app.t++; app.frame = (app.frame || 0) + 1;
+    AU.setAmbience(ambienceFor());
     if (app.mode !== 'play' && app.mode !== 'pause') AU.setIntensity(false);
     if (app.share) { updateShare(); clearPressed(); return; }
     if (pressed.up && G && ((app.mode === 'clear' && app.t > 40) || (app.mode === 'gameover' && app.cont > 0 && app.t > 30) || (app.mode === 'ending' && app.t > 300))) { openShare(); clearPressed(); return; }
@@ -6808,7 +6831,7 @@
   } else boot();
 
   // debug / testy: uchwyty do stanu gry tylko w trybie debug (config.js) albo z parametrem adresu ?hooks=1 (testy automatyczne)
-  if (CFG.debug === true || urlParams.has('hooks')) window.__paleo = { get G() { return G; }, app, pickWeather, customList, buildCustomStage, startCustom, CHARS, ENEMIES, bonus, startStage: i => { startStage(i, G && G.players); app.mode = 'play'; }, startBonus: () => startBonus(G && G.players, 4), startCages: () => startCages(G && G.players, 5), startTraining: () => startTraining(null), startSuper: i => startSuper(G.players[i || 0]), newStage: i => { startStage(i, null); app.mode = 'play'; }, startEscape: () => startEscape(G.players), startDemo, endDemo, startEpilog: () => startEpilog(G.players, () => endGame('★')), ENDINGS, startTrain: () => { app.gameMode = app.gameMode || 'arcade'; startTrain(G ? G.players : null, 7); }, unlocks: () => app.unlocks, hurt: (t, d, src, knock) => hurt(t, d, 1, !!knock, src), spawn: (type, x, y) => { const e = makeEnemy(type, x, y); if (type !== 'glider' && type !== 'digger') setState(e, 'idle'); G.actors.push(e); return e; }, afterStage, resumeProgress, saveInfo: () => app.save, startRush: () => startRush(null), startSurvival: () => startSurvival(null), unlock, opts: () => OPTS, endGame, inp, joinOrContinue: i => joinOrContinue(i),
+  if (CFG.debug === true || urlParams.has('hooks')) window.__paleo = { get G() { return G; }, app, pickWeather, customList, buildCustomStage, startCustom, CHARS, ENEMIES, bonus, startStage: i => { startStage(i, G && G.players); app.mode = 'play'; }, startBonus: () => startBonus(G && G.players, 4), startCages: () => startCages(G && G.players, 5), startTraining: () => startTraining(null), startSuper: i => startSuper(G.players[i || 0]), newStage: i => { startStage(i, null); app.mode = 'play'; }, startEscape: () => startEscape(G.players), startDemo, endDemo, AU, startEpilog: () => startEpilog(G.players, () => endGame('★')), ENDINGS, startTrain: () => { app.gameMode = app.gameMode || 'arcade'; startTrain(G ? G.players : null, 7); }, unlocks: () => app.unlocks, hurt: (t, d, src, knock) => hurt(t, d, 1, !!knock, src), spawn: (type, x, y) => { const e = makeEnemy(type, x, y); if (type !== 'glider' && type !== 'digger') setState(e, 'idle'); G.actors.push(e); return e; }, afterStage, resumeProgress, saveInfo: () => app.save, startRush: () => startRush(null), startSurvival: () => startSurvival(null), unlock, opts: () => OPTS, endGame, inp, joinOrContinue: i => joinOrContinue(i),
     flight, curBonus: () => curBonus(), startFlight: () => startFlight(G ? G.players : null, 6), CHALLENGES, dailyPlan, startDaily: () => startDaily(null),
     startChallenge: id => { app.chDef = CHALLENGES.find(c => c.id === id); app.gameMode = 'challenge'; startChallenge(null); }, STAGES };
 })();

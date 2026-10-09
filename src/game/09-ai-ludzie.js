@@ -31,10 +31,11 @@
     switch (e.state) {
       case 'enter':
         enterScreen(e);
+        if (e.state === 'idle' && !boss && Math.random() < 0.25) evoice(e, 'taunt');
         if (e.state === 'idle' && boss && !G.introBoss) { G.introBoss = e; setState(e, 'intro'); }
         return;
       case 'intro':
-        if (e.t === 1) { sfx('roar'); G.shake = 8; }
+        if (e.t === 1) { evoice(e, 'taunt', true); sfx('charge'); G.shake = 8; }
         if (e.t > 80) { setState(e, 'idle'); G.introBoss = null; }
         return;
       case 'idle': case 'walk': {
@@ -89,7 +90,7 @@
         }
         if (e.mode === 'approach' && dist < e.def.range + 6 && ddy < 6 && e.cool <= 0 && p.state !== 'down') {
           const m = MOVES[e.def.attacks[Math.random() * e.def.attacks.length | 0]];
-          startMove(e, m); e.cool = rnd(50, 100) / (boss ? 1.6 * spMul : ST.diff); return;
+          startMove(e, m); if (Math.random() < 0.3) evoice(e, 'attack'); e.cool = rnd(50, 100) / (boss ? 1.6 * spMul : ST.diff); return;
         }
         if (e.mode === 'approach') stepToward(e, p.x + side * (e.def.range - 4), p.y, e.def.speed * spMul);
         else stepToward(e, p.x + side * 95, e.hoverY, e.def.speed * 0.7);

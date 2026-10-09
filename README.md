@@ -31,6 +31,8 @@ muzyka i dźwięki są generowane kodem (Canvas 2D + Web Audio).
   wrogowie z rozpoznawalnymi dodatkami (maski, gogle, plecaki, zbiorniki), białe klatki uderzenia, iskry i smugi kopnięć,
   łuny wybuchów i lamp, kałuże odbijające postacie w deszczu, portret w HUD reagujący na walkę
   oraz tryb demo na ekranie tytułowym, jak na prawdziwym automacie.
+- **Dźwięk:** utwory ze wstępem oraz częściami A i B, płynne wejście muzyki bossa, dźwięki otoczenia (fale, krople,
+  wiatr, deszcz, pociąg), osobne odgłosy pięści, rury, łańcucha, ostrza i tarczy, siedem głosów wrogów.
 - **Tryby:** zwykła gra, Nowa Gra+, trening, Boss Rush, przetrwanie, wyzwania z gwiazdkami i codzienne wyzwanie.
 - **Ekstra:** 32 osiągnięcia, bestiariusz, odtwarzacz muzyki, karta z wynikiem do udostępnienia, edytor etapów.
 - **Wygoda:** zapis postępu, przypisywanie klawiszy i przycisków pada (z wibracjami), sterowanie dotykowe,

@@ -1,4 +1,16 @@
   // =============================================================== PĘTLA
+  // ---- DŹWIĘKI OTOCZENIA: fale na plaży, krople w kanałach, wiatr w burzy piaskowej, deszcz, stukot pociągu
+  function ambienceFor() {
+    if (!G || !['play', 'pause', 'gameover'].includes(app.mode)) return null;
+    if (G.special === 'train') return 'train';
+    if (G.wx && G.wx.sand) return 'wind';
+    if (G.wx && G.wx.rain) return 'rain';
+    if (G.special || ST.custom) return null;
+    if (G.stageIdx === 5) return 'waves';
+    if (G.stageIdx === 6) return 'drips';
+    if (G.stageIdx === 2) return 'rain';   // Miasto Cieni — nocna ulewa
+    return null;
+  }
   // ---- TRYB DEMO (attract mode)
   const DEMO_STAGES = [0, 1, 2, 3, 4, 5];
   function startDemo() {
@@ -59,6 +71,7 @@
     if (app.demo && app.mode !== 'play') endDemo();
     if (pressed.mute) AU.toggleMute();
     app.t++; app.frame = (app.frame || 0) + 1;
+    AU.setAmbience(ambienceFor());
     if (app.mode !== 'play' && app.mode !== 'pause') AU.setIntensity(false);
     if (app.share) { updateShare(); clearPressed(); return; }
     if (pressed.up && G && ((app.mode === 'clear' && app.t > 40) || (app.mode === 'gameover' && app.cont > 0 && app.t > 30) || (app.mode === 'ending' && app.t > 300))) { openShare(); clearPressed(); return; }
@@ -514,6 +527,6 @@
   } else boot();
 
   // debug / testy: uchwyty do stanu gry tylko w trybie debug (config.js) albo z parametrem adresu ?hooks=1 (testy automatyczne)
-  if (CFG.debug === true || urlParams.has('hooks')) window.__paleo = { get G() { return G; }, app, pickWeather, customList, buildCustomStage, startCustom, CHARS, ENEMIES, bonus, startStage: i => { startStage(i, G && G.players); app.mode = 'play'; }, startBonus: () => startBonus(G && G.players, 4), startCages: () => startCages(G && G.players, 5), startTraining: () => startTraining(null), startSuper: i => startSuper(G.players[i || 0]), newStage: i => { startStage(i, null); app.mode = 'play'; }, startEscape: () => startEscape(G.players), startDemo, endDemo, startEpilog: () => startEpilog(G.players, () => endGame('★')), ENDINGS, startTrain: () => { app.gameMode = app.gameMode || 'arcade'; startTrain(G ? G.players : null, 7); }, unlocks: () => app.unlocks, hurt: (t, d, src, knock) => hurt(t, d, 1, !!knock, src), spawn: (type, x, y) => { const e = makeEnemy(type, x, y); if (type !== 'glider' && type !== 'digger') setState(e, 'idle'); G.actors.push(e); return e; }, afterStage, resumeProgress, saveInfo: () => app.save, startRush: () => startRush(null), startSurvival: () => startSurvival(null), unlock, opts: () => OPTS, endGame, inp, joinOrContinue: i => joinOrContinue(i),
+  if (CFG.debug === true || urlParams.has('hooks')) window.__paleo = { get G() { return G; }, app, pickWeather, customList, buildCustomStage, startCustom, CHARS, ENEMIES, bonus, startStage: i => { startStage(i, G && G.players); app.mode = 'play'; }, startBonus: () => startBonus(G && G.players, 4), startCages: () => startCages(G && G.players, 5), startTraining: () => startTraining(null), startSuper: i => startSuper(G.players[i || 0]), newStage: i => { startStage(i, null); app.mode = 'play'; }, startEscape: () => startEscape(G.players), startDemo, endDemo, AU, startEpilog: () => startEpilog(G.players, () => endGame('★')), ENDINGS, startTrain: () => { app.gameMode = app.gameMode || 'arcade'; startTrain(G ? G.players : null, 7); }, unlocks: () => app.unlocks, hurt: (t, d, src, knock) => hurt(t, d, 1, !!knock, src), spawn: (type, x, y) => { const e = makeEnemy(type, x, y); if (type !== 'glider' && type !== 'digger') setState(e, 'idle'); G.actors.push(e); return e; }, afterStage, resumeProgress, saveInfo: () => app.save, startRush: () => startRush(null), startSurvival: () => startSurvival(null), unlock, opts: () => OPTS, endGame, inp, joinOrContinue: i => joinOrContinue(i),
     flight, curBonus: () => curBonus(), startFlight: () => startFlight(G ? G.players : null, 6), CHALLENGES, dailyPlan, startDaily: () => startDaily(null),
     startChallenge: id => { app.chDef = CHALLENGES.find(c => c.id === id); app.gameMode = 'challenge'; startChallenge(null); }, STAGES };

@@ -436,6 +436,72 @@
       const lp = filter(ctx, 'lowpass', 900, 0.5, g); lp.frequency.setValueAtTime(1500, t); lp.frequency.exponentialRampToValueAtTime(120, t + 1.8);
       noiseSrc(ctx, t, t + 2.1, lp, 0.6);
     },
+    // ---- zróżnicowane trafienia: pięść / kopnięcie / rura / łańcuch / ostrze / tarcza / garda
+    kickHit(ctx, out, t) {
+      const d = shaper(ctx, 6, gainEnv(ctx, out, t, 0.001, 0.03, 0.22, 0.65));
+      const o = osc(ctx, 'sine', 115, t, t + 0.3, d);
+      o.frequency.exponentialRampToValueAtTime(40, t + 0.2);
+      const g = gainEnv(ctx, out, t, 0.001, 0.015, 0.1, 0.5);
+      noiseSrc(ctx, t, t + 0.14, filter(ctx, 'lowpass', 900, 1, g));
+      SFX.punch(ctx, out, t);
+    },
+    pipeHit(ctx, out, t) {
+      // metaliczny brzęk: nieharmoniczne alikwoty z długim wybrzmieniem
+      [[523, 'square', 0.12], [1371, 'triangle', 0.16], [2214, 'sine', 0.12], [3460, 'sine', 0.06]].forEach(([f, ty, v], i) => {
+        const g = gainEnv(ctx, out, t, 0.001, 0.005, 0.25 + i * 0.05, v);
+        osc(ctx, ty, f * (0.98 + Math.random() * 0.04), t, t + 0.45, filter(ctx, 'bandpass', f, 4, g));
+      });
+      const g = gainEnv(ctx, out, t, 0.001, 0.01, 0.06, 0.6);
+      noiseSrc(ctx, t, t + 0.08, filter(ctx, 'highpass', 1800, 1, g));
+      SFX.punch(ctx, out, t);
+    },
+    chainHit(ctx, out, t) {
+      // brzęk ogniw: szybka seria wysokich dźwięków
+      for (let i = 0; i < 6; i++) {
+        const tt = t + i * 0.017 + Math.random() * 0.008, f = 2300 + Math.random() * 1600;
+        const g = gainEnv(ctx, out, tt, 0.001, 0.003, 0.07, 0.12);
+        osc(ctx, 'triangle', f, tt, tt + 0.1, g);
+        const gn = gainEnv(ctx, out, tt, 0.001, 0.002, 0.02, 0.18);
+        noiseSrc(ctx, tt, tt + 0.03, filter(ctx, 'highpass', 4500, 1, gn));
+      }
+      SFX.hit(ctx, out, t);
+    },
+    blade(ctx, out, t) {
+      const g = ctx.createGain(); g.gain.setValueAtTime(0.0001, t); g.gain.linearRampToValueAtTime(0.55, t + 0.015); g.gain.exponentialRampToValueAtTime(0.0001, t + 0.12); g.connect(out);
+      const hp = filter(ctx, 'highpass', 2500, 0.8, g); hp.frequency.setValueAtTime(2500, t); hp.frequency.exponentialRampToValueAtTime(7000, t + 0.1);
+      noiseSrc(ctx, t, t + 0.13, hp);
+      const g2 = gainEnv(ctx, out, t + 0.01, 0.001, 0.01, 0.18, 0.07);
+      osc(ctx, 'sine', 3300, t + 0.01, t + 0.25, g2);
+      SFX.punch(ctx, out, t);
+    },
+    shieldHit(ctx, out, t) {
+      // dzwon blachy: niskie, nieharmoniczne „bong”
+      [[176, 0.32], [287, 0.2], [456, 0.12], [731, 0.06]].forEach(([f, v], i) => {
+        const g = gainEnv(ctx, out, t, 0.001, 0.01, 0.55 - i * 0.08, v);
+        osc(ctx, i ? 'sine' : 'triangle', f, t, t + 0.7, g);
+      });
+      const g = gainEnv(ctx, out, t, 0.001, 0.01, 0.08, 0.55);
+      noiseSrc(ctx, t, t + 0.1, filter(ctx, 'bandpass', 1500, 1.5, g));
+    },
+    block(ctx, out, t) {
+      const g = gainEnv(ctx, out, t, 0.001, 0.01, 0.07, 0.5);
+      noiseSrc(ctx, t, t + 0.09, filter(ctx, 'bandpass', 800, 1.4, g));
+      const g2 = gainEnv(ctx, out, t, 0.001, 0.005, 0.12, 0.18);
+      osc(ctx, 'triangle', 640, t, t + 0.16, g2);
+    },
+    drip(ctx, out, t) {
+      const g = gainEnv(ctx, out, t, 0.001, 0.005, 0.09, 0.22);
+      const o = osc(ctx, 'sine', 1500 + Math.random() * 700, t, t + 0.12, g);
+      o.frequency.exponentialRampToValueAtTime(520, t + 0.06);
+    },
+    clack(ctx, out, t) {
+      [0, 0.1].forEach(o => {
+        const g = gainEnv(ctx, out, t + o, 0.001, 0.005, 0.06, 0.4);
+        noiseSrc(ctx, t + o, t + o + 0.08, filter(ctx, 'bandpass', 700, 1.5, g));
+        const g2 = gainEnv(ctx, out, t + o, 0.001, 0, 0.05, 0.25);
+        osc(ctx, 'square', 160, t + o, t + o + 0.07, filter(ctx, 'lowpass', 600, 1, g2));
+      });
+    },
     oneup(ctx, out, t) {
       ['E6', 'G6', 'E7', 'C7', 'D7', 'G7'].forEach((n, i) => {
         const tt = t + i * 0.08;
@@ -514,6 +580,29 @@
       win: [S_('u', 0.12, 1.0, 1.05, { c: 'h' }), S_('u', 0.12, 1.05, 1.1, { c: 'h' }), S_('a', 0.4, 1.3, 0.85, { c: 'h' })],
       hurt: [S_('o', 0.16, 1.0, 0.8)] }
   };
+  // ---- głosy wrogów: profile (wysokość, chrypa) i kilka wariantów każdego okrzyku, losowanych przy odtworzeniu
+  const EVOICES = {
+    grunt: { f: 140, fm: 0.96, rough: 0.38, vib: 0, vol: 0.5 },
+    gruff: { f: 112, fm: 0.9, rough: 0.5, vib: 0, vol: 0.52 },
+    thin: { f: 205, fm: 1.1, rough: 0.18, vib: 0, vol: 0.46 },
+    brute: { f: 78, fm: 0.78, rough: 0.7, vib: 0, vol: 0.6 },
+    masked: { f: 120, fm: 0.66, rough: 0.8, vib: 0, vol: 0.5 },
+    boss: { f: 96, fm: 0.86, rough: 0.45, vib: 3, vol: 0.6 },
+    hag: { f: 240, fm: 1.12, rough: 0.35, vib: 5, vol: 0.5 }
+  };
+  const ELINES = {
+    attack: [[S_('a', 0.13, 1.1, 1.3, { c: 'h' })], [S_('e', 0.08, 1.2, 1.3, { c: 'h' }), S_('e', 0.08, 1.3, 1.1)],
+      [S_('a', 0.1, 1.15, 1.25), S_('a', 0.12, 1.2, 1.0, { c: 's' })], [S_('o', 0.16, 1.0, 1.3, { c: 'h' })]],
+    taunt: [[S_('a', 0.1, 1.0, 1.1, { c: 'k' }), S_('o', 0.24, 1.2, 1.0, { c: 'k' })],
+      [S_('u', 0.08, 1.0, 1.1, { c: 'k' }), S_('e', 0.08, 1.1, 1.2, { c: 'h' }), S_('e', 0.22, 1.3, 1.0, { c: 's' })],
+      [S_('e', 0.1, 1.1, 1.2, { c: 'h' }), S_('a', 0.08, 1.2, 1.2), S_('i', 0.2, 1.3, 1.5)],
+      [S_('o', 0.12, 1.0, 1.0, { c: 'h' }), S_('o', 0.12, 1.05, 1.05, { c: 'h' }), S_('o', 0.22, 1.1, 0.9, { c: 'h' })]],
+    hurt: [[S_('u', 0.14, 1.2, 0.8)], [S_('a', 0.12, 1.3, 0.9, { c: 'h' })], [S_('o', 0.09, 1.15, 0.9), S_('u', 0.09, 0.95, 0.7)], [S_('e', 0.12, 1.25, 0.85, { c: 'h' })]],
+    die: [[S_('a', 0.12, 1.3, 1.25), S_('a', 0.5, 1.2, 0.45)], [S_('u', 0.1, 1.1, 1.0), S_('o', 0.55, 1.15, 0.42)], [S_('e', 0.08, 1.3, 1.3, { c: 'h' }), S_('a', 0.45, 1.25, 0.5)]]
+  };
+  Object.keys(EVOICES).forEach(pr => Object.keys(ELINES).forEach(kind => {
+    SFX['e_' + pr + '_' + kind] = (ctx, out, t) => { const L = ELINES[kind]; shout(ctx, out, t, EVOICES[pr], L[Math.random() * L.length | 0]); };
+  }));
   Object.keys(VOICES).forEach(hero => ['special', 'super', 'win', 'hurt'].forEach(kind => {
     SFX['v_' + hero + '_' + kind] = (ctx, out, t) => shout(ctx, out, t, VOICES[hero], VOICES[hero][kind]);
   }));
@@ -804,7 +893,50 @@
     return { bpm: o.bpm, channels: ch };
   }
 
+  // Rozbudowa utworu: 2-taktowy wstęp (bez melodii, perkusja się rozkręca) + część A + część B.
+  // Część B powstaje z A: takty przesunięte o pół utworu (melodia dalej pasuje do akordów),
+  // melodia oktawę niżej na dzwonkach, perkusja w połowie tempa. Pętla wraca za wstęp.
+  const BAR = 16;
+  const transposeTok = (tk, d) => tk === '.' || tk === '-' ? tk : tk.split('+').map(n => n.replace(/(-?\d+)$/, m => String(+m + d))).join('+');
+  function structure(def) {
+    if (def.loop === false || def.structured) return def;
+    const names = Object.keys(def.channels);
+    const toks = {}; names.forEach(n => { toks[n] = def.channels[n].data.trim().split(/\s+/); });
+    const L = Math.max(...names.map(n => toks[n].length)), bars = Math.round(L / BAR);
+    names.forEach(n => { while (toks[n].length < L) toks[n].push('-'); });
+    const ch = {};
+    // wstęp
+    const introDrums = 'k - - - k - - - k - - - k - h - k - h - k - h - k - h - s s s s'.split(' ');
+    names.forEach(n => {
+      const c = def.channels[n];
+      let intro;
+      if (c.inst === 'drums') intro = introDrums;
+      else if (n === 'lead') intro = Array(BAR * 2).fill('-');
+      else intro = toks[n].slice(0, BAR * 2);
+      ch[n] = { inst: c.inst, vol: c.vol, parts: [intro, toks[n]] };
+    });
+    // część B (tylko dla utworów 8-taktowych; dłuższe mają już własną drugą część)
+    if (bars === 8 && !def.noB) {
+      const rot = a => a.slice(BAR * 4).concat(a.slice(0, BAR * 4));
+      const half = 'k - h - - - h - s - h - k - h -'.split(' '), halfFill = 'k - h - s - h - s s t t t t s s'.split(' ');
+      names.forEach(n => {
+        const c = def.channels[n];
+        let b;
+        if (c.inst === 'drums') { b = []; for (let i = 0; i < 8; i++) b.push(...(i === 7 ? halfFill : half)); }
+        else if (n === 'lead') b = rot(toks[n]).map(tk => transposeTok(tk, -1));
+        else b = rot(toks[n]);
+        ch[n].parts.push(b);
+      });
+      ch.leadB = { inst: 'bell', vol: 1.1, parts: [Array(BAR * 2).fill('-'), Array(L).fill('-'), rot(toks.lead || Array(L).fill('-')).map(tk => transposeTok(tk, 0))] };
+      if (ch.lead) ch.lead.parts[2] = ch.lead.parts[2].map(tk => tk);   // melodia B: dzwonki + ciche echo prowadzącej oktawę niżej
+      if (ch.lead) ch.lead.volB = 0.45;
+    }
+    const out = { bpm: def.bpm, loopStart: BAR * 2, structured: true, channels: {} };
+    Object.keys(ch).forEach(n => { out.channels[n] = { inst: ch[n].inst, vol: ch[n].vol, data: ch[n].parts.map(p => p.join(' ')).join(' '), volB: ch[n].volB, bStart: BAR * 2 + L }; });
+    return out;
+  }
   function compile(def) {
+    def = structure(def);
     const stepsPerBeat = 4;
     const stepDur = 60 / def.bpm / stepsPerBeat;
     let length = 0;
@@ -818,10 +950,11 @@
         if (tk === '.' || tk === '-') continue;
         let len = 1;
         while (i + len < toks.length && toks[i + len] === '.') len++;
-        (events[i] = events[i] || []).push({ inst: ch.inst, vol: ch.vol, tok: tk, len });
+        const vol = ch.volB && i >= ch.bStart ? ch.volB : ch.vol;
+        (events[i] = events[i] || []).push({ inst: ch.inst, vol, tok: tk, len });
       }
     });
-    return { def, stepDur, length, events, loop: def.loop !== false };
+    return { def, stepDur, length, events, loop: def.loop !== false, loopStart: def.loopStart || 0 };
   }
   const SONGS = {};
   Object.keys(SONG_DEFS).forEach(k => { SONGS[k] = compile(SONG_DEFS[k]); });
@@ -856,31 +989,51 @@
       this.sfx = ctx.createGain(); this.sfx.gain.value = 0.9; this.sfx.connect(this.master);
       if (this.vol) this.setVolumes(this.vol.m, this.vol.s);
     },
-    play(name) {
-      if (!this.ctx) return;
+    // opt.xfade — płynne przejście (s): stary utwór gra dalej i cichnie, nowy narasta; opt.skipIntro — od razu część A
+    fading: [],
+    play(name, opt) {
+      if (!this.ctx || !SONGS[name]) return;
+      opt = opt || {};
       if (this.current && this.current.name === name) return;
-      this.stopMusic();
+      const xf = opt.xfade || 0, t = this.ctx.currentTime;
+      if (xf && this.current) this._fadeOut(this.current, xf); else this.stopMusic();
       const song = SONGS[name];
       const bus = this.ctx.createGain(); bus.connect(this.music);
+      if (xf) { bus.gain.setValueAtTime(0.0001, t); bus.gain.linearRampToValueAtTime(1, t + xf * 0.85); }
       const layer = this.ctx.createGain(); layer.gain.value = this.intensity ? 1 : 0; layer.connect(bus);
-      this.current = { name, song, bus, layer, step: 0, next: this.ctx.currentTime + 0.06 };
-      this.timer = setInterval(() => this._tick(), 25);
+      this.current = { name, song, bus, layer, step: opt.skipIntro ? song.loopStart : 0, next: t + 0.06 };
+      if (!this.timer) this.timer = setInterval(() => this._tick(), 25);
       this._tick();
     },
-    _tick() {
-      const c = this.current; if (!c) return;
+    _fadeOut(c, fade) {
+      const t = this.ctx.currentTime, g = c.bus.gain;
+      g.cancelScheduledValues(t); g.setValueAtTime(Math.max(0.0001, g.value), t); g.linearRampToValueAtTime(0.0001, t + fade);
+      c.end = t + fade; this.fading.push(c);
+      if (this.current === c) this.current = null;
+    },
+    _schedule(c) {
       while (c.next < this.ctx.currentTime + 0.15) {
         if (c.step >= c.song.length) {
-          if (!c.song.loop) { clearInterval(this.timer); this.timer = null; return; }
-          c.step = 0;
+          if (!c.song.loop) { c.done = true; return; }
+          c.step = c.song.loopStart || 0;
         }
         scheduleStep(this.ctx, c.bus, c.song, c.step, c.next);
-        if (this.intensity || this.ctx.currentTime < this.layerUntil) {
+        if (c === this.current && (this.intensity || this.ctx.currentTime < this.layerUntil)) {
           for (const ch of LAYER[c.step % 16]) { const d = DRUM_KEYS[ch]; if (d) INST[d](this.ctx, c.layer, c.next, 0.75); }
         }
         c.step++;
         c.next += c.song.stepDur;
       }
+    },
+    _tick() {
+      const now = this.ctx.currentTime;
+      if (this.current && !this.current.done) this._schedule(this.current);
+      this.fading = this.fading.filter(c => {
+        if (now >= c.end) { setTimeout(() => c.bus.disconnect(), 400); return false; }
+        if (!c.done) this._schedule(c);
+        return true;
+      });
+      if ((!this.current || this.current.done) && !this.fading.length && this.timer) { clearInterval(this.timer); this.timer = null; }
     },
     // włącza / wycisza dodatkową ścieżkę perkusji
     intensity: false, layerUntil: 0,
@@ -894,15 +1047,61 @@
       if (on) { g.linearRampToValueAtTime(1, t + 0.15); INST.crash(this.ctx, c.layer, t + 0.02, 0.8); }
       else { g.linearRampToValueAtTime(0, t + 1.2); this.layerUntil = t + 1.3; }
     },
+    // wyciszenie: utwór gra dalej i cichnie przez `fade` sekund (domyślnie krótko)
     stopMusic(fade) {
-      if (this.timer) { clearInterval(this.timer); this.timer = null; }
-      if (this.current) {
-        const bus = this.current.bus, t = this.ctx.currentTime;
-        bus.gain.setValueAtTime(bus.gain.value, t);
-        bus.gain.linearRampToValueAtTime(0, t + (fade || 0.08));
-        setTimeout(() => bus.disconnect(), ((fade || 0.08) + 0.5) * 1000);
-        this.current = null;
+      if (!this.current || !this.ctx) return;
+      this._fadeOut(this.current, fade || 0.25);
+      if (!this.timer) this.timer = setInterval(() => this._tick(), 25);
+    },
+    // ---- dźwięki otoczenia: 'waves' (plaża), 'drips' (kanały), 'wind' (burza piaskowa), 'rain' (deszcz), 'train'
+    amb: null,
+    setAmbience(kind) {
+      if (!this.ctx) return;
+      const cur = this.amb;
+      if ((cur && cur.kind) === (kind || null)) return;
+      const t = this.ctx.currentTime;
+      if (cur) {
+        cur.gain.gain.cancelScheduledValues(t); cur.gain.gain.setValueAtTime(Math.max(0.0001, cur.gain.gain.value), t); cur.gain.gain.linearRampToValueAtTime(0.0001, t + 1.2);
+        clearInterval(cur.timer); setTimeout(() => { cur.stop.forEach(n => { try { n.stop(); } catch (e) { } }); cur.gain.disconnect(); }, 1500);
+        this.amb = null;
       }
+      if (!kind) return;
+      this.amb = this._buildAmbience(kind);
+    },
+    _buildAmbience(kind) {
+      const ctx = this.ctx, t = ctx.currentTime, stop = [];
+      const gain = ctx.createGain(); gain.gain.setValueAtTime(0.0001, t); gain.gain.linearRampToValueAtTime(1, t + 1.5); gain.connect(this.sfx);
+      const loopNoise = (out, rate) => { const s = ctx.createBufferSource(); s.buffer = noise(ctx); s.loop = true; if (rate) s.playbackRate.value = rate; s.connect(out); s.start(t, Math.random()); stop.push(s); return s; };
+      const lfo = (f, depth, param) => { const o = ctx.createOscillator(); o.frequency.value = f; const g = ctx.createGain(); g.gain.value = depth; o.connect(g); g.connect(param); o.start(t); stop.push(o); };
+      const level = (v, out) => { const g = ctx.createGain(); g.gain.value = v; g.connect(out || gain); return g; };
+      let timer = null;
+      if (kind === 'waves') {
+        // szum fal narastający i opadający co kilka sekund + piana
+        const swell = level(0.22); lfo(0.13, 0.18, swell.gain);
+        loopNoise(filter(ctx, 'lowpass', 520, 0.7, swell));
+        const foam = level(0.05); lfo(0.13, 0.045, foam.gain);
+        loopNoise(filter(ctx, 'highpass', 2600, 0.5, foam));
+      } else if (kind === 'rain') {
+        loopNoise(filter(ctx, 'bandpass', 3200, 0.6, level(0.16)));
+        loopNoise(filter(ctx, 'lowpass', 300, 0.5, level(0.06)), 0.5);
+      } else if (kind === 'wind') {
+        const w = level(0.2); lfo(0.11, 0.14, w.gain);
+        const bp = filter(ctx, 'bandpass', 650, 1.3, w); lfo(0.07, 320, bp.frequency);
+        loopNoise(bp);
+        loopNoise(filter(ctx, 'highpass', 4000, 0.5, level(0.03)));
+      } else if (kind === 'drips') {
+        // dudnienie tuneli + krople z echem
+        loopNoise(filter(ctx, 'lowpass', 140, 0.7, level(0.14)), 0.6);
+        const dl = ctx.createDelay(1); dl.delayTime.value = 0.21; const fb = level(0.38, dl); dl.connect(fb); dl.connect(gain);
+        const dripIn = level(0.9); dripIn.connect(dl);
+        timer = setInterval(() => { if (Math.random() < 0.42) SFX.drip(ctx, dripIn, ctx.currentTime + 0.02 + Math.random() * 0.1); }, 260);
+      } else if (kind === 'train') {
+        loopNoise(filter(ctx, 'lowpass', 220, 0.7, level(0.18)), 0.8);
+        const w = level(0.08); lfo(0.2, 0.05, w.gain); loopNoise(filter(ctx, 'bandpass', 900, 0.8, w));
+        const cl = level(0.5); let k = 0;
+        timer = setInterval(() => { if (++k % 2 === 0) SFX.clack(ctx, cl, ctx.currentTime + 0.02); }, 290);
+      }
+      return { kind, gain, stop, timer };
     },
     sfxPlay(name) {
       if (!this.ctx || this.muted || !SFX[name]) return;
@@ -929,7 +1128,7 @@
   function renderSfx(name, sr) {
     sr = sr || 44100;
     const len = 2.0;
-    const ctx = new OfflineAudioContext(2, Math.ceil(sr * len), sr);
+    const ctx = new OfflineAudioContext(1, Math.ceil(sr * len), sr);
     SFX[name](ctx, ctx.destination, 0.01);
     return ctx.startRendering().then(trimBuffer).then(normalize);
   }
@@ -938,7 +1137,7 @@
     const song = SONGS[name];
     loops = song.loop ? (loops || 2) : 1;
     const total = song.length * song.stepDur * loops + 1.5;
-    const ctx = new OfflineAudioContext(2, Math.ceil(sr * total), sr);
+    const ctx = new OfflineAudioContext(1, Math.ceil(sr * total), sr);
     const comp = ctx.createDynamicsCompressor();
     comp.threshold.value = -14; comp.ratio.value = 4; comp.connect(ctx.destination);
     const g = ctx.createGain(); g.gain.value = 0.6; g.connect(comp);
@@ -978,7 +1177,7 @@
   }
 
   global.GameAudio = {
-    Engine, SONGS, SFX_NAMES: Object.keys(SFX), SONG_NAMES: Object.keys(SONGS),
+    Engine, SONGS, EVOICE_NAMES: Object.keys(EVOICES), SFX_NAMES: Object.keys(SFX), SONG_NAMES: Object.keys(SONGS),
     renderSfx, renderSong, encodeWav, noteFreq, VOICE_HEROES: Object.keys(VOICES)
   };
 })(window);

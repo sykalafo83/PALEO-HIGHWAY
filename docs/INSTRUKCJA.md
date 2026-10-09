@@ -390,13 +390,23 @@ Wynik, życia i postać przechodzą między etapami; dodatkowe życie co 50 000 
 
 ## Audio
 - Utwory: `title`, `map`, `drive` (etap bonusowy), `stage1`–`stage6`, `beach` (Opuszczona Plaża), `sewer` (Kanały Otchłani), `boss`, `beast` (Stary Kieł), `final` (Baron), `clear`, `gameover`, `ending`.
-- 35 sampli SFX (ciosy, skrzeki, strzały, wybuchy, bicz, harpun, teleport, grzmot…).
+- **Budowa utworów:** każdy utwór etapu ma 2-taktowy wstęp (bez melodii, perkusja się rozkręca), część A i część B
+  (melodia na dzwonkach, perkusja w połowie tempa); pętla wraca za wstęp. Jedno przejście trwa ok. 30–40 s.
+- **Przejścia:** muzyka bossa wchodzi płynnie (stary utwór cichnie, nowy narasta przez ok. 2,5 s),
+  a zmiana utworu i koniec etapu to wyciszenie zamiast urwania.
+- **Dźwięki otoczenia:** fale na Opuszczonej Plaży, kapanie z echem i dudnienie w Kanałach, wiatr w burzy piaskowej,
+  deszcz w Mieście Cieni i podczas ulewy, stukot kół na pociągu. Cichną w menu i przy zmianie etapu.
+- **Trafienia:** pięść, kopnięcie, rura (metaliczny brzęk), łańcuch (brzęk ogniw), maczeta i nóż (cięcie),
+  tarcza Tarczownika (dźwięk blachy) i garda gracza mają osobne dźwięki.
+- **Okrzyki wrogów:** siedem głosów (zwykły kłusownik, chrapliwy, piskliwy, osiłek, głos zza maski gazowej, boss, Żmija),
+  po kilka wariantów zaczepki przy wejściu, okrzyku przy ataku, jęku po trafieniu i krzyku przy upadku.
+- 43 sample SFX (ciosy, trafienia bronią, skrzeki, strzały, wybuchy, bicz, harpun, teleport, grzmot, krople, stukot kół…).
 - **Głosy postaci:** syntezowane okrzyki (`v_<postać>_special|super|win|hurt`) przy specjale, super-ruchu,
   mocnym ciosie i wygranej. Każdy bohater ma własną barwę: Kruk średni, Nina wysoki, Tur niski i chropowaty,
   Borys zachrypnięty z drżeniem, Baron gładki z wibratem.
 - **Dynamiczna muzyka:** przy kombo 10+ albo gdy bossowi zostało poniżej 25% życia, do utworu dochodzi dodatkowa
   ścieżka perkusji (tomy, werbel, talerz na wejście) i wycisza się, gdy napięcie opada.
-- Gotowe pliki WAV: `assets/audio/` (72 pliki, w tym 20 okrzyków postaci, 44,1 kHz, 16 bit, stereo).
+- Gotowe pliki WAV: `assets/audio/` (116 plików: muzyka, efekty, 28 okrzyków bohaterów i 28 okrzyków wrogów; 44,1 kHz, 16 bit, mono).
 - Odsłuch i pobieranie: `export.html`. Ponowne wygenerowanie: `node tools/export-audio.mjs` (Node 22+ i Edge/Chrome).
 
 ## Struktura
