@@ -2,11 +2,19 @@
   function poseOf(a) {
     const T = a.animT;
     switch (a.state) {
-      case 'idle': return a.victory ? P.victory[0] : P.idle[Math.floor(G.frame / 28) % 2];
+      case 'idle': return a.victory ? P.victory[0] : P.breathe[Math.floor(((G ? G.frame : app.frame || 0) + (a.pIdx || 0) * 17 + Math.round(a.x)) / 14) % 4];
       case 'walk': case 'enter':
         if (a.kind === 'player' && a.running) return P.run[Math.floor(T / 5) % 4];
         return P.walk[Math.floor(T / 7) % 4];
-      case 'attack': return (a.t < a.move.start && a.move.wind) ? P[a.move.wind][0] : P[a.move.pose][0];
+      case 'attack': {
+        // zamach: przed aktywną klatką ręka (albo kolano) cofa się — wyraźniejszy, „automatowy” cios
+        const m = a.move;
+        if (a.t < m.start) {
+          if (m.wind) return P[m.wind][0];
+          if (m.start >= 3 && a.t < m.start - 1) return (m.pose === 'kick' || m.pose === 'spinkick') ? P.kickWind[0] : P.chamber[0];
+        }
+        return P[m.pose][0];
+      }
       case 'jump': return a.jumpAtk ? P.jumpkick[0] : P.jump[0];
       case 'drop': case 'flip': return P.jump[0];
       case 'land': case 'getup': case 'pickup': case 'recover': return P.crouch[0];
@@ -68,7 +76,7 @@
     if (a.state === 'dead' && G.frame % 4 < 2) return;
     if (a.invuln > 0 && a.kind === 'player' && a.state !== 'special' && G.frame % 4 < 2) return;
     const sx = a.x - G.camX, sy = a.y - a.z;
-    const flash = a.flash > 0 && a.flash % 2 === 0;
+    const flash = a.flash > 0 && (a.flash % 2 === 0 || (G.hitstop > 0 && a.flash >= 4));
     if (a.kind === 'ptera') {
       const st = a.state === 'swoop' ? 'swoop' : ['fall', 'down', 'dead', 'thrown'].includes(a.state) ? 'down' : 'fly';
       SP.drawPtera(ctx, sx, sy, a.face, a.animT, st, { flash });
@@ -126,7 +134,8 @@
     if (isBoss(a) && a.armor && G.frame % 4 < 2) jitter = 1;
     if (a.perch) drawPerch(sx, a.y, a.z);
     if (a.alpha < 1) ctx.globalAlpha = Math.max(0, a.alpha);
-    SP.drawFigure(ctx, a.b, pose, sx + jitter, sy, face, opt);
+    const sk = SP.drawFigure(ctx, a.b, pose, sx + jitter, sy, face, opt);
+    if (!G.reflecting) drawTrail(a, sk, sx + jitter, sy, face, pose);
     drawFlame(a, sx, sy);
     drawCarried(a, sx, sy);
     // garda: półprzezroczysta tarcza przed postacią i pasek wytrzymałości gardy
@@ -225,6 +234,95 @@
     }
   }
 
+  // smuga ruchu za stopą przy kopnięciach (ostatnie pozycje stopy w świecie)
+  function drawTrail(a, sk, sx, sy, face, pose) {
+    const kicking = (a.state === 'attack' && a.move && /kick/.test(a.move.pose) && a.t >= a.move.start - 1 && a.t < a.move.start + a.move.active + 2)
+      || (a.state === 'jump' && a.jumpAtk) || (a.state === 'dashkick' && a.t >= 10) || (a.state === 'special' && a.key === 'nina');
+    if (!kicking || pose.rot || sk === undefined) { a.trail = null; return; }
+    const f = sk.legF[2], wx = a.x + face * f[0], wy = sy + f[1];
+    const T = a.trail || (a.trail = []);
+    T.push([wx, wy]); if (T.length > 6) T.shift();
+    // łuk zamachu za stopą (jak w automatach)
+    const hx = sx + face * sk.hip[0], hy = sy + sk.hip[1], fx = sx + face * f[0], R = Math.hypot(fx - hx, wy - hy);
+    if (R > 8) {
+      const ang = Math.atan2(wy - hy, fx - hx), sweep = 1.3 * face;
+      ctx.lineCap = 'round';
+      for (let i = 0; i < 3; i++) {
+        ctx.strokeStyle = `rgba(255,255,255,${0.45 - i * 0.12})`; ctx.lineWidth = 4 - i;
+        ctx.beginPath(); ctx.arc(hx, hy, R - i * 3, ang - sweep, ang, face < 0); ctx.stroke();
+      }
+    }
+    if (T.length < 2) { ctx.lineCap = 'butt'; return; }
+    ctx.lineCap = 'round';
+    for (let i = 1; i < T.length; i++) {
+      const k = i / T.length;
+      ctx.strokeStyle = `rgba(255,255,255,${0.55 * k})`; ctx.lineWidth = 1 + k * 4;
+      ctx.beginPath(); ctx.moveTo(T[i - 1][0] - G.camX, T[i - 1][1]); ctx.lineTo(T[i][0] - G.camX, T[i][1]); ctx.stroke();
+    }
+    ctx.lineCap = 'butt';
+  }
+  // kałuże w deszczu: odbijają postacie stojące w pobliżu (odbicie w pionie wokół linii stóp)
+  function puddlesOnScreen() {
+    const out = [], cell = 170, c0 = Math.floor((G.camX - 60) / cell), c1 = Math.floor((G.camX + W + 60) / cell);
+    for (let c = c0; c <= c1; c++) {
+      const h = n => { const v = Math.sin(c * 127.1 + n * 311.7) * 43758.5453; return v - Math.floor(v); };
+      if (h(1) < 0.25) continue;
+      out.push({ x: c * cell + h(2) * 110, y: FLOOR_TOP + 16 + h(3) * (FLOOR_BOTTOM - FLOOR_TOP - 24), rx: 20 + h(4) * 16, ry: 6 + h(5) * 3 });
+    }
+    return out;
+  }
+  function drawPuddles() {
+    if (!G.wx || !G.wx.rain || ST.HAZARDS || G.special) return;
+    for (const q of puddlesOnScreen()) {
+      const x = q.x - G.camX;
+      ctx.save(); ctx.beginPath(); ctx.ellipse(x, q.y, q.rx, q.ry, 0, 0, Math.PI * 2); ctx.clip();
+      ctx.fillStyle = 'rgba(60,80,110,0.55)'; ctx.fillRect(x - q.rx, q.y - q.ry, q.rx * 2, q.ry * 2);
+      G.reflecting = true; ctx.globalAlpha = 0.4;
+      for (const a of G.actors) {
+        if (a.alpha === 0 || Math.abs(a.x - q.x) > q.rx + 26 || a.y < q.y - q.ry - 2 || a.y > q.y + q.ry + 30) continue;
+        ctx.save(); ctx.translate(0, 2 * a.y); ctx.scale(1, -1); drawActor(a); ctx.restore();
+      }
+      G.reflecting = false; ctx.globalAlpha = 1;
+      // kręgi od kropel
+      for (let i = 0; i < 2; i++) {
+        const p = (((G.frame * 0.03) + i * 0.5 + q.x * 0.01) % 1 + 1) % 1;
+        ctx.strokeStyle = `rgba(200,220,255,${0.5 * (1 - p)})`; ctx.lineWidth = 1;
+        ctx.beginPath(); ctx.ellipse(x - q.rx * 0.4 + i * q.rx * 0.7, q.y + (i ? 1 : -1), 2 + p * 7, 1 + p * 2, 0, 0, Math.PI * 2); ctx.stroke();
+      }
+      ctx.restore();
+      ctx.strokeStyle = 'rgba(200,220,255,0.35)'; ctx.lineWidth = 1;
+      ctx.beginPath(); ctx.ellipse(x, q.y, q.rx, q.ry, 0, Math.PI * 1.05, Math.PI * 1.6); ctx.stroke();
+    }
+  }
+  // światło: wybuchy, ogień, strzały i lampy w kanałach rozświetlają otoczenie (mieszanie addytywne)
+  function glow(x, y, r, rgb, a) {
+    if (a <= 0.01) return;
+    const g = ctx.createRadialGradient(x, y, 0, x, y, r);
+    g.addColorStop(0, `rgba(${rgb},${a})`); g.addColorStop(1, `rgba(${rgb},0)`);
+    ctx.fillStyle = g; ctx.fillRect(x - r, y - r, r * 2, r * 2);
+  }
+  function drawLights() {
+    ctx.save(); ctx.globalCompositeOperation = 'lighter';
+    for (const f of G.fx) {
+      const k = f.t / f.life, x = f.x - G.camX;
+      if (f.type === 'boom') { glow(x, f.y - (f.z || 0) - 20, 170, '255,140,50', 0.75 * (1 - k)); glow(x, f.y, 80, '255,230,160', 0.55 * (1 - k)); }
+      else if (f.type === 'muzzle') glow(x, f.y - f.z, 50, '255,220,120', 0.5);
+    }
+    for (const f of G.fires || []) glow(f.x - G.camX, f.y - 6, 34, '255,140,40', 0.22 + 0.06 * Math.sin(G.frame * 0.4 + f.x));
+    for (const a of G.actors) if (a.state === 'flame' && a.t > 16 && a.t < 70) glow(a.x - G.camX + a.face * 40, a.y - 24, 60, '255,140,40', 0.3);
+    // lampy w kanałach: stożek światła na podłodze, migotanie i co jakiś czas jaskrawy rozbłysk
+    for (const L of ST.LIGHTS || []) {
+      const x = L.x - G.camX; if (x < -120 || x > W + 120) continue;
+      const i = L.i || 0, t = G.frame;
+      if (!((t + i * 37) % 200 > 6 && !((t + i * 53) % 90 < 3))) continue;
+      const surge = (t + i * 140) % 420 < 24 ? 1 - ((t + i * 140) % 420) / 24 : 0;
+      const g = ctx.createRadialGradient(x, L.y, 4, x, FLOOR_TOP + 30, 110);
+      g.addColorStop(0, `rgba(240,220,150,${0.16 + surge * 0.35})`); g.addColorStop(1, 'rgba(240,220,150,0)');
+      ctx.fillStyle = g; ctx.beginPath(); ctx.moveTo(x - 6, L.y); ctx.lineTo(x + 6, L.y); ctx.lineTo(x + 70 + surge * 40, H); ctx.lineTo(x - 70 - surge * 40, H); ctx.closePath(); ctx.fill();
+      if (surge > 0) glow(x, L.y + 10, 160, '255,240,190', surge * 0.35);
+    }
+    ctx.restore();
+  }
   function drawWorld() {
     const sh = G.shake > 0 ? Math.round(rnd(-2, 2)) : 0;
     ctx.save(); ctx.translate(0, sh);
@@ -233,6 +331,7 @@
     if (G.wx) drawWeatherBack(G.wx);
     drawEventsBack();
     drawFires();
+    drawPuddles();
     const ents = [];
     G.actors.forEach(a => ents.push({ y: a.y, a }));
     G.props.forEach(pr => { if (pr.hp > 0) ents.push({ y: pr.y, pr }); });
@@ -290,6 +389,7 @@
         ctx.beginPath(); ctx.ellipse(fx, f.y, f.r * k + 6, (f.r * k + 6) * 0.22, 0, 0, Math.PI * 2); ctx.stroke();
       }
     }
+    drawLights();
     ST.drawFront(ctx, layers, G.camX, G.frame);
     if (G.special === 'escape' && G.esc) {
       const lx = G.esc.lava - G.camX + 16;

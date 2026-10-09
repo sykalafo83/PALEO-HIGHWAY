@@ -53,6 +53,7 @@
     name: 'ETAP 6 — KANAŁY OTCHŁANI', sub: 'POD MIASTEM ŻYJE COŚ STARSZEGO NIŻ MIASTO',
     LEN, music: 'sewer', bossMusic: 'beast', diff: 1.7, farP: 0.15, midP: 0.45, EVENT: 'flood',
     HAZARDS: SLUDGE,
+    LIGHTS: lampsAt.map((x, i) => ({ x, y: 46, i })),
     sky(ctx) {
       const g = ctx.createLinearGradient(0, 0, 0, FLOOR_TOP);
       g.addColorStop(0, '#050608'); g.addColorStop(1, '#0e1412');

@@ -23,7 +23,7 @@
       }
       if (s.type === 'sniper') { e.perch = true; e.z = 42; e.x = s.side === 'L' ? G.camX + 46 : G.camX + W - 46; e.y = FLOOR_TOP + 8; setState(e, 'idle'); e.cool = 80; }
       if (s.type === 'ptera') e.z = 80;
-      if (OPTS.assist && HINTS[s.type] && !app.hinted[s.type]) { app.hinted[s.type] = 1; G.hint = { txt: HINTS[s.type], t: 300 }; }
+      if (OPTS.assist && !app.demo && HINTS[s.type] && !app.hinted[s.type]) { app.hinted[s.type] = 1; G.hint = { txt: HINTS[s.type], t: 300 }; }
       G.actors.push(e);
     }
     if (G.wave) {

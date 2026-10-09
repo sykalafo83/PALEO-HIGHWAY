@@ -47,7 +47,7 @@ export async function openPage(url, { width = 1152, height = 672, outDir }) {
     if (d.id && pending.has(d.id)) { pending.get(d.id)(d); pending.delete(d.id); }
     else if (d.method === 'Runtime.exceptionThrown') {
       const x = d.params.exceptionDetails;
-      errors.push(((x.exception && x.exception.description) || x.text || '').split('\n').slice(0, 3).join(' | '));
+      errors.push(((x.exception && x.exception.description) || x.text || '').split('\n').slice(0, 5).join(' | '));
     } else if (d.method === 'Runtime.consoleAPICalled' && d.params.type === 'error') logs.push(d.params.args.map(a => a.value ?? a.description).join(' '));
   };
   const send = (method, params = {}) => new Promise(r => { const i = ++id; pending.set(i, r); ws.send(JSON.stringify({ id: i, method, params })); });

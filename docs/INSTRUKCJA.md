@@ -283,6 +283,16 @@ strażnicy nadbiegają co kilka sekund. 1000 pkt za każdego uwolnionego, komple
 - **Wagoniki** (3B, kopalnia) pędzą po torach; „!” na brzegu ekranu ostrzega, z której strony.
 - **Ulewa** (3A) co jakiś czas zaciemnia ekran — widać tylko okolice graczy.
 
+### Oprawa i tryb demo
+- **Portret w HUD** reaguje na walkę: po trafieniu krzywi się z bólu, przy niskim życiu (poniżej 25%) tło pulsuje
+  na czerwono i pojawia się pot, a przy pełnej furii portret płonie i ma gniewne spojrzenie.
+- **Rozpoznawanie wrogów:** Szakal ma chustę na twarzy, Ćwiek gogle, Głaz opaskę na oku, Miotacz plecak z dynamitem,
+  Strzelec radio, Snajper czerwoną lunetę, Sieciarz zwiniętą sieć, Podpalacz maskę gazową i zbiorniki, Lotniarz gogle i plecak.
+- **Światło:** wybuchy i ogień rozświetlają otoczenie, lampy w Kanałach rzucają stożki światła i co jakiś czas jaskrawo
+  rozbłyskują; w deszczu na ziemi stoją kałuże, w których odbijają się postacie.
+- **Tryb demo:** po chwili bezczynności na ekranie tytułowym komputer sam gra kawałek losowego etapu
+  (na zmianę z tabelą wyników). Dowolny przycisk wraca do menu. Demo niczego nie zapisuje.
+
 ### Komiksowe przerywniki
 Scenki przed etapami to strony komiksu: każda kwestia to osobny kadr (tło etapu, postać w zbliżeniu, dymek, podpis),
 kadry pojawiają się po kolei, przeciwnicy mają linie akcji i dźwiękonaśladowcze napisy („GRRR!”, „BUM!”).

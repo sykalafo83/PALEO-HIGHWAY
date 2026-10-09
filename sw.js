@@ -3,7 +3,7 @@
  * Czcionki Google: najpierw pamięć podręczna.
  * Po zmianie listy plików podbij numer wersji w CACHE.
  */
-const CACHE = 'paleo-highway-v25';
+const CACHE = 'paleo-highway-v26';
 const FILES = [
   './', './index.html', './config.js', './manifest.webmanifest',
   './icons/icon-192.png', './icons/icon-512.png', './icons/icon-maskable-512.png',

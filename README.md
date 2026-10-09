@@ -27,6 +27,10 @@ muzyka i dźwięki są generowane kodem (Canvas 2D + Web Audio).
   i lotniarz zrzucający sieci.
 - **Poradnik „JAK GRAĆ”** w menu głównym: 10 rozdziałów i 27 stron z animowanymi pokazami ruchów,
   klawisze i ikony pada dopasowane do Twoich ustawień.
+- **Oprawa:** postacie z dwutonowym cieniowaniem i wyraźnym obrysem, oddech w miejscu, zamach przed ciosem i mina bólu,
+  wrogowie z rozpoznawalnymi dodatkami (maski, gogle, plecaki, zbiorniki), białe klatki uderzenia, iskry i smugi kopnięć,
+  łuny wybuchów i lamp, kałuże odbijające postacie w deszczu, portret w HUD reagujący na walkę
+  oraz tryb demo na ekranie tytułowym, jak na prawdziwym automacie.
 - **Tryby:** zwykła gra, Nowa Gra+, trening, Boss Rush, przetrwanie, wyzwania z gwiazdkami i codzienne wyzwanie.
 - **Ekstra:** 32 osiągnięcia, bestiariusz, odtwarzacz muzyki, karta z wynikiem do udostępnienia, edytor etapów.
 - **Wygoda:** zapis postępu, przypisywanie klawiszy i przycisków pada (z wibracjami), sterowanie dotykowe,

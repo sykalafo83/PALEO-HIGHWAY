@@ -109,28 +109,28 @@
   const ENEMIES = {
     grunt: {
       name: 'SZAKAL', hp: 42, speed: 0.95, range: 26, score: 200, weapon: 'knife', attacks: ['stab', 'slash'], ai: 'grunt',
-      mk: () => { const c = GRUNT_COLS[Math.random() * 2 | 0]; return build({ hair: 'mohawk', details: [{ t: 'vest', c: c.vest }, { t: 'belt', c: '#2a1a10' }], colors: c }); }
+      mk: () => { const c = GRUNT_COLS[Math.random() * 2 | 0]; return build({ hair: 'mohawk', acc: [{ t: 'scarf', c: c.vest }], details: [{ t: 'vest', c: c.vest }, { t: 'belt', c: '#2a1a10' }], colors: c }); }
     },
     thin: {
       name: 'ĆWIEK', hp: 30, speed: 1.45, range: 24, score: 300, attacks: ['slash'], ai: 'thin',
-      mk: () => build({ hair: 'hood', legU: 12.5, legL: 12.5, shoulderW: 10, hipW: 8, limbW: 4, armW: 3.4, head: 5.2,
+      mk: () => build({ hair: 'hood', legU: 12.5, legL: 12.5, shoulderW: 10, hipW: 8, limbW: 4, armW: 3.4, head: 5.2, acc: [{ t: 'goggles', c: '#e0c040' }],
         details: [{ t: 'stripe', c: '#e0c040' }],
         colors: { skin: '#c8a080', hair: '#5a3a7a', shirt: '#5a3a7a', pants: '#2a2a3a', boots: '#1a1a1a', gloves: '#2a2a3a' } })
     },
     brute: {
       name: 'GŁAZ', hp: 95, speed: 0.65, range: 30, score: 600, attacks: ['slap'], ai: 'brute',
-      mk: () => build({ hair: 'bald', scale: 1.15, belly: 9, bellyCol: 'skin', shoulderW: 17, hipW: 14, limbW: 6.5, armW: 5.5, sleeveless: true,
+      mk: () => build({ hair: 'bald', scale: 1.15, belly: 9, bellyCol: 'skin', shoulderW: 17, hipW: 14, limbW: 6.5, armW: 5.5, sleeveless: true, acc: ['eyepatch'],
         details: [{ t: 'vest', c: '#6a5a4a' }, { t: 'belt', c: '#2a1a10' }],
         colors: { skin: '#d09060', hair: '#d09060', shirt: '#6a5a4a', pants: '#3a3a4a', boots: '#1a1a1a', gloves: '#d09060' } })
     },
     bomber: {
       name: 'MIOTACZ', hp: 34, speed: 0.9, range: 26, score: 350, attacks: ['slash'], ai: 'bomber', weapon: 'dynamite',
-      mk: () => build({ hair: 'cap', details: [{ t: 'bandolier', c: '#c0302a' }, { t: 'belt', c: '#2a1a10' }],
+      mk: () => build({ hair: 'cap', acc: [{ t: 'dynapack', c: '#6a4a2a' }], details: [{ t: 'bandolier', c: '#c0302a' }, { t: 'belt', c: '#2a1a10' }],
         colors: { skin: '#d0a078', hair: '#8a3a2a', shirt: '#c06a2a', pants: '#4a4a3a', boots: '#1a1a1a', gloves: '#3a2a1a', accent: '#8a3a2a' } })
     },
     gunner: {
       name: 'STRZELEC', hp: 38, speed: 0.85, range: 26, score: 400, attacks: ['slash'], ai: 'gunner', weapon: 'rifle',
-      mk: () => build({ hair: 'cap', details: [{ t: 'pocket', c: '#3a4a2a' }, { t: 'belt', c: '#2a2a1a' }],
+      mk: () => build({ hair: 'cap', acc: [{ t: 'radio', c: '#4a5a3a' }], details: [{ t: 'pocket', c: '#3a4a2a' }, { t: 'belt', c: '#2a2a1a' }],
         colors: { skin: '#c89870', hair: '#3a4a2a', shirt: '#5a6a3a', pants: '#3a4030', boots: '#1a1a1a', gloves: '#2a2a1a', accent: '#3a4a2a' } })
     },
     shield: {
@@ -140,12 +140,12 @@
     },
     sniper: {
       name: 'SNAJPER', hp: 30, speed: 0.8, range: 26, score: 600, attacks: ['slash'], ai: 'sniper', weapon: 'rifle',
-      mk: () => build({ hair: 'cap', details: [{ t: 'bandolier', c: '#3a3a2a' }, { t: 'belt', c: '#1a1a1a' }],
+      mk: () => build({ hair: 'cap', acc: [{ t: 'goggles', c: '#ff4030' }, { t: 'pack', c: '#3a3e34' }], details: [{ t: 'bandolier', c: '#3a3a2a' }, { t: 'belt', c: '#1a1a1a' }],
         colors: { skin: '#b88a60', hair: '#2a2a2a', shirt: '#3a3e34', pants: '#2a2e28', boots: '#111', gloves: '#1a1a1a', accent: '#2a2a2a' } })
     },
     netter: {
       name: 'SIECIARZ', hp: 40, speed: 0.9, range: 26, score: 450, attacks: ['slash'], ai: 'netter',
-      mk: () => build({ hair: 'hood', details: [{ t: 'bandolier', c: '#c8b080' }, { t: 'belt', c: '#2a1a10' }],
+      mk: () => build({ hair: 'hood', acc: [{ t: 'netpack', c: '#5a4a32' }, { t: 'scarf', c: '#8a7a50' }], details: [{ t: 'bandolier', c: '#c8b080' }, { t: 'belt', c: '#2a1a10' }],
         colors: { skin: '#d0a078', hair: '#6a5a3a', shirt: '#6a5a3a', pants: '#3a3428', boots: '#1a1a1a', gloves: '#3a2a1a' } })
     },
     ptera: { name: 'PTERANODON', hp: 40, speed: 1.6, score: 700, beast: true },
@@ -163,12 +163,12 @@
     rraptor: { name: 'JEŹDZIEC', hp: 70, speed: 1.55, score: 900 },
     flamer: {
       name: 'PODPALACZ', hp: 48, speed: 0.8, range: 26, score: 650, attacks: ['slap'], ai: 'flamer', weapon: 'flamer',
-      mk: () => build({ hair: 'helmet', scale: 1.05, shoulderW: 13, hipW: 11, limbW: 5.2, details: [{ t: 'plate', c: '#7a3a1a' }, { t: 'belt', c: '#1a1a1a' }],
+      mk: () => build({ hair: 'helmet', scale: 1.05, shoulderW: 13, hipW: 11, limbW: 5.2, acc: ['tank', 'gasmask'], details: [{ t: 'plate', c: '#7a3a1a' }, { t: 'belt', c: '#1a1a1a' }],
         colors: { skin: '#c89070', hair: '#3a3a3a', shirt: '#b8642a', pants: '#3a3028', boots: '#141414', gloves: '#2a2a2a', accent: '#ffb030' } })
     },
     glider: {
       name: 'LOTNIARZ', hp: 32, speed: 1.4, range: 24, score: 700, attacks: ['slash'], ai: 'thin',
-      mk: () => build({ hair: 'bandana', legU: 12.5, legL: 12.5, shoulderW: 10, hipW: 8, limbW: 4, armW: 3.4,
+      mk: () => build({ hair: 'bandana', legU: 12.5, legL: 12.5, shoulderW: 10, hipW: 8, limbW: 4, armW: 3.4, acc: [{ t: 'goggles' }, { t: 'pack', c: '#5a4a3a' }],
         details: [{ t: 'bandolier', c: '#e0d4a8' }, { t: 'belt', c: '#2a1a10' }],
         colors: { skin: '#d0a078', hair: '#c8402a', shirt: '#2a4a6a', pants: '#3a3a3a', boots: '#1a1a1a', gloves: '#2a2a2a', accent: '#c8402a' } })
     },
@@ -813,7 +813,7 @@
       depthR: kind === 'rex' ? 10 : kind === 'digger' ? 6 : 0
     });
     if (d.mk) a.b = d.mk();
-    if (type !== 'dummy' && !app.seen[type]) { app.seen[type] = 1; safeSet('paleo_seen', JSON.stringify(app.seen)); }
+    if (type !== 'dummy' && !app.demo && !app.seen[type]) { app.seen[type] = 1; safeSet('paleo_seen', JSON.stringify(app.seen)); }
     if (type === 'raptor') a.cols = RAPTOR_COLS[Math.random() * 2 | 0];
     if (type === 'rraptor') { a.cols = { body: '#7a5a3a', belly: '#c8a878', stripe: '#3a2a1a' }; a.rider = ENEMIES.grunt.mk(); }
     if (type === 'whitefang') a.cols = { body: '#e8e6dc', belly: '#ffffff', stripe: '#b8b8c4' };
@@ -908,7 +908,7 @@
       addScore(src, dmg * 10);
       G.lastEnemy = t; G.lastEnemyT = 200;
     }
-    if (t.kind === 'player') { if (dmg >= 8 && Math.random() < 0.5) shout(t, 'hurt'); else sfx('pHurt'); rumble(t.pIdx, Math.min(1, 0.3 + dmg / 25), 0.5, 120 + dmg * 6); }
+    if (t.kind === 'player') { t.hurtF = G.frame; if (dmg >= 8 && Math.random() < 0.5) shout(t, 'hurt'); else sfx('pHurt'); rumble(t.pIdx, Math.min(1, 0.3 + dmg / 25), 0.5, 120 + dmg * 6); }
     else if (src && src.kind === 'player' && dmg > 0) rumble(src.pIdx, knock ? 0.35 : 0, knock ? 0.5 : 0.28, knock ? 90 : 45);
     else if (t.kind === 'raptor' || t.kind === 'pachy') { if (Math.random() < 0.5) sfx('screech'); }
     else if (t.kind === 'rex') { if (Math.random() < 0.3) sfx('roar'); }
@@ -1021,7 +1021,7 @@
     app.toasts.push({ head: 'NOWA POSTAĆ DO WYBORU!', name, t: 0, col: '#7cff7c' });
   }
   function unlock(id) {
-    if (app.ach[id] || (app.gameMode === 'custom' && G && ST && ST.custom)) return;   // własne etapy nie dają osiągnięć
+    if (app.ach[id] || app.demo || (app.gameMode === 'custom' && G && ST && ST.custom)) return;   // własne etapy nie dają osiągnięć
     app.ach[id] = Date.now(); safeSet('paleo_ach', JSON.stringify(app.ach));
     const a = ACH.find(x => x[0] === id); if (a) app.toasts.push({ name: a[1], t: 0 });
     sfx('oneup');
@@ -3756,7 +3756,7 @@
       }
       if (s.type === 'sniper') { e.perch = true; e.z = 42; e.x = s.side === 'L' ? G.camX + 46 : G.camX + W - 46; e.y = FLOOR_TOP + 8; setState(e, 'idle'); e.cool = 80; }
       if (s.type === 'ptera') e.z = 80;
-      if (OPTS.assist && HINTS[s.type] && !app.hinted[s.type]) { app.hinted[s.type] = 1; G.hint = { txt: HINTS[s.type], t: 300 }; }
+      if (OPTS.assist && !app.demo && HINTS[s.type] && !app.hinted[s.type]) { app.hinted[s.type] = 1; G.hint = { txt: HINTS[s.type], t: 300 }; }
       G.actors.push(e);
     }
     if (G.wave) {
@@ -3934,11 +3934,19 @@
   function poseOf(a) {
     const T = a.animT;
     switch (a.state) {
-      case 'idle': return a.victory ? P.victory[0] : P.idle[Math.floor(G.frame / 28) % 2];
+      case 'idle': return a.victory ? P.victory[0] : P.breathe[Math.floor(((G ? G.frame : app.frame || 0) + (a.pIdx || 0) * 17 + Math.round(a.x)) / 14) % 4];
       case 'walk': case 'enter':
         if (a.kind === 'player' && a.running) return P.run[Math.floor(T / 5) % 4];
         return P.walk[Math.floor(T / 7) % 4];
-      case 'attack': return (a.t < a.move.start && a.move.wind) ? P[a.move.wind][0] : P[a.move.pose][0];
+      case 'attack': {
+        // zamach: przed aktywną klatką ręka (albo kolano) cofa się — wyraźniejszy, „automatowy” cios
+        const m = a.move;
+        if (a.t < m.start) {
+          if (m.wind) return P[m.wind][0];
+          if (m.start >= 3 && a.t < m.start - 1) return (m.pose === 'kick' || m.pose === 'spinkick') ? P.kickWind[0] : P.chamber[0];
+        }
+        return P[m.pose][0];
+      }
       case 'jump': return a.jumpAtk ? P.jumpkick[0] : P.jump[0];
       case 'drop': case 'flip': return P.jump[0];
       case 'land': case 'getup': case 'pickup': case 'recover': return P.crouch[0];
@@ -4000,7 +4008,7 @@
     if (a.state === 'dead' && G.frame % 4 < 2) return;
     if (a.invuln > 0 && a.kind === 'player' && a.state !== 'special' && G.frame % 4 < 2) return;
     const sx = a.x - G.camX, sy = a.y - a.z;
-    const flash = a.flash > 0 && a.flash % 2 === 0;
+    const flash = a.flash > 0 && (a.flash % 2 === 0 || (G.hitstop > 0 && a.flash >= 4));
     if (a.kind === 'ptera') {
       const st = a.state === 'swoop' ? 'swoop' : ['fall', 'down', 'dead', 'thrown'].includes(a.state) ? 'down' : 'fly';
       SP.drawPtera(ctx, sx, sy, a.face, a.animT, st, { flash });
@@ -4058,7 +4066,8 @@
     if (isBoss(a) && a.armor && G.frame % 4 < 2) jitter = 1;
     if (a.perch) drawPerch(sx, a.y, a.z);
     if (a.alpha < 1) ctx.globalAlpha = Math.max(0, a.alpha);
-    SP.drawFigure(ctx, a.b, pose, sx + jitter, sy, face, opt);
+    const sk = SP.drawFigure(ctx, a.b, pose, sx + jitter, sy, face, opt);
+    if (!G.reflecting) drawTrail(a, sk, sx + jitter, sy, face, pose);
     drawFlame(a, sx, sy);
     drawCarried(a, sx, sy);
     // garda: półprzezroczysta tarcza przed postacią i pasek wytrzymałości gardy
@@ -4157,6 +4166,95 @@
     }
   }
 
+  // smuga ruchu za stopą przy kopnięciach (ostatnie pozycje stopy w świecie)
+  function drawTrail(a, sk, sx, sy, face, pose) {
+    const kicking = (a.state === 'attack' && a.move && /kick/.test(a.move.pose) && a.t >= a.move.start - 1 && a.t < a.move.start + a.move.active + 2)
+      || (a.state === 'jump' && a.jumpAtk) || (a.state === 'dashkick' && a.t >= 10) || (a.state === 'special' && a.key === 'nina');
+    if (!kicking || pose.rot || sk === undefined) { a.trail = null; return; }
+    const f = sk.legF[2], wx = a.x + face * f[0], wy = sy + f[1];
+    const T = a.trail || (a.trail = []);
+    T.push([wx, wy]); if (T.length > 6) T.shift();
+    // łuk zamachu za stopą (jak w automatach)
+    const hx = sx + face * sk.hip[0], hy = sy + sk.hip[1], fx = sx + face * f[0], R = Math.hypot(fx - hx, wy - hy);
+    if (R > 8) {
+      const ang = Math.atan2(wy - hy, fx - hx), sweep = 1.3 * face;
+      ctx.lineCap = 'round';
+      for (let i = 0; i < 3; i++) {
+        ctx.strokeStyle = `rgba(255,255,255,${0.45 - i * 0.12})`; ctx.lineWidth = 4 - i;
+        ctx.beginPath(); ctx.arc(hx, hy, R - i * 3, ang - sweep, ang, face < 0); ctx.stroke();
+      }
+    }
+    if (T.length < 2) { ctx.lineCap = 'butt'; return; }
+    ctx.lineCap = 'round';
+    for (let i = 1; i < T.length; i++) {
+      const k = i / T.length;
+      ctx.strokeStyle = `rgba(255,255,255,${0.55 * k})`; ctx.lineWidth = 1 + k * 4;
+      ctx.beginPath(); ctx.moveTo(T[i - 1][0] - G.camX, T[i - 1][1]); ctx.lineTo(T[i][0] - G.camX, T[i][1]); ctx.stroke();
+    }
+    ctx.lineCap = 'butt';
+  }
+  // kałuże w deszczu: odbijają postacie stojące w pobliżu (odbicie w pionie wokół linii stóp)
+  function puddlesOnScreen() {
+    const out = [], cell = 170, c0 = Math.floor((G.camX - 60) / cell), c1 = Math.floor((G.camX + W + 60) / cell);
+    for (let c = c0; c <= c1; c++) {
+      const h = n => { const v = Math.sin(c * 127.1 + n * 311.7) * 43758.5453; return v - Math.floor(v); };
+      if (h(1) < 0.25) continue;
+      out.push({ x: c * cell + h(2) * 110, y: FLOOR_TOP + 16 + h(3) * (FLOOR_BOTTOM - FLOOR_TOP - 24), rx: 20 + h(4) * 16, ry: 6 + h(5) * 3 });
+    }
+    return out;
+  }
+  function drawPuddles() {
+    if (!G.wx || !G.wx.rain || ST.HAZARDS || G.special) return;
+    for (const q of puddlesOnScreen()) {
+      const x = q.x - G.camX;
+      ctx.save(); ctx.beginPath(); ctx.ellipse(x, q.y, q.rx, q.ry, 0, 0, Math.PI * 2); ctx.clip();
+      ctx.fillStyle = 'rgba(60,80,110,0.55)'; ctx.fillRect(x - q.rx, q.y - q.ry, q.rx * 2, q.ry * 2);
+      G.reflecting = true; ctx.globalAlpha = 0.4;
+      for (const a of G.actors) {
+        if (a.alpha === 0 || Math.abs(a.x - q.x) > q.rx + 26 || a.y < q.y - q.ry - 2 || a.y > q.y + q.ry + 30) continue;
+        ctx.save(); ctx.translate(0, 2 * a.y); ctx.scale(1, -1); drawActor(a); ctx.restore();
+      }
+      G.reflecting = false; ctx.globalAlpha = 1;
+      // kręgi od kropel
+      for (let i = 0; i < 2; i++) {
+        const p = (((G.frame * 0.03) + i * 0.5 + q.x * 0.01) % 1 + 1) % 1;
+        ctx.strokeStyle = `rgba(200,220,255,${0.5 * (1 - p)})`; ctx.lineWidth = 1;
+        ctx.beginPath(); ctx.ellipse(x - q.rx * 0.4 + i * q.rx * 0.7, q.y + (i ? 1 : -1), 2 + p * 7, 1 + p * 2, 0, 0, Math.PI * 2); ctx.stroke();
+      }
+      ctx.restore();
+      ctx.strokeStyle = 'rgba(200,220,255,0.35)'; ctx.lineWidth = 1;
+      ctx.beginPath(); ctx.ellipse(x, q.y, q.rx, q.ry, 0, Math.PI * 1.05, Math.PI * 1.6); ctx.stroke();
+    }
+  }
+  // światło: wybuchy, ogień, strzały i lampy w kanałach rozświetlają otoczenie (mieszanie addytywne)
+  function glow(x, y, r, rgb, a) {
+    if (a <= 0.01) return;
+    const g = ctx.createRadialGradient(x, y, 0, x, y, r);
+    g.addColorStop(0, `rgba(${rgb},${a})`); g.addColorStop(1, `rgba(${rgb},0)`);
+    ctx.fillStyle = g; ctx.fillRect(x - r, y - r, r * 2, r * 2);
+  }
+  function drawLights() {
+    ctx.save(); ctx.globalCompositeOperation = 'lighter';
+    for (const f of G.fx) {
+      const k = f.t / f.life, x = f.x - G.camX;
+      if (f.type === 'boom') { glow(x, f.y - (f.z || 0) - 20, 170, '255,140,50', 0.75 * (1 - k)); glow(x, f.y, 80, '255,230,160', 0.55 * (1 - k)); }
+      else if (f.type === 'muzzle') glow(x, f.y - f.z, 50, '255,220,120', 0.5);
+    }
+    for (const f of G.fires || []) glow(f.x - G.camX, f.y - 6, 34, '255,140,40', 0.22 + 0.06 * Math.sin(G.frame * 0.4 + f.x));
+    for (const a of G.actors) if (a.state === 'flame' && a.t > 16 && a.t < 70) glow(a.x - G.camX + a.face * 40, a.y - 24, 60, '255,140,40', 0.3);
+    // lampy w kanałach: stożek światła na podłodze, migotanie i co jakiś czas jaskrawy rozbłysk
+    for (const L of ST.LIGHTS || []) {
+      const x = L.x - G.camX; if (x < -120 || x > W + 120) continue;
+      const i = L.i || 0, t = G.frame;
+      if (!((t + i * 37) % 200 > 6 && !((t + i * 53) % 90 < 3))) continue;
+      const surge = (t + i * 140) % 420 < 24 ? 1 - ((t + i * 140) % 420) / 24 : 0;
+      const g = ctx.createRadialGradient(x, L.y, 4, x, FLOOR_TOP + 30, 110);
+      g.addColorStop(0, `rgba(240,220,150,${0.16 + surge * 0.35})`); g.addColorStop(1, 'rgba(240,220,150,0)');
+      ctx.fillStyle = g; ctx.beginPath(); ctx.moveTo(x - 6, L.y); ctx.lineTo(x + 6, L.y); ctx.lineTo(x + 70 + surge * 40, H); ctx.lineTo(x - 70 - surge * 40, H); ctx.closePath(); ctx.fill();
+      if (surge > 0) glow(x, L.y + 10, 160, '255,240,190', surge * 0.35);
+    }
+    ctx.restore();
+  }
   function drawWorld() {
     const sh = G.shake > 0 ? Math.round(rnd(-2, 2)) : 0;
     ctx.save(); ctx.translate(0, sh);
@@ -4165,6 +4263,7 @@
     if (G.wx) drawWeatherBack(G.wx);
     drawEventsBack();
     drawFires();
+    drawPuddles();
     const ents = [];
     G.actors.forEach(a => ents.push({ y: a.y, a }));
     G.props.forEach(pr => { if (pr.hp > 0) ents.push({ y: pr.y, pr }); });
@@ -4222,6 +4321,7 @@
         ctx.beginPath(); ctx.ellipse(fx, f.y, f.r * k + 6, (f.r * k + 6) * 0.22, 0, 0, Math.PI * 2); ctx.stroke();
       }
     }
+    drawLights();
     ST.drawFront(ctx, layers, G.camX, G.frame);
     if (G.special === 'escape' && G.esc) {
       const lx = G.esc.lava - G.camX + 16;
@@ -4786,10 +4886,19 @@
   function drawPlayerPanel(p, side) {
     const L = PANEL[side];
     ctx.fillStyle = P_COLS[side]; ctx.fillRect(L.px - 1, 4, 24, 24);
-    ctx.fillStyle = '#2a3a5a'; ctx.fillRect(L.px + 1, 6, 20, 20);
+    const hurtNow = G.frame - (p.hurtF || -99) < 30, low = p.hp > 0 && p.hp / p.maxHp < 0.25, fury = (p.fury || 0) >= 100;
+    // tło portretu: czerwone pulsowanie przy niskim życiu, płomienie przy pełnej furii
+    ctx.fillStyle = low ? `rgb(${90 + Math.round(60 * Math.abs(Math.sin(G.frame * 0.12)))},26,30)` : '#2a3a5a'; ctx.fillRect(L.px + 1, 6, 20, 20);
     ctx.save(); ctx.beginPath(); ctx.rect(L.px + 1, 6, 20, 20); ctx.clip();
-    SP.drawPortrait(ctx, p.b, L.px + 11, 17, 7, p.flash > 0);
+    if (fury) for (let i = 0; i < 6; i++) {
+      const k = ((G.frame * 0.05 + i / 6) % 1);
+      ctx.fillStyle = k < 0.5 ? 'rgba(255,200,60,0.8)' : 'rgba(255,90,20,0.7)';
+      ctx.beginPath(); ctx.arc(L.px + 3 + i * 3.4, 26 - k * 18, 3.5 * (1 - k) + 1, 0, Math.PI * 2); ctx.fill();
+    }
+    const shake = hurtNow && G.frame % 4 < 2 ? (G.frame % 8 < 4 ? 1 : -1) : 0;
+    SP.drawPortrait(ctx, p.b, L.px + 11 + shake, 17, 7, p.flash > 0 && p.flash % 2 === 0, { hurt: hurtNow, low, fury, t: G.frame });
     ctx.restore();
+    if (fury) { ctx.strokeStyle = G.frame % 10 < 5 ? '#ffe040' : '#ff6020'; ctx.lineWidth = 1; ctx.strokeRect(L.px - 0.5, 4.5, 23, 23); }
     if (p.out) { ctx.fillStyle = 'rgba(0,0,0,0.6)'; ctx.fillRect(L.px + 1, 6, 20, 20); return; }
     const f = clamp(p.hp / p.maxHp, 0, 1);
     bar(L.bx, 17, 96, 6, f, p.lagHp / p.maxHp, f > 0.5 ? '#40e060' : (f > 0.25 ? '#f0d030' : '#f04040'));
@@ -5807,7 +5916,8 @@
         'POD ŻYCIEM ROŚNIE PASEK FURII (O NIM W ROZDZIALE „SPECJAŁY I FURIA”).',
         'NA ŚRODKU: CZAS. GDY DOJDZIE DO ZERA, TRACISZ ŻYCIE — NIE GUZDRAJ SIĘ.',
         'POD TWOIM PASKIEM: ŻYCIE OSTATNIO TRAFIONEGO WROGA. KOLOROWE WARSTWY',
-        'I LICZNIK ×N U BOSSÓW TO KOLEJNE „PASKI” ŻYCIA DO ZBICIA.'] }
+        'I LICZNIK ×N U BOSSÓW TO KOLEJNE „PASKI” ŻYCIA DO ZBICIA.',
+        'PORTRET REAGUJE: BÓL PO TRAFIENIU, CZERWONE TŁO PRZY NISKIM ŻYCIU, OGIEŃ PRZY FURII.'] }
     ] },
     { title: 'WALKA', pages: [
       { demo: 'combo', head: 'KOMBO', lines: () => [
@@ -6183,8 +6293,64 @@
     if (pressed.pause || pressed.jump) { app.mode = 'title'; app.t = 0; sfx('select'); }
   }
   // =============================================================== PĘTLA
+  // ---- TRYB DEMO (attract mode)
+  const DEMO_STAGES = [0, 1, 2, 3, 4, 5];
+  function startDemo() {
+    const keys = CHAR_KEYS, two = Math.random() < 0.4;
+    const k1 = keys[Math.random() * keys.length | 0], k2 = keys.filter(k => k !== k1)[Math.random() * (keys.length - 1) | 0];
+    app.demo = { t: 0, prev: { gameMode: app.gameMode, p2Active: app.p2Active, ngpRun: app.ngpRun, route: app.route, run: app.run } };
+    app.gameMode = 'demo'; app.ngpRun = false; app.p2Active = two; app.demo.prev.wxSeed = app.wxSeed; app.route = [];
+    const team = [makePlayer(k1, 0)]; if (two) team.push(makePlayer(k2, 1));
+    startStage(DEMO_STAGES[Math.random() * DEMO_STAGES.length | 0], team);
+    G.introT = 90; app.mode = 'play'; app.t = 0;
+  }
+  function endDemo() {
+    const d = app.demo; if (!d) return;
+    Object.assign(app, d.prev); app.demo = null;
+    AU.stopMusic(); G = null; app.mode = 'title'; app.t = 0; app.idle = 0;
+  }
+  // zwraca true, gdy demo się skończyło (gracz nacisnął przycisk albo minął czas)
+  function updateDemo() {
+    const d = app.demo; d.t++;
+    if (ACTIONS.some(k => pressed[k]) || d.t > 60 * 40 || G.bossDead || !G.players.some(q => q.alive && q.lives >= 0 && q.state !== 'dead')) { endDemo(); return true; }
+    G.players.forEach(p => demoBot(p, inp[p.pIdx]));
+    return false;
+  }
+  function demoBot(p, I) {
+    const H_ = I.held, Pr = I.pressed;
+    ACTIONS.forEach(k => { H_[k] = false; Pr[k] = false; });
+    if (!p.alive) return;
+    if (p.state === 'netted') { if (G.frame % 3 === 0) Pr.attack = true; return; }
+    if (p.state === 'jump') { if (p.t === 7 && !p.jumpAtk) Pr.attack = true; return; }
+    const foesNow = foes().filter(e => e.hp > 0 && hittable(e) && e.state !== 'enter' && Math.abs(e.x - G.camX - W / 2) < W / 2 + 10);
+    if ((p.fury || 0) >= 100 && foesNow.length >= 2) { Pr.special = true; H_.attack = H_.jump = true; return; }
+    const near = foesNow.filter(e => Math.abs(e.x - p.x) < 50 && Math.abs(e.y - p.y) < 14);
+    if (near.length >= 3 && p.hp > 20 && G.frame % 50 === 0) { Pr.special = true; H_.attack = H_.jump = true; return; }
+    let tgt = null, bd = 1e9;
+    for (const e of foesNow) { const dd = Math.abs(e.x - p.x) + Math.abs(e.y - p.y) * 2; if (dd < bd) { bd = dd; tgt = e; } }
+    if (!tgt) {
+      // brak wrogów: idź w prawo za kamerą
+      if (G.goT > 0 || !G.wave) H_.right = true;
+      if (Math.abs(p.y - 186) > 6) H_[p.y < 186 ? 'down' : 'up'] = true;
+      return;
+    }
+    const dx = tgt.x - p.x, dy = tgt.y - p.y, side = dx >= 0 ? 1 : -1;
+    const reach = (isBoss(tgt) ? 34 : 24) + (tgt.rad || 8) * 0.5;
+    if (Math.abs(dy) > 3) H_[dy > 0 ? 'down' : 'up'] = true;
+    if (Math.abs(dx) > reach) H_[side > 0 ? 'right' : 'left'] = true;
+    else if (Math.abs(dx) < reach - 12) H_[side > 0 ? 'left' : 'right'] = true;
+    if (p.face !== side && Math.abs(dx) <= reach) H_[side > 0 ? 'right' : 'left'] = true;
+    if (Math.abs(dy) <= 6 && Math.abs(dx) > 55 && Math.abs(dx) < 85 && G.frame % 90 === 0) { Pr.jump = true; return; }
+    if (Math.abs(dy) <= 6 && Math.abs(dx) <= reach + 4 && p.face === side && G.frame % 7 === 0) Pr.attack = true;
+  }
+  function drawDemoOverlay() {
+    if (!app.demo) return;
+    if (app.frame % 60 < 40) text('DEMO', W / 2, 46, 12, '#ffe040', 'center');
+    if (app.frame % 60 < 40) text('NACIŚNIJ {ok|START}, ABY ZAGRAĆ', W / 2, 200, 6, '#fff', 'center');
+  }
   function tick() {
     pollInput();
+    if (app.demo && app.mode !== 'play') endDemo();
     if (pressed.mute) AU.toggleMute();
     app.t++; app.frame = (app.frame || 0) + 1;
     if (app.mode !== 'play' && app.mode !== 'pause') AU.setIntensity(false);
@@ -6211,7 +6377,11 @@
           else if (item === 'WYZWANIA') { app.mode = 'chal'; app.chSel = app.chSel || 0; app.t = 0; }
           else if (item === 'OPCJE') { app.mode = 'options'; app.t = 0; app.optSel = 0; app.keysFor = null; app.padFor = null; }
           else showScores(-1, false, 'main');
-        } else if (app.idle > 900) { app.idle = 0; showScores(-1, true); }
+        } else if (app.idle > 900) {
+          // jak na automacie: na zmianę pokaz gry i tabela wyników
+          app.idle = 0; app.attractDemo = !app.attractDemo;
+          if (app.attractDemo) startDemo(); else showScores(-1, true);
+        }
         break;
       case 'story': {
         const S_ = app.story, line = S_.lines[S_.i][1];
@@ -6425,6 +6595,7 @@
         }
         break;
       case 'play': {
+        if (app.demo) { if (updateDemo()) break; updateGame(); break; }
         let joined = false;
         for (let i = 0; i < 2; i++) if (inp[i].pressed.start && (!G.players[i] || G.players[i].out) && !G.bossDead) joined = joinOrContinue(i) || joined;
         if (!joined && (pressed.pause || pressed.start)) { app.mode = 'pause'; app.pauseSel = 0; app.pausedFrom = 'play'; sfx('select'); if (AU.ctx) AU.ctx.suspend(); break; }
@@ -6546,6 +6717,7 @@
     else if (view === 'bonus') curBonus().drawText();
     else if (G) {
       drawHudText();
+      drawDemoOverlay();
       if (app.mode === 'gameover') {
         text('KONIEC GRY', W / 2, 70, 16, '#ff5050', 'center');
         if (app.cont > 0) { text('KONTYNUOWAĆ?', W / 2, 104, 8, '#fff', 'center'); text(String(app.cont - 1), W / 2, 122, 18, '#ffe040', 'center'); }
@@ -6636,7 +6808,7 @@
   } else boot();
 
   // debug / testy: uchwyty do stanu gry tylko w trybie debug (config.js) albo z parametrem adresu ?hooks=1 (testy automatyczne)
-  if (CFG.debug === true || urlParams.has('hooks')) window.__paleo = { get G() { return G; }, app, pickWeather, customList, buildCustomStage, startCustom, CHARS, ENEMIES, bonus, startStage: i => { startStage(i, G && G.players); app.mode = 'play'; }, startBonus: () => startBonus(G && G.players, 4), startCages: () => startCages(G && G.players, 5), startTraining: () => startTraining(null), startSuper: i => startSuper(G.players[i || 0]), newStage: i => { startStage(i, null); app.mode = 'play'; }, startEscape: () => startEscape(G.players), startEpilog: () => startEpilog(G.players, () => endGame('★')), ENDINGS, startTrain: () => { app.gameMode = app.gameMode || 'arcade'; startTrain(G ? G.players : null, 7); }, unlocks: () => app.unlocks, hurt: (t, d, src, knock) => hurt(t, d, 1, !!knock, src), spawn: (type, x, y) => { const e = makeEnemy(type, x, y); if (type !== 'glider' && type !== 'digger') setState(e, 'idle'); G.actors.push(e); return e; }, afterStage, resumeProgress, saveInfo: () => app.save, startRush: () => startRush(null), startSurvival: () => startSurvival(null), unlock, opts: () => OPTS, endGame, inp, joinOrContinue: i => joinOrContinue(i),
+  if (CFG.debug === true || urlParams.has('hooks')) window.__paleo = { get G() { return G; }, app, pickWeather, customList, buildCustomStage, startCustom, CHARS, ENEMIES, bonus, startStage: i => { startStage(i, G && G.players); app.mode = 'play'; }, startBonus: () => startBonus(G && G.players, 4), startCages: () => startCages(G && G.players, 5), startTraining: () => startTraining(null), startSuper: i => startSuper(G.players[i || 0]), newStage: i => { startStage(i, null); app.mode = 'play'; }, startEscape: () => startEscape(G.players), startDemo, endDemo, startEpilog: () => startEpilog(G.players, () => endGame('★')), ENDINGS, startTrain: () => { app.gameMode = app.gameMode || 'arcade'; startTrain(G ? G.players : null, 7); }, unlocks: () => app.unlocks, hurt: (t, d, src, knock) => hurt(t, d, 1, !!knock, src), spawn: (type, x, y) => { const e = makeEnemy(type, x, y); if (type !== 'glider' && type !== 'digger') setState(e, 'idle'); G.actors.push(e); return e; }, afterStage, resumeProgress, saveInfo: () => app.save, startRush: () => startRush(null), startSurvival: () => startSurvival(null), unlock, opts: () => OPTS, endGame, inp, joinOrContinue: i => joinOrContinue(i),
     flight, curBonus: () => curBonus(), startFlight: () => startFlight(G ? G.players : null, 6), CHALLENGES, dailyPlan, startDaily: () => startDaily(null),
     startChallenge: id => { app.chDef = CHALLENGES.find(c => c.id === id); app.gameMode = 'challenge'; startChallenge(null); }, STAGES };
 })();

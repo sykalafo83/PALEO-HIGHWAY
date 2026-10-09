@@ -32,10 +32,19 @@
   function drawPlayerPanel(p, side) {
     const L = PANEL[side];
     ctx.fillStyle = P_COLS[side]; ctx.fillRect(L.px - 1, 4, 24, 24);
-    ctx.fillStyle = '#2a3a5a'; ctx.fillRect(L.px + 1, 6, 20, 20);
+    const hurtNow = G.frame - (p.hurtF || -99) < 30, low = p.hp > 0 && p.hp / p.maxHp < 0.25, fury = (p.fury || 0) >= 100;
+    // tło portretu: czerwone pulsowanie przy niskim życiu, płomienie przy pełnej furii
+    ctx.fillStyle = low ? `rgb(${90 + Math.round(60 * Math.abs(Math.sin(G.frame * 0.12)))},26,30)` : '#2a3a5a'; ctx.fillRect(L.px + 1, 6, 20, 20);
     ctx.save(); ctx.beginPath(); ctx.rect(L.px + 1, 6, 20, 20); ctx.clip();
-    SP.drawPortrait(ctx, p.b, L.px + 11, 17, 7, p.flash > 0);
+    if (fury) for (let i = 0; i < 6; i++) {
+      const k = ((G.frame * 0.05 + i / 6) % 1);
+      ctx.fillStyle = k < 0.5 ? 'rgba(255,200,60,0.8)' : 'rgba(255,90,20,0.7)';
+      ctx.beginPath(); ctx.arc(L.px + 3 + i * 3.4, 26 - k * 18, 3.5 * (1 - k) + 1, 0, Math.PI * 2); ctx.fill();
+    }
+    const shake = hurtNow && G.frame % 4 < 2 ? (G.frame % 8 < 4 ? 1 : -1) : 0;
+    SP.drawPortrait(ctx, p.b, L.px + 11 + shake, 17, 7, p.flash > 0 && p.flash % 2 === 0, { hurt: hurtNow, low, fury, t: G.frame });
     ctx.restore();
+    if (fury) { ctx.strokeStyle = G.frame % 10 < 5 ? '#ffe040' : '#ff6020'; ctx.lineWidth = 1; ctx.strokeRect(L.px - 0.5, 4.5, 23, 23); }
     if (p.out) { ctx.fillStyle = 'rgba(0,0,0,0.6)'; ctx.fillRect(L.px + 1, 6, 20, 20); return; }
     const f = clamp(p.hp / p.maxHp, 0, 1);
     bar(L.bx, 17, 96, 6, f, p.lagHp / p.maxHp, f > 0.5 ? '#40e060' : (f > 0.25 ? '#f0d030' : '#f04040'));

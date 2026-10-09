@@ -94,28 +94,28 @@
   const ENEMIES = {
     grunt: {
       name: 'SZAKAL', hp: 42, speed: 0.95, range: 26, score: 200, weapon: 'knife', attacks: ['stab', 'slash'], ai: 'grunt',
-      mk: () => { const c = GRUNT_COLS[Math.random() * 2 | 0]; return build({ hair: 'mohawk', details: [{ t: 'vest', c: c.vest }, { t: 'belt', c: '#2a1a10' }], colors: c }); }
+      mk: () => { const c = GRUNT_COLS[Math.random() * 2 | 0]; return build({ hair: 'mohawk', acc: [{ t: 'scarf', c: c.vest }], details: [{ t: 'vest', c: c.vest }, { t: 'belt', c: '#2a1a10' }], colors: c }); }
     },
     thin: {
       name: 'ĆWIEK', hp: 30, speed: 1.45, range: 24, score: 300, attacks: ['slash'], ai: 'thin',
-      mk: () => build({ hair: 'hood', legU: 12.5, legL: 12.5, shoulderW: 10, hipW: 8, limbW: 4, armW: 3.4, head: 5.2,
+      mk: () => build({ hair: 'hood', legU: 12.5, legL: 12.5, shoulderW: 10, hipW: 8, limbW: 4, armW: 3.4, head: 5.2, acc: [{ t: 'goggles', c: '#e0c040' }],
         details: [{ t: 'stripe', c: '#e0c040' }],
         colors: { skin: '#c8a080', hair: '#5a3a7a', shirt: '#5a3a7a', pants: '#2a2a3a', boots: '#1a1a1a', gloves: '#2a2a3a' } })
     },
     brute: {
       name: 'GŁAZ', hp: 95, speed: 0.65, range: 30, score: 600, attacks: ['slap'], ai: 'brute',
-      mk: () => build({ hair: 'bald', scale: 1.15, belly: 9, bellyCol: 'skin', shoulderW: 17, hipW: 14, limbW: 6.5, armW: 5.5, sleeveless: true,
+      mk: () => build({ hair: 'bald', scale: 1.15, belly: 9, bellyCol: 'skin', shoulderW: 17, hipW: 14, limbW: 6.5, armW: 5.5, sleeveless: true, acc: ['eyepatch'],
         details: [{ t: 'vest', c: '#6a5a4a' }, { t: 'belt', c: '#2a1a10' }],
         colors: { skin: '#d09060', hair: '#d09060', shirt: '#6a5a4a', pants: '#3a3a4a', boots: '#1a1a1a', gloves: '#d09060' } })
     },
     bomber: {
       name: 'MIOTACZ', hp: 34, speed: 0.9, range: 26, score: 350, attacks: ['slash'], ai: 'bomber', weapon: 'dynamite',
-      mk: () => build({ hair: 'cap', details: [{ t: 'bandolier', c: '#c0302a' }, { t: 'belt', c: '#2a1a10' }],
+      mk: () => build({ hair: 'cap', acc: [{ t: 'dynapack', c: '#6a4a2a' }], details: [{ t: 'bandolier', c: '#c0302a' }, { t: 'belt', c: '#2a1a10' }],
         colors: { skin: '#d0a078', hair: '#8a3a2a', shirt: '#c06a2a', pants: '#4a4a3a', boots: '#1a1a1a', gloves: '#3a2a1a', accent: '#8a3a2a' } })
     },
     gunner: {
       name: 'STRZELEC', hp: 38, speed: 0.85, range: 26, score: 400, attacks: ['slash'], ai: 'gunner', weapon: 'rifle',
-      mk: () => build({ hair: 'cap', details: [{ t: 'pocket', c: '#3a4a2a' }, { t: 'belt', c: '#2a2a1a' }],
+      mk: () => build({ hair: 'cap', acc: [{ t: 'radio', c: '#4a5a3a' }], details: [{ t: 'pocket', c: '#3a4a2a' }, { t: 'belt', c: '#2a2a1a' }],
         colors: { skin: '#c89870', hair: '#3a4a2a', shirt: '#5a6a3a', pants: '#3a4030', boots: '#1a1a1a', gloves: '#2a2a1a', accent: '#3a4a2a' } })
     },
     shield: {
@@ -125,12 +125,12 @@
     },
     sniper: {
       name: 'SNAJPER', hp: 30, speed: 0.8, range: 26, score: 600, attacks: ['slash'], ai: 'sniper', weapon: 'rifle',
-      mk: () => build({ hair: 'cap', details: [{ t: 'bandolier', c: '#3a3a2a' }, { t: 'belt', c: '#1a1a1a' }],
+      mk: () => build({ hair: 'cap', acc: [{ t: 'goggles', c: '#ff4030' }, { t: 'pack', c: '#3a3e34' }], details: [{ t: 'bandolier', c: '#3a3a2a' }, { t: 'belt', c: '#1a1a1a' }],
         colors: { skin: '#b88a60', hair: '#2a2a2a', shirt: '#3a3e34', pants: '#2a2e28', boots: '#111', gloves: '#1a1a1a', accent: '#2a2a2a' } })
     },
     netter: {
       name: 'SIECIARZ', hp: 40, speed: 0.9, range: 26, score: 450, attacks: ['slash'], ai: 'netter',
-      mk: () => build({ hair: 'hood', details: [{ t: 'bandolier', c: '#c8b080' }, { t: 'belt', c: '#2a1a10' }],
+      mk: () => build({ hair: 'hood', acc: [{ t: 'netpack', c: '#5a4a32' }, { t: 'scarf', c: '#8a7a50' }], details: [{ t: 'bandolier', c: '#c8b080' }, { t: 'belt', c: '#2a1a10' }],
         colors: { skin: '#d0a078', hair: '#6a5a3a', shirt: '#6a5a3a', pants: '#3a3428', boots: '#1a1a1a', gloves: '#3a2a1a' } })
     },
     ptera: { name: 'PTERANODON', hp: 40, speed: 1.6, score: 700, beast: true },
@@ -148,12 +148,12 @@
     rraptor: { name: 'JEŹDZIEC', hp: 70, speed: 1.55, score: 900 },
     flamer: {
       name: 'PODPALACZ', hp: 48, speed: 0.8, range: 26, score: 650, attacks: ['slap'], ai: 'flamer', weapon: 'flamer',
-      mk: () => build({ hair: 'helmet', scale: 1.05, shoulderW: 13, hipW: 11, limbW: 5.2, details: [{ t: 'plate', c: '#7a3a1a' }, { t: 'belt', c: '#1a1a1a' }],
+      mk: () => build({ hair: 'helmet', scale: 1.05, shoulderW: 13, hipW: 11, limbW: 5.2, acc: ['tank', 'gasmask'], details: [{ t: 'plate', c: '#7a3a1a' }, { t: 'belt', c: '#1a1a1a' }],
         colors: { skin: '#c89070', hair: '#3a3a3a', shirt: '#b8642a', pants: '#3a3028', boots: '#141414', gloves: '#2a2a2a', accent: '#ffb030' } })
     },
     glider: {
       name: 'LOTNIARZ', hp: 32, speed: 1.4, range: 24, score: 700, attacks: ['slash'], ai: 'thin',
-      mk: () => build({ hair: 'bandana', legU: 12.5, legL: 12.5, shoulderW: 10, hipW: 8, limbW: 4, armW: 3.4,
+      mk: () => build({ hair: 'bandana', legU: 12.5, legL: 12.5, shoulderW: 10, hipW: 8, limbW: 4, armW: 3.4, acc: [{ t: 'goggles' }, { t: 'pack', c: '#5a4a3a' }],
         details: [{ t: 'bandolier', c: '#e0d4a8' }, { t: 'belt', c: '#2a1a10' }],
         colors: { skin: '#d0a078', hair: '#c8402a', shirt: '#2a4a6a', pants: '#3a3a3a', boots: '#1a1a1a', gloves: '#2a2a2a', accent: '#c8402a' } })
     },

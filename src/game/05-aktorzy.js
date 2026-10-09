@@ -30,7 +30,7 @@
       depthR: kind === 'rex' ? 10 : kind === 'digger' ? 6 : 0
     });
     if (d.mk) a.b = d.mk();
-    if (type !== 'dummy' && !app.seen[type]) { app.seen[type] = 1; safeSet('paleo_seen', JSON.stringify(app.seen)); }
+    if (type !== 'dummy' && !app.demo && !app.seen[type]) { app.seen[type] = 1; safeSet('paleo_seen', JSON.stringify(app.seen)); }
     if (type === 'raptor') a.cols = RAPTOR_COLS[Math.random() * 2 | 0];
     if (type === 'rraptor') { a.cols = { body: '#7a5a3a', belly: '#c8a878', stripe: '#3a2a1a' }; a.rider = ENEMIES.grunt.mk(); }
     if (type === 'whitefang') a.cols = { body: '#e8e6dc', belly: '#ffffff', stripe: '#b8b8c4' };
@@ -125,7 +125,7 @@
       addScore(src, dmg * 10);
       G.lastEnemy = t; G.lastEnemyT = 200;
     }
-    if (t.kind === 'player') { if (dmg >= 8 && Math.random() < 0.5) shout(t, 'hurt'); else sfx('pHurt'); rumble(t.pIdx, Math.min(1, 0.3 + dmg / 25), 0.5, 120 + dmg * 6); }
+    if (t.kind === 'player') { t.hurtF = G.frame; if (dmg >= 8 && Math.random() < 0.5) shout(t, 'hurt'); else sfx('pHurt'); rumble(t.pIdx, Math.min(1, 0.3 + dmg / 25), 0.5, 120 + dmg * 6); }
     else if (src && src.kind === 'player' && dmg > 0) rumble(src.pIdx, knock ? 0.35 : 0, knock ? 0.5 : 0.28, knock ? 90 : 45);
     else if (t.kind === 'raptor' || t.kind === 'pachy') { if (Math.random() < 0.5) sfx('screech'); }
     else if (t.kind === 'rex') { if (Math.random() < 0.3) sfx('roar'); }
@@ -238,7 +238,7 @@
     app.toasts.push({ head: 'NOWA POSTAĆ DO WYBORU!', name, t: 0, col: '#7cff7c' });
   }
   function unlock(id) {
-    if (app.ach[id] || (app.gameMode === 'custom' && G && ST && ST.custom)) return;   // własne etapy nie dają osiągnięć
+    if (app.ach[id] || app.demo || (app.gameMode === 'custom' && G && ST && ST.custom)) return;   // własne etapy nie dają osiągnięć
     app.ach[id] = Date.now(); safeSet('paleo_ach', JSON.stringify(app.ach));
     const a = ACH.find(x => x[0] === id); if (a) app.toasts.push({ name: a[1], t: 0 });
     sfx('oneup');

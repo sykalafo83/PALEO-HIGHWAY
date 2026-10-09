@@ -1,6 +1,62 @@
   // =============================================================== PĘTLA
+  // ---- TRYB DEMO (attract mode)
+  const DEMO_STAGES = [0, 1, 2, 3, 4, 5];
+  function startDemo() {
+    const keys = CHAR_KEYS, two = Math.random() < 0.4;
+    const k1 = keys[Math.random() * keys.length | 0], k2 = keys.filter(k => k !== k1)[Math.random() * (keys.length - 1) | 0];
+    app.demo = { t: 0, prev: { gameMode: app.gameMode, p2Active: app.p2Active, ngpRun: app.ngpRun, route: app.route, run: app.run } };
+    app.gameMode = 'demo'; app.ngpRun = false; app.p2Active = two; app.demo.prev.wxSeed = app.wxSeed; app.route = [];
+    const team = [makePlayer(k1, 0)]; if (two) team.push(makePlayer(k2, 1));
+    startStage(DEMO_STAGES[Math.random() * DEMO_STAGES.length | 0], team);
+    G.introT = 90; app.mode = 'play'; app.t = 0;
+  }
+  function endDemo() {
+    const d = app.demo; if (!d) return;
+    Object.assign(app, d.prev); app.demo = null;
+    AU.stopMusic(); G = null; app.mode = 'title'; app.t = 0; app.idle = 0;
+  }
+  // zwraca true, gdy demo się skończyło (gracz nacisnął przycisk albo minął czas)
+  function updateDemo() {
+    const d = app.demo; d.t++;
+    if (ACTIONS.some(k => pressed[k]) || d.t > 60 * 40 || G.bossDead || !G.players.some(q => q.alive && q.lives >= 0 && q.state !== 'dead')) { endDemo(); return true; }
+    G.players.forEach(p => demoBot(p, inp[p.pIdx]));
+    return false;
+  }
+  function demoBot(p, I) {
+    const H_ = I.held, Pr = I.pressed;
+    ACTIONS.forEach(k => { H_[k] = false; Pr[k] = false; });
+    if (!p.alive) return;
+    if (p.state === 'netted') { if (G.frame % 3 === 0) Pr.attack = true; return; }
+    if (p.state === 'jump') { if (p.t === 7 && !p.jumpAtk) Pr.attack = true; return; }
+    const foesNow = foes().filter(e => e.hp > 0 && hittable(e) && e.state !== 'enter' && Math.abs(e.x - G.camX - W / 2) < W / 2 + 10);
+    if ((p.fury || 0) >= 100 && foesNow.length >= 2) { Pr.special = true; H_.attack = H_.jump = true; return; }
+    const near = foesNow.filter(e => Math.abs(e.x - p.x) < 50 && Math.abs(e.y - p.y) < 14);
+    if (near.length >= 3 && p.hp > 20 && G.frame % 50 === 0) { Pr.special = true; H_.attack = H_.jump = true; return; }
+    let tgt = null, bd = 1e9;
+    for (const e of foesNow) { const dd = Math.abs(e.x - p.x) + Math.abs(e.y - p.y) * 2; if (dd < bd) { bd = dd; tgt = e; } }
+    if (!tgt) {
+      // brak wrogów: idź w prawo za kamerą
+      if (G.goT > 0 || !G.wave) H_.right = true;
+      if (Math.abs(p.y - 186) > 6) H_[p.y < 186 ? 'down' : 'up'] = true;
+      return;
+    }
+    const dx = tgt.x - p.x, dy = tgt.y - p.y, side = dx >= 0 ? 1 : -1;
+    const reach = (isBoss(tgt) ? 34 : 24) + (tgt.rad || 8) * 0.5;
+    if (Math.abs(dy) > 3) H_[dy > 0 ? 'down' : 'up'] = true;
+    if (Math.abs(dx) > reach) H_[side > 0 ? 'right' : 'left'] = true;
+    else if (Math.abs(dx) < reach - 12) H_[side > 0 ? 'left' : 'right'] = true;
+    if (p.face !== side && Math.abs(dx) <= reach) H_[side > 0 ? 'right' : 'left'] = true;
+    if (Math.abs(dy) <= 6 && Math.abs(dx) > 55 && Math.abs(dx) < 85 && G.frame % 90 === 0) { Pr.jump = true; return; }
+    if (Math.abs(dy) <= 6 && Math.abs(dx) <= reach + 4 && p.face === side && G.frame % 7 === 0) Pr.attack = true;
+  }
+  function drawDemoOverlay() {
+    if (!app.demo) return;
+    if (app.frame % 60 < 40) text('DEMO', W / 2, 46, 12, '#ffe040', 'center');
+    if (app.frame % 60 < 40) text('NACIŚNIJ {ok|START}, ABY ZAGRAĆ', W / 2, 200, 6, '#fff', 'center');
+  }
   function tick() {
     pollInput();
+    if (app.demo && app.mode !== 'play') endDemo();
     if (pressed.mute) AU.toggleMute();
     app.t++; app.frame = (app.frame || 0) + 1;
     if (app.mode !== 'play' && app.mode !== 'pause') AU.setIntensity(false);
@@ -27,7 +83,11 @@
           else if (item === 'WYZWANIA') { app.mode = 'chal'; app.chSel = app.chSel || 0; app.t = 0; }
           else if (item === 'OPCJE') { app.mode = 'options'; app.t = 0; app.optSel = 0; app.keysFor = null; app.padFor = null; }
           else showScores(-1, false, 'main');
-        } else if (app.idle > 900) { app.idle = 0; showScores(-1, true); }
+        } else if (app.idle > 900) {
+          // jak na automacie: na zmianę pokaz gry i tabela wyników
+          app.idle = 0; app.attractDemo = !app.attractDemo;
+          if (app.attractDemo) startDemo(); else showScores(-1, true);
+        }
         break;
       case 'story': {
         const S_ = app.story, line = S_.lines[S_.i][1];
@@ -241,6 +301,7 @@
         }
         break;
       case 'play': {
+        if (app.demo) { if (updateDemo()) break; updateGame(); break; }
         let joined = false;
         for (let i = 0; i < 2; i++) if (inp[i].pressed.start && (!G.players[i] || G.players[i].out) && !G.bossDead) joined = joinOrContinue(i) || joined;
         if (!joined && (pressed.pause || pressed.start)) { app.mode = 'pause'; app.pauseSel = 0; app.pausedFrom = 'play'; sfx('select'); if (AU.ctx) AU.ctx.suspend(); break; }
@@ -362,6 +423,7 @@
     else if (view === 'bonus') curBonus().drawText();
     else if (G) {
       drawHudText();
+      drawDemoOverlay();
       if (app.mode === 'gameover') {
         text('KONIEC GRY', W / 2, 70, 16, '#ff5050', 'center');
         if (app.cont > 0) { text('KONTYNUOWAĆ?', W / 2, 104, 8, '#fff', 'center'); text(String(app.cont - 1), W / 2, 122, 18, '#ffe040', 'center'); }
@@ -452,6 +514,6 @@
   } else boot();
 
   // debug / testy: uchwyty do stanu gry tylko w trybie debug (config.js) albo z parametrem adresu ?hooks=1 (testy automatyczne)
-  if (CFG.debug === true || urlParams.has('hooks')) window.__paleo = { get G() { return G; }, app, pickWeather, customList, buildCustomStage, startCustom, CHARS, ENEMIES, bonus, startStage: i => { startStage(i, G && G.players); app.mode = 'play'; }, startBonus: () => startBonus(G && G.players, 4), startCages: () => startCages(G && G.players, 5), startTraining: () => startTraining(null), startSuper: i => startSuper(G.players[i || 0]), newStage: i => { startStage(i, null); app.mode = 'play'; }, startEscape: () => startEscape(G.players), startEpilog: () => startEpilog(G.players, () => endGame('★')), ENDINGS, startTrain: () => { app.gameMode = app.gameMode || 'arcade'; startTrain(G ? G.players : null, 7); }, unlocks: () => app.unlocks, hurt: (t, d, src, knock) => hurt(t, d, 1, !!knock, src), spawn: (type, x, y) => { const e = makeEnemy(type, x, y); if (type !== 'glider' && type !== 'digger') setState(e, 'idle'); G.actors.push(e); return e; }, afterStage, resumeProgress, saveInfo: () => app.save, startRush: () => startRush(null), startSurvival: () => startSurvival(null), unlock, opts: () => OPTS, endGame, inp, joinOrContinue: i => joinOrContinue(i),
+  if (CFG.debug === true || urlParams.has('hooks')) window.__paleo = { get G() { return G; }, app, pickWeather, customList, buildCustomStage, startCustom, CHARS, ENEMIES, bonus, startStage: i => { startStage(i, G && G.players); app.mode = 'play'; }, startBonus: () => startBonus(G && G.players, 4), startCages: () => startCages(G && G.players, 5), startTraining: () => startTraining(null), startSuper: i => startSuper(G.players[i || 0]), newStage: i => { startStage(i, null); app.mode = 'play'; }, startEscape: () => startEscape(G.players), startDemo, endDemo, startEpilog: () => startEpilog(G.players, () => endGame('★')), ENDINGS, startTrain: () => { app.gameMode = app.gameMode || 'arcade'; startTrain(G ? G.players : null, 7); }, unlocks: () => app.unlocks, hurt: (t, d, src, knock) => hurt(t, d, 1, !!knock, src), spawn: (type, x, y) => { const e = makeEnemy(type, x, y); if (type !== 'glider' && type !== 'digger') setState(e, 'idle'); G.actors.push(e); return e; }, afterStage, resumeProgress, saveInfo: () => app.save, startRush: () => startRush(null), startSurvival: () => startSurvival(null), unlock, opts: () => OPTS, endGame, inp, joinOrContinue: i => joinOrContinue(i),
     flight, curBonus: () => curBonus(), startFlight: () => startFlight(G ? G.players : null, 6), CHALLENGES, dailyPlan, startDaily: () => startDaily(null),
     startChallenge: id => { app.chDef = CHALLENGES.find(c => c.id === id); app.gameMode = 'challenge'; startChallenge(null); }, STAGES };
