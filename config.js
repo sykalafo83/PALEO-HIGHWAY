@@ -5,7 +5,7 @@
  */
 window.GAME_CONFIG = {
   // true = po wyborze postaci pojawia się ekran wyboru etapu
-  debug: true,
+  debug: false,
   // poziom trudności: 'easy' (łatwy), 'normal' (normalny), 'arcade'
   difficulty: 'normal',
   // liczba żyć na start (1–5)
