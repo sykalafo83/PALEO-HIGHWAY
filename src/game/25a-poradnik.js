@@ -98,8 +98,17 @@
         'PASEK FURII ROŚNIE, GDY ZADAJESZ I OTRZYMUJESZ CIOSY ORAZ PRZY PAROWANIU.',
         'GDY JEST PEŁNY („FURIA!”), ' + SPEC() + ' ODPALA SUPER-RUCH ZAMIAST SPECJAŁU:',
         'KRUK — BURZA KLUCZY, NINA — TANIEC CIENI, TUR — FALA SEJSMICZNA,',
-        'BORYS — GRAD LASKI. SUPER NIC NIE KOSZTUJE I CZYŚCI EKRAN.',
-        'W CO-OPIE, GDY OBAJ MACIE PEŁNĄ FURIĘ, ODPALACIE SUPER DRUŻYNOWY.'] }
+        'BORYS — GRAD LASKI, BARON — BURSZTYNOWA BURZA, PADLINIARZ — KOTWICA ZAGŁADY,',
+        'ŻMIJA — TANIEC BICZA. SUPER NIC NIE KOSZTUJE I CZYŚCI EKRAN.',
+        'W CO-OPIE, GDY OBAJ MACIE PEŁNĄ FURIĘ, ODPALACIE SUPER DRUŻYNOWY.'] },
+      { demo: 'unlock', head: 'POSTACIE DO ODBLOKOWANIA', lines: () => [
+        '• BARON BURSZTYN — PO UKOŃCZENIU GRY. WALCZY LASKĄ. SPECJAŁ: SKOK PRZEZ CIEŃ',
+        '  (ZNIKA I UDERZA OD TYŁU), ▼ ◢ ► + ' + K('attack') + ': FALA ENERGII.',
+        '• PADLINIARZ — POKONAJ GO NA PLAŻY BEZ UTRATY ŻYCIA. CIĘŻKA KOTWICA,',
+        '  SPECJAŁ: MŁYN KOTWICĄ, ▼ ◢ ► + ' + K('attack') + ': RZUT KOTWICĄ.',
+        '• ŻMIJA — POKONAJ JĄ NA BAGNACH BEZ UTRATY ŻYCIA. NAJSZYBSZA, BICZ Z DALEKA,',
+        '  SPECJAŁ: WIR BICZA, ▼ ◢ ► + ' + K('attack') + ': WACHLARZ NOŻY.',
+        'PO ODBLOKOWANIU POJAWIAJĄ SIĘ NA EKRANIE WYBORU POSTACI.'] }
     ] },
     { title: 'BROŃ', pages: [
       { demo: 'melee', head: 'BROŃ BIAŁA I STRZELBA', lines: () => [
@@ -115,21 +124,30 @@
         '• BUTELKA — LECI PROSTO PRZED SIEBIE I ROZBIJA SIĘ NA WROGU.',
         'Z KIERUNKIEM DO PRZODU RZUCASZ DALEKO, DO TYŁU — BLISKO.',
         'BOMBY NIE RANIĄ GRACZY, ALE ROZBIJAJĄ BECZKI I ODPALAJĄ BECZKI Z PALIWEM.',
-        'PRZY BURZY I DESZCZU WIATR (WSKAŹNIK „WIATR ►►”) ZNOSI LECĄCE BOMBY.'] }
+        'PRZY BURZY I DESZCZU WIATR (WSKAŹNIK „WIATR ►►”) ZNOSI LECĄCE BOMBY.',
+        'DYNAMIT WYPADA Z MIOTACZY, GRANATY ZE STRZELCÓW; BROŃ LEŻY TEŻ W BECZKACH.'] }
     ] },
     { title: 'DINOZAURY I POJAZDY', pages: [
       { demo: 'tame', head: 'OSWAJANIE I JAZDA', lines: () => [
         'POKONANY RAPTOR, PACHY, TRICERATOPS, PARAZAUROLOF ALBO PTERANODON',
         'NIE UCIEKA — LEŻY Z GWIAZDKAMI NAD GŁOWĄ. PODEJDŹ I NACIŚNIJ ' + K('attack') + '.',
         'NA GRZBIECIE ' + K('attack') + ' TO ATAK DINOZAURA, ' + K('jump') + ' — SKOK, ' + SPEC() + ' — ZSIADANIE.',
-        'RAPTOR GRYZIE, PACHY TARANUJE, TRICERATOPS BLOKUJE CIOSY KRYZĄ,',
-        'PTERANODON LATA. JAZDA TRWA OKREŚLONY CZAS (ULEPSZENIE W SKLEPIE JĄ WYDŁUŻA).',
+        'RAPTOR GRYZIE, PACHY TARANUJE, TRICERATOPS BLOKUJE CIOSY KRYZĄ, PARAZAUROLOF',
+        'RYCZY I OGŁUSZA, PTERANODON LATA. JAZDA TRWA OKREŚLONY CZAS (SKLEP JĄ WYDŁUŻA).',
         'JEŹDZIEC NA RAPTORZE: PRZEWRÓĆ GO, A SPADNIE Z SIODŁA — RAPTOR OD RAZU JEST TWÓJ.'] },
       { demo: 'jeep', head: 'POJAZDY', lines: () => [
         'NA NIEKTÓRYCH ETAPACH STOJĄ POJAZDY — PODEJDŹ I NACIŚNIJ ' + K('attack') + ' („WSIĄDŹ!”).',
-        '• JEEP — PĘDZI I TARANUJE WROGÓW NA SWOJEJ DRODZE.',
+        '• JEEP — PĘDZI I TARANUJE WROGÓW NA SWOJEJ DRODZE, ' + K('attack') + ' — ZRYW NITRO.',
         '• WAGONIK — W KOPALNI: PĘDZI PO TORACH I ZMIATA WSZYSTKO.',
-        'UWAŻAJ NA WAGONIKI WROGÓW — „!” NA BRZEGU EKRANU OSTRZEGA, Z KTÓREJ STRONY JADĄ.'] }
+        'UWAŻAJ NA WAGONIKI WROGÓW — „!” NA BRZEGU EKRANU OSTRZEGA, Z KTÓREJ STRONY JADĄ.',
+        'POJAZD I WIERZCHOWCA TRACISZ, GDY CIĘ PRZEWRÓCĄ.'] },
+      { demo: 'beasts', head: 'DZIKIE DINOZAURY', lines: () => [
+        '• PACHY I TRICERATOPS — ROZPĘDZAJĄ SIĘ I TARANUJĄ: ZEJDŹ IM Z LINII.',
+        '• PTERANODON — KRĄŻY WYSOKO I ZRZUCA KAMIENIE. PATRZ NA CIEŃ NA ZIEMI,',
+        '  CZASEM PIKUJE — TRAFISZ GO Z WYSKOKU.',
+        '• PARAZAUROLOF — JEGO RYK OGŁUSZA WSZYSTKICH W POBLIŻU.',
+        '• RAPTORY — SZYBKIE I W STADZIE. BIAŁY KIEŁ, ALBINOS Z LEGEND, CZEKA',
+        '  ZA PĘKNIĘTYMI ŚCIANAMI — PO POKONANIU ZOSTAWIA DODATKOWE ŻYCIE.'] }
     ] },
     { title: 'ETAPY', pages: [
       { demo: 'items', head: 'PRZEDMIOTY', lines: () => [
@@ -143,10 +161,19 @@
         'LAWA (KOPALNIA) I TOKSYCZNE ŚCIEKI (KANAŁY) RANIĄ KAŻDEGO, KTO W NIE WEJDZIE.',
         'PODPALACZ ZOSTAWIA NA PODŁODZE OGIEŃ — PALI SIĘ CHWILĘ I RANI KAŻDEGO.',
         'PLAŻA: CO OK. 30 S PRZYPŁYW — W WODZIE RUSZASZ SIĘ DWA RAZY WOLNIEJ.',
-        'KANAŁY: FALA ŚCIEKÓW — WEJDŹ NA PODWYŻSZENIE PRZY ŚCIANIE ALBO JĄ PRZESKOCZ.',
+        'KANAŁY: FALA ŚCIEKÓW — WEJDŹ NA PODWYŻSZENIE PRZY ŚCIANIE ALBO JĄ PRZESKOCZ;',
+        'SZCZURY ZŁAPIESZ CIOSEM (PUNKTY, 10 SZCZURÓW = OSIĄGNIĘCIE).',
         'POGODA ZMIENIA SIĘ Z KAŻDYM PRZEJŚCIEM: W DESZCZU ŚLIZGASZ SIĘ PO BIEGU,',
         'W BURZY PIASKOWEJ WIDZISZ TYLKO OKOLICĘ, WIATR ZNOSI BOMBY.'] },
-      { demo: 'foes', head: 'NOWI PRZECIWNICY', lines: () => [
+      { demo: 'foes1', head: 'PRZECIWNICY', lines: () => [
+        '• SZAKAL — ZWYKŁY KŁUSOWNIK Z NOŻEM. • ĆWIEK — DOSKAKUJE Z KOPNIĘCIEM.',
+        '• GŁAZ — OSIŁEK, SZARŻUJE BRZUCHEM. • MIOTACZ — RZUCA DYNAMIT (UCIEKAJ OD LONTU).',
+        '• STRZELEC — CZERWONY LASER ZDRADZA STRZAŁ: PRZESKOCZ KULĘ ALBO ZABLOKUJ.',
+        '• TARCZOWNIK — BLOKUJE Z PRZODU: ZAJDŹ GO OD TYŁU, CHWYĆ LUB KOPNIJ Z WYSKOKU.',
+        '• SNAJPER — NA RUSZTOWANIU, CELOWNIK NA ZIEMI: UCIEKAJ I ZDEJMIJ GO Z WYSKOKU.',
+        '• SIECIARZ — SIEĆ UNIERUCHAMIA: WCISKAJ SZYBKO PRZYCISKI, BY SIĘ WYRWAĆ.',
+        'KAŻDY TYP ROZPOZNASZ PO DODATKACH: CHUSTA, GOGLE, PLECAK, RADIO, MASKA...'] },
+      { demo: 'foes', head: 'PRZECIWNICY CZ. 2', lines: () => [
         '• JEŹDZIEC — KŁUSOWNIK NA RAPTORZE. PRZEWRÓĆ GO I PRZEJMIJ DINOZAURA.',
         '• PODPALACZ — MIOTACZ OGNIA Z BLISKA. PODPALA PODŁOGĘ: NIE STÓJ W OGNIU,',
         '  PODCHODŹ Z GÓRY LUB Z DOŁU I BIJ, GDY KOŃCZY STRZAŁ.',
@@ -161,13 +188,25 @@
         'BONUSY: JAZDA AUTEM (PO 3A/3B), ZAGRODA (PO 4), LOT NA PTERANODONIE (PO 5).',
         'PO KANAŁACH (6): POCIĄG DO TWIERDZY.',
         'GRA ZAPISUJE SIĘ SAMA — „KONTYNUUJ” W MENU GŁÓWNYM.'] },
-      { demo: 'train', head: 'POCIĄG I ZAKOŃCZENIA', lines: () => [
-        'POCIĄG DO TWIERDZY: WALCZYSZ NA PLATFORMACH PĘDZĄCEGO POCIĄGU.',
-        'WROGOWIE WSKAKUJĄ Z OBU STRON TORU — PATRZ NA GÓRNĄ I DOLNĄ KRAWĘDŹ.',
+      { demo: 'bonus', head: 'ETAPY BONUSOWE', lines: () => [
+        '• AUTOSTRADA 7: DOJEDŹ DO METY PRZED CZASEM. ▲▼ PAS, ► GAZ, ◄ HAMULEC,',
+        '  ' + K('jump') + ' — PODSKOK, ' + K('attack') + ' — DOPALACZ. NIE ROZBIJ AUTA O INNE POJAZDY.',
+        '• ZAGRODA: ROZBIJ 10 KLATEK Z MŁODYMI DINOZAURAMI W 45 S (4 CIOSY NA KLATKĘ).',
+        '  STRAŻNICY NADBIEGAJĄ CO CHWILA. KOMPLET = DUŻA PREMIA.',
+        '• LOT NAD ZATOKĄ: ▲▼◄► LOT, ' + K('attack') + ' — ZRZUĆ KAMIEŃ, ' + K('jump') + ' — ZRYW.',
+        '  ZATAPIAJ ŁODZIE (KANONIERKA 3 TRAFIENIA), OMIJAJ MEWY I HARPUNY.'] },
+      { demo: 'train', head: 'POCIĄG DO TWIERDZY', lines: () => [
+        'WALCZYSZ NA PLATFORMACH PĘDZĄCEGO POCIĄGU. NIE ZEJDZIESZ Z WAGONU,',
+        'ALE WROGOWIE WSKAKUJĄ Z OBU STRON TORU — PATRZ NA GÓRNĄ I DOLNĄ KRAWĘDŹ.',
         'WRÓG ODRZUCONY POZA PLATFORMĘ ODPADA OD RAZU („ZRZUCONY!”) — WALCZ',
-        'PRZY KRAWĘDZI I POSYŁAJ ICH ZA BURTĘ. NA KOŃCU CZEKA BRYGADZISTA.',
-        'PO NAPISACH KOŃCOWYCH {ok|ENTER} POKAZUJE KOMIKS O TYM, CO TWOJA POSTAĆ',
-        'ROBI PO WSZYSTKIM — KAŻDA Z SIEDMIU POSTACI MA WŁASNE ZAKOŃCZENIE.'] }
+        'PRZY KRAWĘDZI I POSYŁAJ ICH ZA BURTĘ. NA KOŃCU CZEKA BRYGADZISTA W KOPARCE.'] },
+      { demo: 'epilog', head: 'EPILOG I ZAKOŃCZENIA', lines: () => [
+        'PO POKONANIU BARONA TWIERDZA PŁONIE: KAMERA SAMA PRZESUWA SIĘ W PRAWO,',
+        'Z LEWEJ GONI ŚCIANA LAWY, Z SUFITU LECĄ ODŁAMKI (PATRZ NA CIEŃ). BIEGNIJ!',
+        'PRAWDZIWE ZAKOŃCZENIE: UWOLNIJ WSZYSTKIE DINOZAURY W ZAGRODZIE I ODKRYJ',
+        '3 SEKRETY W JEDNYM PRZEJŚCIU — Z MORZA WYJDZIE BURSZTYNOWY KOLOS.',
+        'PO NAPISACH {ok|ENTER} POKAZUJE KOMIKS O TYM, CO TWOJA POSTAĆ ROBI',
+        'PO WSZYSTKIM — KAŻDA Z SIEDMIU POSTACI MA WŁASNE ZAKOŃCZENIE.'] }
     ] },
     { title: 'GRA WE DWÓCH', pages: [
       { demo: 'coop', head: 'DOŁĄCZANIE', lines: () => [
@@ -182,6 +221,22 @@
         '  ' + K('attack') + ' — OBAJ CISKACIE NIM O ZIEMIĘ.',
         '• SUPER DRUŻYNOWY: OBAJ Z PEŁNĄ FURIĄ, BLISKO SIEBIE — SUPER JEDNEGO',
         '  ODPALA OBA, A NA KONIEC WYBUCH RANI WSZYSTKICH WROGÓW NA EKRANIE.'] }
+    ] },
+    { title: 'OPCJE I WYNIKI', pages: [
+      { demo: 'options', head: 'OPCJE I STEROWANIE', lines: () => [
+        'OPCJE W MENU GŁÓWNYM: POZIOM TRUDNOŚCI (ŁATWY / NORMALNY / ARCADE), LICZBA ŻYĆ,',
+        'OPIEKUN (CZĘŚĆ CIOSÓW BLOKUJE SIĘ SAMA + PODPOWIEDZI), GŁOŚNOŚĆ MUZYKI I EFEKTÓW.',
+        'KLAWISZE I PAD: KAŻDĄ AKCJĘ PRZYPISZESZ OD NOWA, OSOBNO DLA GRACZA 1 I 2.',
+        '{back|ESC} ALBO PRZYCISK B NA PADZIE ZAWSZE COFA. WIBRACJE PADA MOŻNA WYŁĄCZYĆ.',
+        'FILTR CRT: AUTOMAT, MONITOR PC ALBO STARY TV. RAMKA AUTOMATU WYPEŁNIA BOKI.',
+        'STEROWANIE DOTYKOWE: GAŁKA I PRZYCISKI NA EKRANIE TELEFONU LUB TABLETU.'] },
+      { demo: 'scores', head: 'OCENY, WYNIKI I KONTYNUACJA', lines: () => [
+        'PO ETAPIE: PREMIE ZA CZAS I ZDROWIE ORAZ OCENA S–D (CZAS, OTRZYMANE CIOSY,',
+        'STRACONE ŻYCIA, NAJDŁUŻSZE KOMBO). OCENA S = +20 000 PUNKTÓW.',
+        'KONIEC GRY: MASZ 10 S NA „KONTYNUOWAĆ?” — ' + K('start') + ' I GRASZ DALEJ OD MIEJSCA ŚMIERCI.',
+        'NAJLEPSZE WYNIKI WPISUJESZ TRZEMA LITERAMI (OSOBNE TABELE DLA TRYBÓW).',
+        '▲ NA EKRANIE WYNIKU — KARTA Z WYNIKIEM DO ZAPISANIA LUB UDOSTĘPNIENIA.',
+        'EKSTRA: 32 OSIĄGNIĘCIA, BESTIARIUSZ I ODTWARZACZ MUZYKI.'] }
     ] },
     { title: 'TRYBY I RADY', pages: [
       { demo: 'modes', head: 'TRYBY GRY', lines: () => [
@@ -200,10 +255,19 @@
         '• ZĘBACZ ZNIKA W ŚCIEKACH: ODSUŃ SIĘ OD BĄBELKÓW I KONTRUJ PO LĄDOWANIU.',
         '• BRYGADZISTA: ŁYŻKA Z GÓRY BIJE PRZED KOPARKĘ, SZARŻA IDZIE PO LINII — BIJ Z BOKU.',
         '• DYNAMIT NA BOSSA TO PEWNE OBRAŻENIA. SUPER ZOSTAW NA KONIEC WALKI.'] },
+      { demo: 'boss2', head: 'RADY NA BOSSÓW CZ. 2', lines: () => [
+        '• KAPITAN RDZA: SKOK Z FALĄ UDERZENIOWĄ — PRZESKOCZ FALĘ, WZYWA POMOCNIKÓW.',
+        '• ŻMIJA: BICZ SIĘGA DALEKO — WCHODŹ BLISKO, PO SALCIE LECĄ NOŻE.',
+        '• BRACIA TRZASK: WALCZĄ RAZEM; GDY JEDEN PADNIE, DRUGI WPADA W SZAŁ.',
+        '• ADMIRAŁ SZPON: CZERWONA LINIA CELOWNIKA = HARPUN — ZEJDŹ Z NIEJ.',
+        '• PADLINIARZ: GRUBA SKÓRA I KOTWICA — KONTRUJ PO ZAMACHU.',
+        '• BARON: TELEPORTUJE SIĘ ZA PLECY, FALE ENERGII PO ZIEMI PRZESKAKUJ.',
+        '• BURSZTYNOWY KOLOS: Z NIEBA SYPIĄ SIĘ ODŁAMKI — PATRZ NA CIENIE.'] },
       { demo: 'end', head: 'GOTOWY?', lines: () => [
         'TO WSZYSTKO, CO MUSISZ WIEDZIEĆ. NAJLEPIEJ POĆWICZ RUCHY NA MANEKINACH.',
         'SEKRET: UWOLNIJ WSZYSTKIE DINOZAURY W ZAGRODZIE I ODKRYJ 3 SEKRETY',
         'W JEDNYM PRZEJŚCIU, A ZOBACZYSZ PRAWDZIWE ZAKOŃCZENIE...',
+        'GDY ZOSTAWISZ MENU W SPOKOJU, PO CHWILI RUSZA POKAZ GRY (DEMO).',
         '',
         '{ok|ENTER} — PRZEJDŹ DO TRENINGU'] }
     ] }
@@ -357,6 +421,65 @@
           fig(CHARS[CHAR_KEYS[1]].build, P.jumpkick[0], bx + 70 + k * 160, fy - 8 - Math.sin(k * Math.PI) * 14, 1);
           fig(grunt, k > 0.75 ? P.fall[0] : P.idle[0], bx + 220, fy - (k > 0.75 ? 12 : 0), -1);
         }
+        break;
+      }
+      case 'unlock': {
+        [['bursztyn', -70], ['padlin', 0], ['zmijka', 70]].forEach(([k, dx], i) => fig(CHARS[k].build, cyc(2, 40) === i % 2 ? P.victory[0] : P.taunt[0], cx + dx, fy, 1, { weapon: CHARS[k].innate }));
+        break;
+      }
+      case 'foes1': {
+        ['grunt', 'thin', 'brute', 'bomber', 'gunner', 'shield', 'sniper', 'netter'].forEach((k, i) => {
+          const b = demoBuild(k), w = ENEMIES[k].weapon;
+          fig(b, P.breathe[(cyc(4, 14) + i) % 4], bx + 18 + i * 32, fy - (i % 2) * 6, -1, { weapon: w === 'harpoonGun' ? null : w });
+        });
+        break;
+      }
+      case 'beasts': {
+        SP.drawPachy(ctx, bx + 50 + Math.sin(t * 0.05) * 10, fy, 1, t, 'walk', PACHY_COLS[0], {});
+        ctx.save(); ctx.translate(cx, fy); ctx.scale(0.8, 0.8); SP.drawPara(ctx, 0, 0, -1, t, t % 120 < 40 ? 'roar' : 'idle', PARA_COLS[0], {}); ctx.restore();
+        SP.drawPtera(ctx, bx + bw - 50 - ((t * 0.7) % 80), by + 22, -1, t, 'fly', {});
+        ctx.fillStyle = 'rgba(0,0,0,0.3)'; ctx.beginPath(); ctx.ellipse(bx + bw - 50 - ((t * 0.7) % 80), fy, 9, 2, 0, 0, Math.PI * 2); ctx.fill();
+        break;
+      }
+      case 'bonus': {
+        SP.drawJeep(ctx, bx + 30 + ((t * 1.4) % (bw * 0.5)), fy, 1, t, { moving: true });
+        SP.drawPtera(ctx, bx + bw - 60, by + 26 + Math.sin(t * 0.06) * 6, -1, t, 'fly', {});
+        fig(hb, SEAT, bx + bw - 58, by + 21 + Math.sin(t * 0.06) * 6, -1);
+        break;
+      }
+      case 'epilog': {
+        const lx = bx + 26 + Math.sin(t * 0.08) * 4;
+        const g2 = ctx.createLinearGradient(bx, 0, lx + 10, 0); g2.addColorStop(0, '#ff5a14'); g2.addColorStop(0.8, '#ffb030'); g2.addColorStop(1, 'rgba(255,120,30,0)');
+        ctx.fillStyle = g2; ctx.fillRect(bx, by, lx - bx + 10, bh);
+        fig(hb, P.run[cyc(4, 5)], cx - 10, fy, 1);
+        const rk = (t % 50) / 50; ctx.fillStyle = '#8a8478'; ctx.beginPath(); ctx.arc(cx + 50, by + rk * (bh - 12), 4, 0, Math.PI * 2); ctx.fill();
+        ctx.fillStyle = 'rgba(0,0,0,0.35)'; ctx.beginPath(); ctx.ellipse(cx + 50, fy, 3 + rk * 5, 2, 0, 0, Math.PI * 2); ctx.fill();
+        break;
+      }
+      case 'options': {
+        // klawiatura i pad
+        for (let r = 0; r < 3; r++) for (let c = 0; c < 8; c++) { ctx.fillStyle = (r === 1 && c === 2) || (r === 2 && c === 5) ? '#ffe040' : '#c8c8d0'; ctx.fillRect(bx + 20 + c * 11 + r * 4, by + 22 + r * 11, 9, 9); }
+        ctx.fillStyle = '#2a2a34'; ctx.beginPath(); ctx.ellipse(cx + 60, by + 40, 34, 18, 0, 0, Math.PI * 2); ctx.fill();
+        ctx.fillStyle = '#5a5a6a'; ctx.fillRect(cx + 38, by + 37, 12, 4); ctx.fillRect(cx + 42, by + 33, 4, 12);
+        [['#40c040', 0, 4], ['#e04040', 6, -2], ['#4080e0', -6, -2], ['#e0c040', 0, -8]].forEach(([c, dx, dy]) => { ctx.fillStyle = c; ctx.beginPath(); ctx.arc(cx + 78 + dx, by + 40 + dy, 3, 0, Math.PI * 2); ctx.fill(); });
+        if (t % 40 < 20) { ctx.fillStyle = 'rgba(0,0,0,0.25)'; for (let y = by; y < by + bh; y += 3) ctx.fillRect(bx, y, bw, 1); }
+        break;
+      }
+      case 'scores': {
+        fig(hb, P.victory[0], bx + 50, fy, 1);
+        // puchar
+        ctx.fillStyle = '#140c10'; ctx.fillRect(cx - 13, by + 14, 26, 22); ctx.fillRect(cx - 4, by + 36, 8, 10); ctx.fillRect(cx - 12, by + 46, 24, 6);
+        ctx.fillStyle = '#f0c040'; ctx.fillRect(cx - 11, by + 16, 22, 18); ctx.fillRect(cx - 2, by + 34, 4, 12); ctx.fillRect(cx - 10, by + 47, 20, 4);
+        ctx.fillStyle = '#fff6a0'; ctx.fillRect(cx - 8, by + 18, 4, 12);
+        ctx.strokeStyle = '#f0c040'; ctx.lineWidth = 3; ctx.beginPath(); ctx.arc(cx - 13, by + 24, 6, Math.PI * 0.5, Math.PI * 1.5); ctx.stroke(); ctx.beginPath(); ctx.arc(cx + 13, by + 24, 6, -Math.PI * 0.5, Math.PI * 0.5); ctx.stroke();
+        for (let i = 0; i < 6; i++) { const a = t * 0.05 + i; ctx.fillStyle = '#ffe080'; ctx.fillRect(cx + Math.cos(a) * 30, by + 30 + Math.sin(a) * 18, 2, 2); }
+        break;
+      }
+      case 'boss2': {
+        const bb = demoBuild('boss');
+        fig(bb, t % 80 < 40 ? P.hammerUp[0] : P.hammerDown[0], cx + 50, fy, -1, { weapon: 'hammer' });
+        if (t % 80 >= 40) { const r = (t % 80 - 40) * 3; ctx.strokeStyle = `rgba(255,230,160,${1 - (t % 80 - 40) / 40})`; ctx.lineWidth = 2; ctx.beginPath(); ctx.ellipse(cx + 30, fy, r, r * 0.22, 0, 0, Math.PI * 2); ctx.stroke(); }
+        fig(hb, t % 80 >= 46 && t % 80 < 66 ? P.jump[0] : P.idle[0], cx - 50, fy - (t % 80 >= 46 && t % 80 < 66 ? Math.sin((t % 80 - 46) / 20 * Math.PI) * 18 : 0), 1);
         break;
       }
       case 'modes': fig(demoBuild('dummy'), P.idle[0], cx + 30, fy, -1); fig(hb, P[['jab', 'cross', 'kick'][cyc(3, 12)]][0], cx - 2, fy, 1); break;

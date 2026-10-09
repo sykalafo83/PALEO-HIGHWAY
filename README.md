@@ -25,7 +25,7 @@ muzyka i dźwięki są generowane kodem (Canvas 2D + Web Audio).
   dosiadanie dinozaurów i pojazdy, podnoszenie i rzucanie beczek, wrzucanie wrogów do lawy, ścieków i morza.
 - **Przeciwnicy z charakterem:** m.in. jeździec na raptorze (zrzuć go i przejmij dinozaura), podpalacz z miotaczem ognia
   i lotniarz zrzucający sieci.
-- **Poradnik „JAK GRAĆ”** w menu głównym: 10 rozdziałów i 27 stron z animowanymi pokazami ruchów,
+- **Poradnik „JAK GRAĆ”** w menu głównym: 11 rozdziałów i 36 stron z animowanymi pokazami ruchów,
   klawisze i ikony pada dopasowane do Twoich ustawień.
 - **Oprawa:** postacie z dwutonowym cieniowaniem i wyraźnym obrysem, oddech w miejscu, zamach przed ciosem i mina bólu,
   wrogowie z rozpoznawalnymi dodatkami (maski, gogle, plecaki, zbiorniki), białe klatki uderzenia, iskry i smugi kopnięć,

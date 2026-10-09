@@ -20,7 +20,7 @@ export default {
     // tryb pada: ikony zamiast klawiszy (rysowanie bez wyjątków)
     await t.ev(`__paleo.app.lastDev = 'pad'; __paleo.app.howto.ch = 1; __paleo.app.howto.pg = 0`); await t.sleep(300);
     await t.shot('pad');
-    await t.ev(`__paleo.app.lastDev = 'kbd'; __paleo.app.howto.ch = 9; __paleo.app.howto.pg = 2`); await t.sleep(200);
+    await t.ev(`__paleo.app.lastDev = 'kbd'; __paleo.app.howto.ch = 10; __paleo.app.howto.pg = 3`); await t.sleep(200);
     await t.tap('Enter'); await t.sleep(300);
     t.assert(await t.ev(`__paleo.app.mode === 'select' && __paleo.app.gameMode === 'training'`), 'ostatnia strona prowadzi do treningu');
     await t.tap('Escape'); await t.sleep(200);
