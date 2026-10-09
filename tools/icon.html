@@ -1,0 +1,39 @@
+<!doctype html>
+<html lang="pl">
+<head>
+<meta charset="utf-8">
+<title>Paleo Icon</title>
+<style>body { margin: 0; background: #222; display: flex; gap: 16px; padding: 16px; flex-wrap: wrap; } canvas { image-rendering: pixelated; }</style>
+</head>
+<body>
+<script src="../js/sprites.js"></script>
+<script>
+  // Generator ikon aplikacji (PWA). makeIcon(rozmiar, maskowalna) zwraca data-URL PNG.
+  // Rysuje na płótnie 64×64 i powiększa bez wygładzania — piksel-art jak w grze.
+  function makeIcon(size, maskable) {
+    const base = document.createElement('canvas'); base.width = base.height = 64;
+    const g = base.getContext('2d');
+    const grd = g.createLinearGradient(0, 0, 0, 64);
+    grd.addColorStop(0, '#2a4f86'); grd.addColorStop(0.6, '#d98b58'); grd.addColorStop(1, '#f6cf88');
+    g.fillStyle = grd; g.fillRect(0, 0, 64, 64);
+    g.fillStyle = '#fff0be'; g.beginPath(); g.arc(46, 22, 8, 0, Math.PI * 2); g.fill();
+    g.fillStyle = '#5a3a4a'; g.beginPath(); g.moveTo(-4, 50); g.lineTo(16, 26); g.lineTo(22, 26); g.lineTo(44, 50); g.fill();
+    g.fillStyle = '#ff7a2a'; g.fillRect(16, 25, 6, 2);
+    g.fillStyle = '#244a3a'; g.fillRect(0, 46, 64, 18);
+    g.fillStyle = '#b08a58'; g.fillRect(0, 54, 64, 10);
+    const pad = maskable ? 0.68 : 0.84;
+    g.save(); g.translate(32, 40); g.scale(pad, pad); g.translate(-32, -40);
+    Sprites.drawRaptor(g, 26, 60, 1, 12, 'roar', { body: '#5a8a3a', belly: '#d8d0a0', stripe: '#2e4a1e' }, { scale: 1.05 });
+    g.restore();
+    const out = document.createElement('canvas'); out.width = out.height = size;
+    const o = out.getContext('2d'); o.imageSmoothingEnabled = false;
+    if (!maskable) { o.beginPath(); const r = size * 0.18; o.roundRect(0, 0, size, size, r); o.clip(); }
+    o.drawImage(base, 0, 0, size, size);
+    document.body.appendChild(out);
+    return out.toDataURL('image/png');
+  }
+  window.makeIcon = makeIcon;
+  if (!location.search.includes('quiet')) { makeIcon(192); makeIcon(512, true); }
+</script>
+</body>
+</html>

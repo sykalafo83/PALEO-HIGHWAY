@@ -1,0 +1,17 @@
+{
+  "name": "Paleo Highway — Rdza i Kły",
+  "short_name": "Paleo Highway",
+  "description": "Bijatyka side-scroll w stylu automatów z lat 90.: dinozaury, kłusownicy i stary krążownik szos.",
+  "lang": "pl",
+  "start_url": "./index.html",
+  "scope": "./",
+  "display": "fullscreen",
+  "orientation": "landscape",
+  "background_color": "#07050a",
+  "theme_color": "#ff6030",
+  "icons": [
+    { "src": "icons/icon-192.png", "sizes": "192x192", "type": "image/png", "purpose": "any" },
+    { "src": "icons/icon-512.png", "sizes": "512x512", "type": "image/png", "purpose": "any" },
+    { "src": "icons/icon-maskable-512.png", "sizes": "512x512", "type": "image/png", "purpose": "maskable" }
+  ]
+}

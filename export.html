@@ -1,0 +1,77 @@
+<!doctype html>
+<html lang="pl">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Paleo Audio</title>
+<style>
+  :root { --bg: #f6f3ee; --fg: #1d1a17; --muted: #6b645c; --card: #fff; --line: #e2dcd2; --acc: #c2531c; }
+  @media (prefers-color-scheme: dark) { :root { --bg: #15120f; --fg: #f1ebe2; --muted: #a39a8e; --card: #1f1b17; --line: #342e28; --acc: #f08a4b; } }
+  body { margin: 0; background: var(--bg); color: var(--fg); font: 15px/1.5 system-ui, sans-serif; }
+  main { max-width: 760px; margin: 0 auto; padding: 24px 16px 48px; }
+  h1 { font-size: 22px; margin: 0 0 4px; } h2 { font-size: 16px; margin: 28px 0 8px; }
+  p { color: var(--muted); margin: 0 0 16px; }
+  .row { display: flex; align-items: center; gap: 8px; padding: 8px 12px; background: var(--card); border: 1px solid var(--line); border-radius: 8px; margin-bottom: 6px; }
+  .row b { flex: 1; font-weight: 600; font-family: ui-monospace, monospace; }
+  button, a.dl { font: inherit; font-size: 13px; padding: 4px 10px; border-radius: 6px; border: 1px solid var(--line); background: transparent; color: var(--fg); cursor: pointer; text-decoration: none; }
+  button.primary { background: var(--acc); border-color: var(--acc); color: #fff; }
+  .muted { color: var(--muted); font-size: 13px; }
+</style>
+</head>
+<body>
+<main>
+  <h1>Paleo Highway — eksport audio</h1>
+  <p>Wszystkie dźwięki i utwory są syntetyzowane tym samym kodem co w grze (<code>js/audio.js</code>) i renderowane offline do WAV 44,1 kHz / 16 bit.</p>
+  <button class="primary" id="all">Pobierz wszystko (WAV)</button>
+  <h2>Muzyka</h2><div id="songs"></div>
+  <h2>Sample (SFX)</h2><div id="sfx"></div>
+  <pre id="dump" hidden></pre>
+</main>
+<script src="js/audio.js"></script>
+<script>
+  const A = window.GameAudio;
+  function download(name, wav) {
+    const url = URL.createObjectURL(new Blob([wav], { type: 'audio/wav' }));
+    const a = document.createElement('a'); a.href = url; a.download = name; a.click();
+    setTimeout(() => URL.revokeObjectURL(url), 5000);
+  }
+  function render(kind, name) { return kind === 'song' ? A.renderSong(name, 1) : A.renderSfx(name); }
+  function row(parent, kind, name) {
+    const r = document.createElement('div'); r.className = 'row';
+    r.innerHTML = `<b>${name}</b><span class="muted"></span>`;
+    const play = document.createElement('button'); play.textContent = '▶ Odtwórz';
+    play.onclick = () => {
+      A.Engine.init();
+      if (kind === 'song') { if (A.Engine.current && A.Engine.current.name === name) A.Engine.stopMusic(); else A.Engine.play(name); }
+      else A.Engine.sfxPlay(name);
+    };
+    const dl = document.createElement('button'); dl.textContent = 'WAV';
+    dl.onclick = async () => { const res = await render(kind, name); download((kind === 'song' ? 'music_' : 'sfx_') + name + '.wav', A.encodeWav(res)); };
+    r.append(play, dl); parent.append(r);
+  }
+  A.SONG_NAMES.forEach(n => row(document.getElementById('songs'), 'song', n));
+  A.SFX_NAMES.forEach(n => row(document.getElementById('sfx'), 'sfx', n));
+  document.getElementById('all').onclick = async () => {
+    for (const n of A.SONG_NAMES) download('music_' + n + '.wav', A.encodeWav(await render('song', n)));
+    for (const n of A.SFX_NAMES) download('sfx_' + n + '.wav', A.encodeWav(await render('sfx', n)));
+  };
+
+  // Tryb wsadowy dla tools/export-audio.js: ?dump renderuje wszystko do base64 w <pre id="dump">
+  if (location.search.includes('dump')) {
+    (async () => {
+      const out = {};
+      const b64 = buf => { const u = new Uint8Array(buf); let s = ''; for (let i = 0; i < u.length; i += 0x8000) s += String.fromCharCode.apply(null, u.subarray(i, i + 0x8000)); return btoa(s); };
+      const jobs = A.SONG_NAMES.map(n => ['song', n]).concat(A.SFX_NAMES.map(n => ['sfx', n]));
+      for (let i = 0; i < jobs.length; i++) {
+        const [k, n] = jobs[i];
+        document.title = `RENDER ${i + 1}/${jobs.length} ${n}`;
+        out[(k === 'song' ? 'music_' : 'sfx_') + n + '.wav'] = b64(A.encodeWav(await render(k, n)));
+      }
+      window.__out = out;
+      document.getElementById('dump').textContent = JSON.stringify(Object.keys(out));
+      document.title = 'DONE';
+    })().catch(e => { document.getElementById('dump').textContent = 'ERROR ' + e; document.title = 'DONE'; });
+  }
+</script>
+</body>
+</html>
