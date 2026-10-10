@@ -3,11 +3,11 @@
  * Czcionki Google: najpierw pamięć podręczna.
  * Po zmianie listy plików podbij numer wersji w CACHE.
  */
-const CACHE = 'paleo-highway-v30';
+const CACHE = 'paleo-highway-v32';
 const FILES = [
   './', './index.html', './config.js', './manifest.webmanifest',
   './icons/icon-192.png', './icons/icon-512.png', './icons/icon-maskable-512.png',
-  './js/audio.js', './js/sprites.js', './js/scenery.js', './js/bonus.js', './js/flight.js', './js/game.js',
+  './js/audio.js', './js/sprites.js', './js/scenery.js', './js/bonus.js', './js/flight.js', './js/lang-en.js', './js/game.js',
   './js/stages/stage1.js', './js/stages/stage2.js', './js/stages/stage3.js', './js/stages/stage4.js',
   './js/stages/stage5.js', './js/stages/stage6.js', './js/stages/stage7.js', './js/stages/stage8.js', './js/stages/cages.js', './js/stages/extras.js',
   './js/stages/training.js', './js/stages/survival.js', './js/stages/escape.js', './js/stages/custom.js',

@@ -343,9 +343,12 @@
     while (app.entryQueue && app.entryQueue.length) {
       const q = app.entryQueue.shift();
       const rec = Object.assign({}, q); delete rec.table; delete rec.pIdx;
-      if (!qualifiesIn(q.table, rec)) continue;
+      // poza lokalną dziesiątką wynik może jeszcze trafić do tabeli światowej
+      const local = qualifiesIn(q.table, rec);
+      if (!local && !netWorthy(q.table, rec)) continue;
       app.mode = 'entry'; app.t = 0;
-      app.entry = { letters: [0, 0, 0], pos: 0, table: q.table, rec, c: q.c, pIdx: q.pIdx || 0, score: q.s || 0, time: 30 * 60 };
+      const last = loadJSON('paleo_initials');
+      app.entry = { letters: Array.isArray(last) && last.length === 3 ? last.slice() : [0, 0, 0], pos: 0, table: q.table, rec, c: q.c, pIdx: q.pIdx || 0, score: q.s || 0, time: 30 * 60, local };
       AU.stopMusic(); AU.play('map'); sfx('oneup');
       return;
     }
@@ -354,13 +357,17 @@
   function commitEntry() {
     const e = app.entry, k = e.table;
     const rec = Object.assign({ n: e.letters.map(i => LETTERS[i]).join('') }, e.rec);
-    const T = app.tables[k];
-    T.push(rec); T.sort(TABLES[k].cmp);
-    app.tables[k] = T.slice(0, 10);
-    if (k === 'main') { app.scores = app.tables.main; app.hiscore = app.scores[0].s; }
-    safeSet(TABLES[k].key, JSON.stringify(app.tables[k]));
+    safeSet('paleo_initials', JSON.stringify(e.letters));
+    if (e.local) {
+      const T = app.tables[k];
+      T.push(rec); T.sort(TABLES[k].cmp);
+      app.tables[k] = T.slice(0, 10);
+      if (k === 'main') { app.scores = app.tables.main; app.hiscore = app.scores[0].s; }
+      safeSet(TABLES[k].key, JSON.stringify(app.tables[k]));
+    }
+    netSubmit(k, rec);
     sfx('start');
-    nextEntry(app.tables[k].indexOf(rec));
+    nextEntry(e.local ? app.tables[k].indexOf(rec) : -1);
   }
   function entryLabel(e) {
     if (e.table === 'rush') return 'BOSSOWIE ' + e.rec.b + '/6   CZAS ' + fmtTime(e.rec.f);
@@ -368,7 +375,7 @@
     return 'WYNIK ' + e.rec.s;
   }
   function showScores(hi, attract, table) {
-    app.mode = 'scores'; app.t = 0; app.scoresHi = hi; app.attract = attract; app.scoreTable = table || 'main';
+    app.mode = 'scores'; app.t = 0; app.scoresHi = hi; app.attract = attract; app.scoreTable = table || 'main'; app.scoreNet = false;
     if (!attract) { AU.stopMusic(); AU.play('title'); }
   }
   function drawScoresBg() {
@@ -379,9 +386,9 @@
   }
   function drawScores() {
     drawScoresBg();
-    app.tables[app.scoreTable].forEach((r, i) => {
+    scoreRows().forEach((r, i) => {
       const y = 40 + i * 16;
-      if (i === app.scoresHi && app.t % 20 < 12) { ctx.fillStyle = 'rgba(255,200,60,0.25)'; ctx.fillRect(28, y - 3, W - 56, 15); }
+      if (i === app.scoresHi && !app.scoreNet && app.t % 20 < 12) { ctx.fillStyle = 'rgba(255,200,60,0.25)'; ctx.fillRect(28, y - 3, W - 56, 15); }
       const ch = CHARS[r.c] || CHARS.kruk;
       ctx.save(); ctx.beginPath(); ctx.rect(304, y - 3, 14, 14); ctx.clip();
       ctx.fillStyle = '#2a3a5a'; ctx.fillRect(304, y - 3, 14, 14);
@@ -390,13 +397,15 @@
     });
   }
   function drawScoresText() {
-    const k = app.scoreTable, T = app.tables[k];
+    const k = app.scoreTable, T = scoreRows();
     text('◄ ' + TABLES[k].title + ' ►', W / 2, 12, 9, '#ffe080', 'center');
+    if (net.on && !app.attract) text(app.scoreNet ? '▲▼  LOKALNE / [ŚWIAT]' : '▲▼  [LOKALNE] / ŚWIAT', W / 2, 196, 5, app.scoreNet ? '#80d0ff' : '#c0c0c0', 'center');
+    const st = netStatus(); if (st) text(st, W / 2, 110, 6, '#80d0ff', 'center');
     const heads = k === 'rush' ? [['BOSSOWIE', 200, 'center'], ['CZAS', 268, 'right']] : k === 'surv' ? [['FALA', 190, 'center'], ['WYNIK', 268, 'right']] : [['WYNIK', 230, 'right'], ['ETAP', 268, 'center']];
     [['MIEJSCE', 50, 'center'], ['INICJAŁY', 107, 'center'], ['POSTAĆ', 311, 'center']].concat(heads).forEach(([l, x, al]) => text(l, x, 28, 4, '#8a80a0', al));
     const cols = ['#ffe040', '#e0e0f0', '#e0a060'];
     T.forEach((r, i) => {
-      const y = 40 + i * 16, col = i === app.scoresHi ? '#7cff7c' : (cols[i] || '#c0b8d0');
+      const y = 40 + i * 16, col = i === app.scoresHi && !app.scoreNet ? '#7cff7c' : (cols[i] || '#c0b8d0');
       text(String(i + 1).padStart(2, ' ') + '.', 40, y, 7, col);
       text(r.n, 96, y, 7, col);
       if (k === 'rush') { text(r.b + '/' + RUSH_ORDER.length, 200, y, 7, col, 'center'); text(fmtTime(r.f), 268, y, 6, col, 'right'); }
@@ -420,7 +429,7 @@
   }
   function drawEntryText() {
     const e = app.entry;
-    text('NOWY REKORD!', W / 2, 18, 14, app.t % 20 < 10 ? '#ffe040' : '#ff9040', 'center');
+    text(e.local ? 'NOWY REKORD!' : 'TABELA ŚWIATOWA', W / 2, 18, 14, app.t % 20 < 10 ? '#ffe040' : '#ff9040', 'center');
     if ((G && G.players.length > 1) || (app.bonusTeam && app.bonusTeam.length > 1)) text('GRACZ ' + (e.pIdx + 1), 58, 136, 5, P_COLS[e.pIdx], 'center');
     text(entryLabel(e), W / 2, 44, 7, '#80d0ff', 'center');
     text('WPISZ INICJAŁY', W / 2, 64, 6, '#fff', 'center');

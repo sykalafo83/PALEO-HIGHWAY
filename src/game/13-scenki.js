@@ -101,8 +101,9 @@
     return S_.lines.map((ln, i) => {
       const sp = storySpeaker(ln[0], S_.team), r = rects[Math.min(i, rects.length - 1)];
       const chars = Math.max(10, Math.floor((r[2] - 26) / 5));
-      const lines = wrapLines(ln[1], chars);
-      return { r, sp, lines, left: !!sp.hero, text: ln[1], b: comicBubble(r, sp, lines, !!sp.hero) };
+      if (I18N.log) I18N.log.add(trNorm(ln[1]).key);
+      const say = tr(ln[1]), lines = wrapLines(say, chars);
+      return { r, sp, lines, left: !!sp.hero, text: say, b: comicBubble(r, sp, lines, !!sp.hero) };
     });
   }
   function drawStory() {
@@ -161,7 +162,7 @@
       if (i > S_.i) return;
       const [x, y, w, h] = K.r, B = K.b, cur = i === S_.i;
       let n = cur ? S_.t * 1.1 : 1e9;
-      K.lines.forEach((l, k) => { text(storyText(l, n), B.bx + 7, B.by + 6 + k * 9, 5, '#1a1014', 'left', true); n -= l.length; });
+      K.lines.forEach((l, k) => { textRaw(storyText(l, n), B.bx + 7, B.by + 6 + k * 9, 5, '#1a1014', 'left', true); n -= l.length; });
       const cw = K.sp.name.length * 4 + 14;
       text(K.sp.name, K.left ? x + w - cw / 2 : x + cw / 2, y + h - 11, 4.5, '#1a1014', 'center', true);
       const who = S_.lines[i][0];

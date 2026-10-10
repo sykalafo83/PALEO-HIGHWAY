@@ -86,6 +86,7 @@ co 5. fala — Biały Kieł, co 10. — prawdziwy boss. Premia za każdą falę,
 **Opcje** (zapisywane w przeglądarce; wartości domyślne w `config.js`, „PRZYWRÓĆ DOMYŚLNE” do nich wraca):
 | Opcja | Wartości |
 |---|---|
+| Język / Language | AUTO (wg języka przeglądarki) / POLSKI / ENGLISH; domyślnie `lang` w `config.js`, w adresie `?lang=en` |
 | Poziom trudności | ŁATWY (wrogowie −25% HP, −40% obrażeń) / NORMALNY / ARCADE (+25% HP, +40% obrażeń) |
 | Życia | 1–5 |
 | Muzyka / efekty | głośność 0–10 |
@@ -93,8 +94,22 @@ co 5. fala — Biały Kieł, co 10. — prawdziwy boss. Premia za każdą falę,
 | Wibracje pada | WŁ. / WYŁ. (domyślnie `rumble` w `config.js`) |
 | Pad gracza 1 i 2 | przypisanie przycisków akcji |
 | Ramka automatu | WŁ. / WYŁ. — zamiast czarnych pasów wokół ekranu: gra wypełnia całą wysokość okna, a po bokach jest obudowa z pixel-artową scenerią i listwami ramki (domyślnie `bezel` w `config.js`) |
+| Auto-wył. filtra | WŁ. / WYŁ. — gdy gra przez 2 s działa poniżej ok. 40 klatek/s, filtr CRT wyłącza się do końca sesji (komunikat „GRA ZWALNIAŁA”); zmiana filtra w opcjach włącza go z powrotem (domyślnie `crtAuto` w `config.js`) |
 | Filtr CRT | WYŁ. / AUTOMAT (zakrzywiony kineskop, poświata, skanlinie, winieta) / MONITOR PC (płaski, ostry ekran z pionową maską RGB jak Trinitron i delikatnymi skanliniami) / STARY TV (mocna wypukłość, rozmycie, kolorowe obwódki sygnału antenowego, szum, pas zakłóceń, migotanie); domyślnie `crt` w `config.js` (`'off'`, `'arcade'`, `'pc'`, `'tv'`) |
 | Klawisze gracza 1 i 2 | wybierz akcję, Enter, naciśnij nowy klawisz (Esc anuluje; P, M i Esc są zarezerwowane) |
+
+**Filtry CRT na karcie graficznej:** gdy przeglądarka obsługuje WebGL, filtr liczy jeden shader na karcie graficznej —
+prawdziwe zakrzywienie kineskopu, poświata, skanlinie na każdy wiersz pikseli gry, maska RGB i (w STARYM TV) przesunięte
+kanały kolorów, szum i pas zakłóceń. Jest kilka razy szybszy od dawnej wersji na procesorze, która zostaje jako rezerwa.
+
+**Wersja angielska:** cała gra (menu, poradnik, komiksy, opisy, HUD) jest dostępna po angielsku. Imiona bohaterów
+zostają polskie (Kruk, Nina, Tur, Borys), nazwy wrogów, bossów i etapów mają angielskie odpowiedniki.
+
+**Wspólna tabela wyników w sieci:** gdy w `config.js` jest adres serwera (`onlineScores`, serwer: `tools/score-server.mjs`
+— instrukcja w README), po wpisaniu inicjałów wynik trafia też do tabeli światowej (wpisać się można także wtedy, gdy wynik
+nie mieści się w lokalnej dziesiątce — nagłówek „TABELA ŚWIATOWA”), a komunikat pokazuje zajęte miejsce. W NAJLEPSZYCH
+WYNIKACH ▲▼ przełącza LOKALNE / ŚWIAT dla każdej tabeli (zwykła gra, Boss Rush, przetrwanie, codzienne). Bez połączenia
+gra działa normalnie, a tabela pokazuje „BRAK POŁĄCZENIA Z SERWEREM”. Gra pamięta ostatnio wpisane inicjały.
 
 **Sterowanie dotykowe:** wirtualny krzyżak po lewej, przyciski ATAK / SKOK / BLOK po prawej (specjał: ATAK i SKOK naraz), START u góry
 (START = pauza; w menu pauzy krzyżak + ATAK).
@@ -469,10 +484,11 @@ Wynik, życia i postać przechodzą między etapami; dodatkowe życie co 50 000 
 ```
 index.html              gra
 editor.html, js/editor.js  edytor etapów
-config.js               konfiguracja: debug, domyślna trudność, życia, głośność, sterowanie dotykowe, CRT, ramka
+config.js               konfiguracja: debug, trudność, życia, głośność, sterowanie dotykowe, CRT, ramka, język, serwer wyników
 export.html             odsłuch i eksport audio do WAV
 src/game/*.js           źródła silnika gry (30 części) — z nich powstaje js/game.js (node tools/build.mjs)
 js/audio.js             syntezator SFX, instrumenty, sekwencer, utwory (wstęp + część A i B), otoczenie, głosy
+js/lang-en.js           wersja angielska (słownik napisów i reguły)
 js/sprites.js           szkieletowy renderer postaci z cieniowaniem, pozy, dodatki wrogów, dinozaury, bronie, efekty
 js/scenery.js           wspólne elementy scenerii + fabryka etapów (warstwy paralaksy)
 js/stages/stage1..8.js  tła, animacje, fale wrogów i obiekty etapów (stage6 = twierdza, stage7 = plaża, stage8 = kanały)
@@ -489,6 +505,7 @@ js/game.js              silnik zbudowany z src/game/ (pętla, sterowanie, walka,
 tools/build.mjs         składa js/game.js ze źródeł
 tools/tests/            testy automatyczne w przeglądarce bez okna (node tools/tests/run.mjs)
 tools/screenshots.mjs   zrzuty ekranu do docs/screenshots/
+tools/score-server.mjs  serwer wspólnej tabeli wyników (Node.js, bez zależności)
 tools/export-audio.mjs  wsadowy eksport audio przez headless Chromium
 tools/serve.mjs         lokalny serwer (tryb offline / instalacja PWA); uruchom-serwer.bat — skrót
 tools/icon.html         generator ikon aplikacji

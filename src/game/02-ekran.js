@@ -93,24 +93,74 @@
     const px = Math.round(size * S);
     return { px, small: false, font: `${px}px "Press Start 2P", "Courier New", monospace` };
   }
+  // ---- JĘZYK: polski (napisy w kodzie) albo angielski (słownik window.LANG_EN z js/lang-en.js).
+  // Napis jest normalizowany: klawisze {akcja|K} → {}, liczby → #; tak zapisane są klucze słownika,
+  // a w tłumaczeniu {} i # wypełniają się po kolei (albo {1}, #1 — wg numeru). Dynamiczne napisy obsługują reguły.
+  let LANG = 'pl';
+  const I18N = { cache: new Map(), log: new URLSearchParams(location.search).has('i18nlog') ? new Set() : null };
+  if (I18N.log) { window.__i18nLog = I18N.log; window.__i18nMissing = new Set(); }
+  function trNorm(str) {
+    const tok = [], num = [];
+    const key = str.replace(/\{[^}]*\}/g, m => { tok.push(m); return '{}'; }).replace(/\d+/g, m => { num.push(m); return '#'; });
+    return { key, tok, num };
+  }
+  function trFill(tpl, tok, num) {
+    let ti = 0, ni = 0;
+    return tpl.replace(/\{(\d*)\}|#(\d*)/g, (m, a, b) => m[0] === '{' ? (tok[a ? +a : ti++] || '') : (num[b ? +b : ni++] || ''));
+  }
+  // tłumaczenie klucza: słownik, a gdy go brak — reguły (mogą tłumaczyć części rekurencyjnie)
+  function trKey(k, depth) {
+    const L = window.LANG_EN || {}, D = L.dict || {};
+    if (D[k] !== undefined) return D[k];
+    if ((depth || 0) > 4) return null;
+    for (const [re, fn] of L.rules || []) {
+      const m = re.exec(k);
+      if (m) { const r = fn(m, x => { const t = trKey(x, (depth || 0) + 1); return t === null ? x : t; }); if (r !== null && r !== undefined) return r; }
+    }
+    return null;
+  }
+  function tr(str) {
+    if (LANG !== 'en' || !str) return str;
+    str = String(str);
+    let out = I18N.cache.get(str);
+    if (out !== undefined) return out;
+    const n = trNorm(str), t = trKey(n.key, 0);
+    if (t === null) { out = str; if (window.__i18nMissing) window.__i18nMissing.add(n.key); }
+    else out = trFill(t, n.tok, n.num);
+    I18N.cache.set(str, out);
+    return out;
+  }
+  function applyLang() {
+    const q = new URLSearchParams(location.search).get('lang');   // ?lang=en / ?lang=pl ma pierwszeństwo
+    const want = q === 'pl' || q === 'en' ? q : OPTS.lang === 'auto' || !OPTS.lang ? (/^pl\b/i.test(navigator.language || 'pl') ? 'pl' : 'en') : OPTS.lang;
+    LANG = want === 'en' && window.LANG_EN ? 'en' : 'pl';
+    I18N.cache.clear();
+    document.documentElement.lang = LANG;
+  }
   function richText(str, x, y, size, col, align, noOutline) {
     const parts = [], re = /\{(\w+)(?::(\d))?\|([^}]*)\}/g;
     let m, last = 0;
     while ((m = re.exec(str))) { parts.push(str.slice(last, m.index)); parts.push({ act: m[1], p: +(m[2] || 0), kb: m[3] }); last = re.lastIndex; }
     parts.push(str.slice(last));
-    if (app.lastDev !== 'pad') { text(parts.map(q => typeof q === 'string' ? q : q.kb).join(''), x, y, size, col, align, noOutline); return; }
+    if (app.lastDev !== 'pad') { textRaw(parts.map(q => typeof q === 'string' ? q : q.kb).join(''), x, y, size, col, align, noOutline); return; }
     const px = Math.round(size * S);
     sctx.font = fontOf(size).font;
     const widths = parts.map(q => typeof q === 'string' ? sctx.measureText(q).width : (padBtnOf(q.act, q.p) === null ? px : padIconW(padBtnOf(q.act, q.p), px)));
     const total = widths.reduce((a, b) => a + b, 0);
     let cx = x * S - (align === 'center' ? total / 2 : align === 'right' ? total : 0);
     parts.forEach((q, i) => {
-      if (typeof q === 'string') { if (q) text(q, cx / S, y, size, col, 'left', noOutline); }
+      if (typeof q === 'string') { if (q) textRaw(q, cx / S, y, size, col, 'left', noOutline); }
       else drawPadIcon(sctx, padBtnOf(q.act, q.p), cx, y * S, px);
       cx += widths[i];
     });
   }
+  // tekst na ekranie (tłumaczony); textRaw — bez tłumaczenia
   function text(str, x, y, size, col, align, noOutline) {
+    str = String(str);
+    if (I18N.log) I18N.log.add(trNorm(str).key);
+    textRaw(LANG === 'en' ? tr(str) : str, x, y, size, col, align, noOutline);
+  }
+  function textRaw(str, x, y, size, col, align, noOutline) {
     if (str.indexOf('{') >= 0) { richText(str, x, y, size, col, align, noOutline); return; }
     const F = fontOf(size), px = F.px;
     sctx.font = F.font;

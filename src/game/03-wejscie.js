@@ -188,7 +188,7 @@
   const num = (v, d) => (typeof v === 'number' && !isNaN(v)) ? v : d;
   function defaultOpts() {
     return { difficulty: DIFFS[CFG.difficulty] ? CFG.difficulty : 'normal', lives: clamp(num(CFG.lives, 3), 1, 5),
-      music: clamp(num(CFG.musicVolume, 7), 0, 10), sfx: clamp(num(CFG.sfxVolume, 8), 0, 10), touch: TOUCH_MODES.includes(CFG.touch) ? CFG.touch : 'auto', assist: CFG.assist === true, crt: CFG.crt === true ? 'arcade' : (['arcade', 'pc', 'tv'].includes(CFG.crt) ? CFG.crt : 'off'), rumble: CFG.rumble !== false, bezel: CFG.bezel !== false };
+      music: clamp(num(CFG.musicVolume, 7), 0, 10), sfx: clamp(num(CFG.sfxVolume, 8), 0, 10), touch: TOUCH_MODES.includes(CFG.touch) ? CFG.touch : 'auto', assist: CFG.assist === true, crt: CFG.crt === true ? 'arcade' : (['arcade', 'pc', 'tv'].includes(CFG.crt) ? CFG.crt : 'off'), rumble: CFG.rumble !== false, bezel: CFG.bezel !== false, crtAuto: CFG.crtAuto !== false, lang: ['pl', 'en'].includes(CFG.lang) ? CFG.lang : 'auto' };
   }
   function loadJSON(k) { try { return JSON.parse(safeGet(k)); } catch (e) { return null; } }
   let OPTS = Object.assign(defaultOpts(), loadJSON('paleo_opts') || {});

@@ -2,7 +2,11 @@
 
 Bijatyka side-scroll w stylu automatów z lat 90.: czwórka bohaterów odbija dinozaury z rąk kłusowników
 na zarośniętej dżunglą autostradzie. Gra działa w przeglądarce, nie ma żadnych zależności, a cała grafika,
-muzyka i dźwięki są generowane kodem (Canvas 2D + Web Audio).
+muzyka i dźwięki są generowane kodem (Canvas 2D + Web Audio + WebGL).
+
+> **English:** a 90s-arcade style side-scrolling beat 'em up — four heroes free dinosaurs from poachers on a jungle-covered
+> highway. Runs in the browser with no dependencies; all graphics, music and sound are generated in code. The game is fully
+> playable in **English**: it follows your browser language, or pick it in *OPTIONS → LANGUAGE*, or open `index.html?lang=en`.
 
 ![Ekran tytułowy](docs/screenshots/01-tytul.png)
 
@@ -42,6 +46,9 @@ muzyka i dźwięki są generowane kodem (Canvas 2D + Web Audio).
   (wielkie głowy, niska grawitacja, kino nieme, hel…). Kombinacje są tajne.
 - **Tryby:** zwykła gra, Nowa Gra+, trening, Boss Rush, przetrwanie, wyzwania z gwiazdkami i codzienne wyzwanie.
 - **Ekstra:** 32 osiągnięcia, bestiariusz, odtwarzacz muzyki, karta z wynikiem do udostępnienia, edytor etapów.
+- **Technika:** filtry CRT liczone na karcie graficznej (WebGL: prawdziwe zakrzywienie, poświata, maska RGB) z opcją
+  automatycznego wyłączenia, gdy gra zwalnia; wersja **polska i angielska**; wspólna tabela wyników w sieci
+  (własny mały serwer, patrz niżej).
 - **Wygoda:** zapis postępu, przypisywanie klawiszy i przycisków pada (z wibracjami), sterowanie dotykowe,
   trzy filtry CRT, ramka automatu, tryb opiekuna, praca offline jako aplikacja (PWA).
 
@@ -92,9 +99,29 @@ Domyślne ustawienia są w [`config.js`](config.js); zmiany z menu OPCJE zapisuj
 | `crt` | filtr: `'off'`, `'arcade'`, `'pc'`, `'tv'` |
 | `rumble` | wibracje pada |
 | `bezel` | ramka automatu po bokach ekranu |
+| `crtAuto` | `true` — filtr CRT wyłącza się sam do końca sesji, gdy gra zaczyna zwalniać |
+| `lang` | język: `'auto'` (wg przeglądarki), `'pl'`, `'en'` |
+| `onlineScores` | adres serwera wspólnej tabeli wyników (pusty = tylko lokalne tabele) |
 
 Parametry adresu: `index.html?stage=5` startuje od wybranego etapu (1–8), `index.html?test=1` uruchamia etap
-przesłany z edytora.
+przesłany z edytora, `?lang=en` / `?lang=pl` wymusza język, `?scores=https://…` podaje adres serwera wyników.
+
+## Wspólna tabela wyników w sieci
+
+Gra jest statyczna, więc wspólna tabela potrzebuje małego serwera. W repozytorium jest gotowy:
+[`tools/score-server.mjs`](tools/score-server.mjs) — jeden plik Node.js bez zależności (zapis do pliku JSON, walidacja
+wpisów, limit 1 wyniku na 5 s z jednego adresu IP, 100 najlepszych wpisów w każdej tabeli, CORS).
+
+1. Uruchom serwer na dowolnym hostingu z Node.js 18+ (VPS, Render, Railway, Fly.io…):
+   ```
+   node tools/score-server.mjs 8787 data/scores.json
+   ```
+   (port i plik można też podać w zmiennych `PORT` i `SCORES_FILE`).
+2. W `config.js` wpisz jego adres: `onlineScores: 'https://twoj-serwer.example'`.
+3. W grze: po wpisaniu inicjałów wynik trafia też na serwer (także gdy nie mieści się w lokalnej dziesiątce),
+   a w **NAJLEPSZYCH WYNIKACH** ▲▼ przełącza widok **LOKALNE / ŚWIAT**.
+
+Wyniki z kodami dającymi przewagę, z trybu demo i z własnych etapów nie są wysyłane.
 
 ## Edytor etapów
 
@@ -112,6 +139,7 @@ config.js               ustawienia domyślne
 src/game/               źródła silnika gry w 30 częściach (wejście, gracz, AI, nowi wrogowie, tryby, HUD, kody, poradnik, pętla…)
 js/game.js              silnik zbudowany z src/game/ (plik generowany — nie edytuj ręcznie)
 js/audio.js             syntezator dźwięków, instrumenty, sekwencer, utwory, okrzyki postaci
+js/lang-en.js           wersja angielska: słownik napisów i reguły dla napisów składanych
 js/sprites.js           szkieletowe postacie, dinozaury, pojazdy, bronie, przedmioty
 js/scenery.js           elementy scenerii i fabryka etapów (warstwy paralaksy)
 js/bonus.js, flight.js  etapy bonusowe: jazda autem i lot na pteranodonie
@@ -134,6 +162,7 @@ Wymagają Node.js 22+; eksport audio dodatkowo przeglądarki Edge lub Chrome.
 | `node tools/serve.mjs [port]` | lokalny serwer (domyślnie port 8080) |
 | `node tools/export-audio.mjs` | renderuje wszystkie utwory i efekty do `assets/audio/` |
 | `node tools/screenshots.mjs` | robi aktualne zrzuty ekranu do `docs/screenshots/` (README i instrukcja) |
+| `node tools/score-server.mjs [port] [plik]` | serwer wspólnej tabeli wyników (domyślnie port 8787, `data/scores.json`) |
 | `tools/icon.html` | generator ikon aplikacji |
 
 Po zmianie listy plików gry podbij wersję `CACHE` w [`sw.js`](sw.js), żeby zainstalowana aplikacja pobrała nowe pliki.
@@ -142,11 +171,14 @@ Po zmianie listy plików gry podbij wersję `CACHE` w [`sw.js`](sw.js), żeby za
 
 1. Zmieniaj pliki w `src/game/` (silnik) albo `js/` (pozostałe moduły), nie `js/game.js`.
 2. Zbuduj silnik: `node tools/build.mjs`.
-3. Uruchom testy: `node tools/tests/run.mjs` — 17 scenariuszy sprawdza m.in. wszystkie etapy i bossów, walkę,
+3. Uruchom testy: `node tools/tests/run.mjs` — 18 scenariuszy sprawdza m.in. wszystkie etapy i bossów, walkę,
    pady, tryby, wydarzenia i pogodę, komiks, lot, zakończenia, edytor, poradnik, beczki i nowych wrogów, pociąg,
-   grafikę i tryb demo, muzykę i dźwięki oraz kody z ikon; test kończy się błędem także przy każdym wyjątku
+   grafikę i tryb demo, muzykę i dźwięki, kody z ikon, filtry WebGL i tabelę wyników w sieci; test kończy się błędem także przy każdym wyjątku
    JavaScript w grze. Testy same budują silnik przed startem.
 4. Po zmianach w wyglądzie odśwież zrzuty: `node tools/screenshots.mjs`.
+5. Nowe napisy na ekranie dopisz do słownika `js/lang-en.js` (klucz to polski napis; klawisze `{…}` zapisuj jako `{}`,
+   liczby jako `#`). Testy po angielsku: `LANG_EN=1 node tools/tests/run.mjs`; z `I18N_LOG=1` w `tools/tests/out/`
+   powstaje lista napisów bez tłumaczenia (`i18nmiss-*.json`).
 
 Uchwyty testowe (`window.__paleo`) są dostępne tylko z `debug: true` w `config.js` albo z parametrem adresu `?hooks=1`.
 

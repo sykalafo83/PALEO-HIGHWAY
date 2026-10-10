@@ -3,6 +3,7 @@
 //          node tools/tests/run.mjs stages pad — tylko wybrane (po nazwie pliku w cases/)
 // Wymaga Node.js 22+ oraz przeglądarki Edge lub Chrome (ścieżkę można podać w zmiennej BROWSER).
 // Zrzuty ekranu z testów trafiają do tools/tests/out/.
+import { writeFileSync } from 'node:fs';
 import { readdirSync, mkdirSync, existsSync } from 'node:fs';
 import path from 'node:path';
 import { fileURLToPath, pathToFileURL } from 'node:url';
@@ -28,7 +29,7 @@ for (const f of files) {
   const started = Date.now();
   let page = null, err = null;
   try {
-    page = await openPage(gameUrl(test.page || 'index.html', test.query ?? 'hooks=1'), { outDir, width: test.width, height: test.height });
+    page = await openPage(gameUrl(test.page || 'index.html', (test.query ?? 'hooks=1') + (process.env.I18N_LOG ? '&i18nlog=1' : '') + (process.env.LANG_EN ? '&lang=en' : '')), { outDir, width: test.width, height: test.height });
     const ctx = Object.assign({}, page, {
       assert(cond, msg) { if (!cond) throw new Error('Asercja: ' + msg + (page.errors.length ? ' [wyjątki: ' + page.errors.slice(0, 2).join(' || ') + ']' : '')); },
       log: (...a) => { if (process.env.VERBOSE) console.log('      ', ...a); },
@@ -38,6 +39,7 @@ for (const f of files) {
       test.run(ctx),
       new Promise((_, bad) => setTimeout(() => bad(new Error('Przekroczony czas testu')), (test.timeout || 90) * 1000))
     ]);
+    if (process.env.I18N_LOG) { try { writeFileSync(path.join(outDir, 'i18n-' + f.replace('.mjs', '') + '.json'), JSON.stringify(await page.ev('[...(window.__i18nLog || [])]'))); writeFileSync(path.join(outDir, 'i18nmiss-' + f.replace('.mjs', '') + '.json'), JSON.stringify(await page.ev('[...(window.__i18nMissing || [])]'))); } catch (e) { } }
     if (page.errors.length) throw new Error('Wyjątki w grze: ' + page.errors.slice(0, 3).join(' || '));
   } catch (e) { err = e; }
   if (page) await page.close();

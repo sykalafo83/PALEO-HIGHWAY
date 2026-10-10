@@ -224,8 +224,8 @@
     return list;
   }
   const MODE_OF = { 'START GRY': 'arcade', 'NOWA GRA+': 'arcade', TRENING: 'training', 'BOSS RUSH': 'rush', PRZETRWANIE: 'survival' };
-  const OPT_ROWS = ['diff', 'lives', 'assist', 'music', 'sfx', 'touch', 'crt', 'bezel', 'rumble', 'keys1', 'keys2', 'pad1', 'pad2', 'reset', 'back'];
-  const OPT_DY = 10.5, OPT_Y = 28;
+  const OPT_ROWS = ['lang', 'diff', 'lives', 'assist', 'music', 'sfx', 'touch', 'crt', 'crtauto', 'bezel', 'rumble', 'keys1', 'keys2', 'pad1', 'pad2', 'reset', 'back'];
+  const OPT_DY = 9.6, OPT_Y = 26;
   function drawOptions() {
     drawScoresBg();
     if ((app.keysFor !== null && app.keysFor !== undefined) || app.padFor !== null && app.padFor !== undefined) return;
@@ -280,17 +280,19 @@
       return;
     }
     text('OPCJE', W / 2, 12, 10, '#ffe080', 'center');
-    const label = { diff: 'POZIOM TRUDNOŚCI', lives: 'ŻYCIA', assist: 'OPIEKUN (POMOC)', music: 'MUZYKA', sfx: 'EFEKTY', touch: 'STEROWANIE DOTYKOWE', crt: 'FILTR CRT', bezel: 'RAMKA AUTOMATU', rumble: 'WIBRACJE PADA', pad1: 'PAD — GRACZ 1', pad2: 'PAD — GRACZ 2', keys1: 'KLAWISZE — GRACZ 1', keys2: 'KLAWISZE — GRACZ 2', reset: 'PRZYWRÓĆ DOMYŚLNE', back: 'POWRÓT' };
+    const label = { lang: 'JĘZYK / LANGUAGE', diff: 'POZIOM TRUDNOŚCI', lives: 'ŻYCIA', assist: 'OPIEKUN (POMOC)', music: 'MUZYKA', sfx: 'EFEKTY', touch: 'STEROWANIE DOTYKOWE', crt: 'FILTR CRT', crtauto: 'AUTO-WYŁ. FILTRA', bezel: 'RAMKA AUTOMATU', rumble: 'WIBRACJE PADA', pad1: 'PAD — GRACZ 1', pad2: 'PAD — GRACZ 2', keys1: 'KLAWISZE — GRACZ 1', keys2: 'KLAWISZE — GRACZ 2', reset: 'PRZYWRÓĆ DOMYŚLNE', back: 'POWRÓT' };
     OPT_ROWS.forEach((r, i) => {
       const y = OPT_Y + i * OPT_DY, sel = i === app.optSel, col = sel ? '#ffe040' : '#fff';
       text((sel ? '► ' : '') + label[r], 40, y, 6, col);
       let v = '';
-      if (r === 'diff') v = '◄ ' + diffNow().name + ' ►';
+      if (r === 'lang') v = '◄ ' + ({ auto: 'AUTO', pl: 'POLSKI', en: 'ENGLISH' })[OPTS.lang || 'auto'] + ' ►';
+      else if (r === 'diff') v = '◄ ' + diffNow().name + ' ►';
       else if (r === 'lives') v = '◄ ' + OPTS.lives + ' ►';
       else if (r === 'assist') v = '◄ ' + (OPTS.assist ? 'WŁ.' : 'WYŁ.') + ' ►';
       else if (r === 'music' || r === 'sfx') v = String(OPTS[r]);
       else if (r === 'touch') v = '◄ ' + TOUCH_NAMES[OPTS.touch] + ' ►';
-      else if (r === 'crt') v = '◄ ' + CRT_NAMES[crtMode()] + ' ►';
+      else if (r === 'crt') v = '◄ ' + CRT_NAMES[crtMode()] + (app.crtSuspended && crtMode() !== 'off' ? ' (WSTRZ.)' : '') + ' ►';
+      else if (r === 'crtauto') v = '◄ ' + (OPTS.crtAuto ? 'WŁ.' : 'WYŁ.') + ' ►';
       else if (r === 'rumble') v = '◄ ' + (OPTS.rumble ? 'WŁ.' : 'WYŁ.') + ' ►';
       else if (r === 'bezel') v = '◄ ' + (OPTS.bezel ? 'WŁ.' : 'WYŁ.') + ' ►';
       else if (r === 'pad1' || r === 'pad2') v = (padsNow[r === 'pad1' ? 0 : 1] ? '' : 'BRAK  ') + '{ok|ENTER} ►';
@@ -301,7 +303,8 @@
     if (OPT_ROWS[app.optSel] === 'bezel') text('GRAFIKA OBUDOWY AUTOMATU ZAMIAST CZARNYCH PASÓW WOKÓŁ EKRANU', W / 2, 196, 4, '#c0e0ff', 'center');
     if (OPT_ROWS[app.optSel] === 'rumble') text('DRGANIA PRZY TRAFIENIACH, OBRAŻENIACH I WYBUCHACH', W / 2, 196, 4, '#c0e0ff', 'center');
     if (OPT_ROWS[app.optSel] === 'pad1' || OPT_ROWS[app.optSel] === 'pad2') text(padsNow.length + ' PAD(Y) PODŁĄCZONE — NACIŚNIJ PRZYCISK NA PADZIE, ABY GO WYKRYĆ', W / 2, 196, 4, '#c0e0ff', 'center');
-    if (OPT_ROWS[app.optSel] === 'crt') text(CRT_DESC[crtMode()], W / 2, 196, 4, '#c0e0ff', 'center');
+    if (OPT_ROWS[app.optSel] === 'crt') text(CRT_DESC[crtMode()] + (crtMode() !== 'off' && crtGLInit() ? ' (KARTA GRAFICZNA)' : ''), W / 2, 196, 4, '#c0e0ff', 'center');
+    if (OPT_ROWS[app.optSel] === 'crtauto') text('GDY GRA ZWALNIA, FILTR CRT SAM SIĘ WYŁĄCZA (DO KOŃCA SESJI)', W / 2, 196, 4, '#c0e0ff', 'center');
     if (OPT_ROWS[app.optSel] === 'assist') text('AUTOMATYCZNE BLOKI (40%) I PODPOWIEDZI O NOWYCH WROGACH', W / 2, 196, 4, '#c0e0ff', 'center');
     if (app.optMsg > 0) text('PRZYWRÓCONO USTAWIENIA Z CONFIG.JS', W / 2, 186, 4, '#7cff7c', 'center');
     text('▲▼ WYBÓR   ◄► ZMIANA   {ok|ENTER} — OK   {back|ESC} — POWRÓT', W / 2, 206, 4, '#c0c0c0', 'center');

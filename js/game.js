@@ -364,24 +364,74 @@
     const px = Math.round(size * S);
     return { px, small: false, font: `${px}px "Press Start 2P", "Courier New", monospace` };
   }
+  // ---- JĘZYK: polski (napisy w kodzie) albo angielski (słownik window.LANG_EN z js/lang-en.js).
+  // Napis jest normalizowany: klawisze {akcja|K} → {}, liczby → #; tak zapisane są klucze słownika,
+  // a w tłumaczeniu {} i # wypełniają się po kolei (albo {1}, #1 — wg numeru). Dynamiczne napisy obsługują reguły.
+  let LANG = 'pl';
+  const I18N = { cache: new Map(), log: new URLSearchParams(location.search).has('i18nlog') ? new Set() : null };
+  if (I18N.log) { window.__i18nLog = I18N.log; window.__i18nMissing = new Set(); }
+  function trNorm(str) {
+    const tok = [], num = [];
+    const key = str.replace(/\{[^}]*\}/g, m => { tok.push(m); return '{}'; }).replace(/\d+/g, m => { num.push(m); return '#'; });
+    return { key, tok, num };
+  }
+  function trFill(tpl, tok, num) {
+    let ti = 0, ni = 0;
+    return tpl.replace(/\{(\d*)\}|#(\d*)/g, (m, a, b) => m[0] === '{' ? (tok[a ? +a : ti++] || '') : (num[b ? +b : ni++] || ''));
+  }
+  // tłumaczenie klucza: słownik, a gdy go brak — reguły (mogą tłumaczyć części rekurencyjnie)
+  function trKey(k, depth) {
+    const L = window.LANG_EN || {}, D = L.dict || {};
+    if (D[k] !== undefined) return D[k];
+    if ((depth || 0) > 4) return null;
+    for (const [re, fn] of L.rules || []) {
+      const m = re.exec(k);
+      if (m) { const r = fn(m, x => { const t = trKey(x, (depth || 0) + 1); return t === null ? x : t; }); if (r !== null && r !== undefined) return r; }
+    }
+    return null;
+  }
+  function tr(str) {
+    if (LANG !== 'en' || !str) return str;
+    str = String(str);
+    let out = I18N.cache.get(str);
+    if (out !== undefined) return out;
+    const n = trNorm(str), t = trKey(n.key, 0);
+    if (t === null) { out = str; if (window.__i18nMissing) window.__i18nMissing.add(n.key); }
+    else out = trFill(t, n.tok, n.num);
+    I18N.cache.set(str, out);
+    return out;
+  }
+  function applyLang() {
+    const q = new URLSearchParams(location.search).get('lang');   // ?lang=en / ?lang=pl ma pierwszeństwo
+    const want = q === 'pl' || q === 'en' ? q : OPTS.lang === 'auto' || !OPTS.lang ? (/^pl\b/i.test(navigator.language || 'pl') ? 'pl' : 'en') : OPTS.lang;
+    LANG = want === 'en' && window.LANG_EN ? 'en' : 'pl';
+    I18N.cache.clear();
+    document.documentElement.lang = LANG;
+  }
   function richText(str, x, y, size, col, align, noOutline) {
     const parts = [], re = /\{(\w+)(?::(\d))?\|([^}]*)\}/g;
     let m, last = 0;
     while ((m = re.exec(str))) { parts.push(str.slice(last, m.index)); parts.push({ act: m[1], p: +(m[2] || 0), kb: m[3] }); last = re.lastIndex; }
     parts.push(str.slice(last));
-    if (app.lastDev !== 'pad') { text(parts.map(q => typeof q === 'string' ? q : q.kb).join(''), x, y, size, col, align, noOutline); return; }
+    if (app.lastDev !== 'pad') { textRaw(parts.map(q => typeof q === 'string' ? q : q.kb).join(''), x, y, size, col, align, noOutline); return; }
     const px = Math.round(size * S);
     sctx.font = fontOf(size).font;
     const widths = parts.map(q => typeof q === 'string' ? sctx.measureText(q).width : (padBtnOf(q.act, q.p) === null ? px : padIconW(padBtnOf(q.act, q.p), px)));
     const total = widths.reduce((a, b) => a + b, 0);
     let cx = x * S - (align === 'center' ? total / 2 : align === 'right' ? total : 0);
     parts.forEach((q, i) => {
-      if (typeof q === 'string') { if (q) text(q, cx / S, y, size, col, 'left', noOutline); }
+      if (typeof q === 'string') { if (q) textRaw(q, cx / S, y, size, col, 'left', noOutline); }
       else drawPadIcon(sctx, padBtnOf(q.act, q.p), cx, y * S, px);
       cx += widths[i];
     });
   }
+  // tekst na ekranie (tłumaczony); textRaw — bez tłumaczenia
   function text(str, x, y, size, col, align, noOutline) {
+    str = String(str);
+    if (I18N.log) I18N.log.add(trNorm(str).key);
+    textRaw(LANG === 'en' ? tr(str) : str, x, y, size, col, align, noOutline);
+  }
+  function textRaw(str, x, y, size, col, align, noOutline) {
     if (str.indexOf('{') >= 0) { richText(str, x, y, size, col, align, noOutline); return; }
     const F = fontOf(size), px = F.px;
     sctx.font = F.font;
@@ -607,7 +657,7 @@
   const num = (v, d) => (typeof v === 'number' && !isNaN(v)) ? v : d;
   function defaultOpts() {
     return { difficulty: DIFFS[CFG.difficulty] ? CFG.difficulty : 'normal', lives: clamp(num(CFG.lives, 3), 1, 5),
-      music: clamp(num(CFG.musicVolume, 7), 0, 10), sfx: clamp(num(CFG.sfxVolume, 8), 0, 10), touch: TOUCH_MODES.includes(CFG.touch) ? CFG.touch : 'auto', assist: CFG.assist === true, crt: CFG.crt === true ? 'arcade' : (['arcade', 'pc', 'tv'].includes(CFG.crt) ? CFG.crt : 'off'), rumble: CFG.rumble !== false, bezel: CFG.bezel !== false };
+      music: clamp(num(CFG.musicVolume, 7), 0, 10), sfx: clamp(num(CFG.sfxVolume, 8), 0, 10), touch: TOUCH_MODES.includes(CFG.touch) ? CFG.touch : 'auto', assist: CFG.assist === true, crt: CFG.crt === true ? 'arcade' : (['arcade', 'pc', 'tv'].includes(CFG.crt) ? CFG.crt : 'off'), rumble: CFG.rumble !== false, bezel: CFG.bezel !== false, crtAuto: CFG.crtAuto !== false, lang: ['pl', 'en'].includes(CFG.lang) ? CFG.lang : 'auto' };
   }
   function loadJSON(k) { try { return JSON.parse(safeGet(k)); } catch (e) { return null; } }
   let OPTS = Object.assign(defaultOpts(), loadJSON('paleo_opts') || {});
@@ -3314,8 +3364,9 @@
     return S_.lines.map((ln, i) => {
       const sp = storySpeaker(ln[0], S_.team), r = rects[Math.min(i, rects.length - 1)];
       const chars = Math.max(10, Math.floor((r[2] - 26) / 5));
-      const lines = wrapLines(ln[1], chars);
-      return { r, sp, lines, left: !!sp.hero, text: ln[1], b: comicBubble(r, sp, lines, !!sp.hero) };
+      if (I18N.log) I18N.log.add(trNorm(ln[1]).key);
+      const say = tr(ln[1]), lines = wrapLines(say, chars);
+      return { r, sp, lines, left: !!sp.hero, text: say, b: comicBubble(r, sp, lines, !!sp.hero) };
     });
   }
   function drawStory() {
@@ -3374,7 +3425,7 @@
       if (i > S_.i) return;
       const [x, y, w, h] = K.r, B = K.b, cur = i === S_.i;
       let n = cur ? S_.t * 1.1 : 1e9;
-      K.lines.forEach((l, k) => { text(storyText(l, n), B.bx + 7, B.by + 6 + k * 9, 5, '#1a1014', 'left', true); n -= l.length; });
+      K.lines.forEach((l, k) => { textRaw(storyText(l, n), B.bx + 7, B.by + 6 + k * 9, 5, '#1a1014', 'left', true); n -= l.length; });
       const cw = K.sp.name.length * 4 + 14;
       text(K.sp.name, K.left ? x + w - cw / 2 : x + cw / 2, y + h - 11, 4.5, '#1a1014', 'center', true);
       const who = S_.lines[i][0];
@@ -4642,9 +4693,8 @@
     sctx.arcTo(w, h, w, h - r, r); sctx.lineTo(w, r); sctx.arcTo(w, 0, w - r, 0, r); sctx.closePath();
     sctx.fill('evenodd');
   }
-  function applyCrt() {
-    const mode = crtMode();
-    if (mode === 'off') return;
+  // wersja na procesorze (rezerwa, gdy przeglądarka nie ma WebGL)
+  function applyCrt2D(mode) {
     crtPrepare();
     const w = crt.w, h = crt.h, a = crt.a.getContext('2d');
     sctx.save();
@@ -4697,6 +4747,132 @@
     sctx.restore();
   }
 
+
+  // =============================================================== FILTRY CRT NA KARCIE GRAFICZNEJ (WebGL)
+  // Jeden shader nakładany na gotową klatkę: prawdziwe zakrzywienie, poświata, skanlinie na wiersz pikseli gry,
+  // maska RGB, rozjechane kolory i szum starego TV. Wynik trafia na płótno #crtgl leżące dokładnie nad ekranem gry.
+  const CRT_VS = 'attribute vec2 p; varying vec2 v; void main() { v = vec2(p.x * 0.5 + 0.5, 0.5 - p.y * 0.5); gl_Position = vec4(p, 0.0, 1.0); }';
+  const CRT_FS = `precision mediump float;
+varying vec2 v; uniform sampler2D T; uniform vec2 R; uniform float G, M, t, flick;
+vec3 tex(vec2 uv) { return texture2D(T, uv).rgb; }
+float hash(vec2 q) { return fract(sin(dot(q, vec2(12.9898, 78.233))) * 43758.5453); }
+void main() {
+  vec2 k = M < 1.5 ? vec2(0.045, 0.058) : M < 2.5 ? vec2(0.0) : vec2(0.09, 0.12);
+  vec2 c = v * 2.0 - 1.0;
+  c.x *= 1.0 + k.x * c.y * c.y; c.y *= 1.0 + k.y * c.x * c.x;
+  vec2 uv = c * 0.5 + 0.5;
+  float rad = (M < 1.5 ? 0.06 : M < 2.5 ? 0.012 : 0.1) * min(R.x, R.y);
+  vec2 q = abs(uv - 0.5) * R - (R * 0.5 - rad);
+  if (uv.x < 0.0 || uv.x > 1.0 || uv.y < 0.0 || uv.y > 1.0 || length(max(q, 0.0)) > rad) { gl_FragColor = vec4(0.0, 0.0, 0.0, 1.0); return; }
+  vec2 px = 1.0 / R;
+  vec3 col;
+  if (M > 2.5) {
+    float off = max(1.0, G * 0.7);
+    col = vec3(tex(uv + vec2(off, 0.0) * px).r, tex(uv).g, tex(uv - vec2(off, 0.0) * px).b);
+  } else col = tex(uv);
+  // poświata: rozmyty obraz z 12 próbek wokół piksela
+  float gr = G * (M < 1.5 ? 2.0 : M < 2.5 ? 1.0 : 3.0);
+  vec3 blur = vec3(0.0);
+  for (int i = 0; i < 12; i++) {
+    float a = float(i) * 0.5236, r2 = (i < 6 ? 0.5 : 1.0) * gr;
+    blur += tex(uv + vec2(cos(a), sin(a)) * r2 * px);
+  }
+  blur /= 12.0;
+  if (M > 2.5) col = mix(col, blur, 0.38);
+  float gA = M < 1.5 ? 0.35 : M < 2.5 ? 0.22 : 0.4;
+  col = 1.0 - (1.0 - col) * (1.0 - blur * gA);
+  // skanlinie: jedna na wiersz pikseli gry
+  float d = abs(fract(uv.y * 224.0) - 0.5) * 2.0;
+  float sA = M < 1.5 ? 0.22 : M < 2.5 ? 0.13 : 0.34;
+  col *= 1.0 - sA * d * d;
+  // maska RGB: pionowe kreski monitora (PC), delikatnie także w automacie
+  float m = mod(floor(gl_FragCoord.x), 3.0);
+  vec3 mask = vec3(m < 0.5 ? 1.0 : 0.8, (m > 0.5 && m < 1.5) ? 1.0 : 0.8, m > 1.5 ? 1.0 : 0.8);
+  if (M > 1.5 && M < 2.5) col *= mask * 1.12;
+  else if (M < 1.5 && G >= 4.0) col *= mix(vec3(1.0), mask, 0.25);
+  // stary telewizor: szum, przesuwający się pas zakłóceń i migotanie
+  if (M > 2.5) {
+    col += (hash(gl_FragCoord.xy + fract(t) * 517.0) - 0.5) * 0.09;
+    float band = fract(t * 0.1) * 1.6 - 0.3;
+    col += 0.06 * smoothstep(0.06, 0.0, abs(uv.y - band));
+    col *= 1.0 - flick;
+  }
+  // winieta
+  float vin = M < 1.5 ? 0.6 : M < 2.5 ? 0.28 : 0.62;
+  float inner = M < 1.5 ? 0.4 : M < 2.5 ? 0.5 : 0.3;
+  col *= 1.0 - vin * smoothstep(inner * 0.75, 1.05, length(c * R / max(R.x, R.y)));
+  gl_FragColor = vec4(clamp(col, 0.0, 1.0), 1.0);
+}`;
+  const crtGL = { ok: null, cv: null, gl: null, tex: null, u: {}, w: 0, h: 0, syncT: 0 };
+  function crtGLInit() {
+    if (crtGL.ok !== null) return crtGL.ok;
+    crtGL.ok = false;
+    try {
+      const cv = document.createElement('canvas'); cv.id = 'crtgl';
+      Object.assign(cv.style, { position: 'fixed', zIndex: 2, pointerEvents: 'none', display: 'none', boxShadow: 'none' });
+      const gl = cv.getContext('webgl', { alpha: false, antialias: false, premultipliedAlpha: false });
+      if (!gl) return false;
+      const sh = (type, src) => { const o = gl.createShader(type); gl.shaderSource(o, src); gl.compileShader(o); if (!gl.getShaderParameter(o, gl.COMPILE_STATUS)) throw new Error(gl.getShaderInfoLog(o)); return o; };
+      const prog = gl.createProgram();
+      gl.attachShader(prog, sh(gl.VERTEX_SHADER, CRT_VS)); gl.attachShader(prog, sh(gl.FRAGMENT_SHADER, CRT_FS));
+      gl.linkProgram(prog); if (!gl.getProgramParameter(prog, gl.LINK_STATUS)) throw new Error(gl.getProgramInfoLog(prog));
+      gl.useProgram(prog);
+      const vb = gl.createBuffer(); gl.bindBuffer(gl.ARRAY_BUFFER, vb);
+      gl.bufferData(gl.ARRAY_BUFFER, new Float32Array([-1, -1, 1, -1, -1, 1, 1, 1]), gl.STATIC_DRAW);
+      const loc = gl.getAttribLocation(prog, 'p'); gl.enableVertexAttribArray(loc); gl.vertexAttribPointer(loc, 2, gl.FLOAT, false, 0, 0);
+      const tex = gl.createTexture(); gl.bindTexture(gl.TEXTURE_2D, tex);
+      gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MIN_FILTER, gl.LINEAR); gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MAG_FILTER, gl.LINEAR);
+      gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_S, gl.CLAMP_TO_EDGE); gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_T, gl.CLAMP_TO_EDGE);
+      ['T', 'R', 'G', 'M', 't', 'flick'].forEach(n => { crtGL.u[n] = gl.getUniformLocation(prog, n); });
+      cv.addEventListener('webglcontextlost', e => { e.preventDefault(); crtGL.ok = false; cv.style.display = 'none'; });
+      document.body.appendChild(cv);
+      Object.assign(crtGL, { cv, gl, tex, ok: true });
+    } catch (e) { crtGL.ok = false; }
+    return crtGL.ok;
+  }
+  // płótno WebGL zawsze dokładnie nad ekranem gry (ten sam rozmiar i położenie)
+  function crtGLSync() {
+    const cv = crtGL.cv;
+    if (crtGL.w !== screen.width || crtGL.h !== screen.height) {
+      cv.width = crtGL.w = screen.width; cv.height = crtGL.h = screen.height;
+      crtGL.gl.viewport(0, 0, cv.width, cv.height); crtGL.syncT = 0;
+    }
+    if (--crtGL.syncT <= 0) {
+      const r = screen.getBoundingClientRect();
+      Object.assign(cv.style, { left: r.left + 'px', top: r.top + 'px', width: r.width + 'px', height: r.height + 'px' });
+      crtGL.syncT = 30;
+    }
+  }
+  const CRT_M = { arcade: 1, pc: 2, tv: 3 };
+  function crtGLDraw(mode) {
+    const gl = crtGL.gl, u = crtGL.u;
+    crtGLSync();
+    gl.bindTexture(gl.TEXTURE_2D, crtGL.tex);
+    gl.texImage2D(gl.TEXTURE_2D, 0, gl.RGBA, gl.RGBA, gl.UNSIGNED_BYTE, screen);
+    gl.uniform1i(u.T, 0); gl.uniform2f(u.R, crtGL.w, crtGL.h); gl.uniform1f(u.G, S); gl.uniform1f(u.M, CRT_M[mode]);
+    gl.uniform1f(u.t, (app.frame || 0) / 60); gl.uniform1f(u.flick, 0.03 + Math.random() * 0.03);
+    gl.drawArrays(gl.TRIANGLE_STRIP, 0, 4);
+  }
+  // ---- pilnowanie płynności: gdy gra zwalnia z włączonym filtrem, filtr wyłącza się do końca sesji
+  const crtPerf = { dts: [] };
+  function crtPerfSample(dt) {
+    if (!OPTS.crtAuto || app.crtSuspended || crtMode() === 'off' || dt > 250) { crtPerf.dts.length = 0; return; }
+    crtPerf.dts.push(dt); if (crtPerf.dts.length > 120) crtPerf.dts.shift();
+    if (crtPerf.dts.length < 120) return;
+    const avg = crtPerf.dts.reduce((a, b) => a + b, 0) / crtPerf.dts.length;
+    if (avg > 26) {
+      app.crtSuspended = true; crtPerf.dts.length = 0;
+      app.toasts.push({ head: 'GRA ZWALNIAŁA', name: 'FILTR CRT WYŁĄCZONY', t: 0, col: '#ffb040' });
+    }
+  }
+  // wywoływane na końcu każdej klatki
+  function applyCrt() {
+    const mode = app.crtSuspended ? 'off' : crtMode();
+    const useGL = mode !== 'off' && crtGLInit();
+    if (crtGL.cv) crtGL.cv.style.display = useGL ? 'block' : 'none';
+    if (mode === 'off') return;
+    if (useGL) crtGLDraw(mode); else applyCrt2D(mode);
+  }
   // =============================================================== UDOSTĘPNIANIE WYNIKU
   // Karta PNG z wynikiem, oceną i postacią: pobranie, kopia do schowka albo systemowe „Udostępnij”.
   function shareInfo() {
@@ -5262,8 +5438,8 @@
     return list;
   }
   const MODE_OF = { 'START GRY': 'arcade', 'NOWA GRA+': 'arcade', TRENING: 'training', 'BOSS RUSH': 'rush', PRZETRWANIE: 'survival' };
-  const OPT_ROWS = ['diff', 'lives', 'assist', 'music', 'sfx', 'touch', 'crt', 'bezel', 'rumble', 'keys1', 'keys2', 'pad1', 'pad2', 'reset', 'back'];
-  const OPT_DY = 10.5, OPT_Y = 28;
+  const OPT_ROWS = ['lang', 'diff', 'lives', 'assist', 'music', 'sfx', 'touch', 'crt', 'crtauto', 'bezel', 'rumble', 'keys1', 'keys2', 'pad1', 'pad2', 'reset', 'back'];
+  const OPT_DY = 9.6, OPT_Y = 26;
   function drawOptions() {
     drawScoresBg();
     if ((app.keysFor !== null && app.keysFor !== undefined) || app.padFor !== null && app.padFor !== undefined) return;
@@ -5318,17 +5494,19 @@
       return;
     }
     text('OPCJE', W / 2, 12, 10, '#ffe080', 'center');
-    const label = { diff: 'POZIOM TRUDNOŚCI', lives: 'ŻYCIA', assist: 'OPIEKUN (POMOC)', music: 'MUZYKA', sfx: 'EFEKTY', touch: 'STEROWANIE DOTYKOWE', crt: 'FILTR CRT', bezel: 'RAMKA AUTOMATU', rumble: 'WIBRACJE PADA', pad1: 'PAD — GRACZ 1', pad2: 'PAD — GRACZ 2', keys1: 'KLAWISZE — GRACZ 1', keys2: 'KLAWISZE — GRACZ 2', reset: 'PRZYWRÓĆ DOMYŚLNE', back: 'POWRÓT' };
+    const label = { lang: 'JĘZYK / LANGUAGE', diff: 'POZIOM TRUDNOŚCI', lives: 'ŻYCIA', assist: 'OPIEKUN (POMOC)', music: 'MUZYKA', sfx: 'EFEKTY', touch: 'STEROWANIE DOTYKOWE', crt: 'FILTR CRT', crtauto: 'AUTO-WYŁ. FILTRA', bezel: 'RAMKA AUTOMATU', rumble: 'WIBRACJE PADA', pad1: 'PAD — GRACZ 1', pad2: 'PAD — GRACZ 2', keys1: 'KLAWISZE — GRACZ 1', keys2: 'KLAWISZE — GRACZ 2', reset: 'PRZYWRÓĆ DOMYŚLNE', back: 'POWRÓT' };
     OPT_ROWS.forEach((r, i) => {
       const y = OPT_Y + i * OPT_DY, sel = i === app.optSel, col = sel ? '#ffe040' : '#fff';
       text((sel ? '► ' : '') + label[r], 40, y, 6, col);
       let v = '';
-      if (r === 'diff') v = '◄ ' + diffNow().name + ' ►';
+      if (r === 'lang') v = '◄ ' + ({ auto: 'AUTO', pl: 'POLSKI', en: 'ENGLISH' })[OPTS.lang || 'auto'] + ' ►';
+      else if (r === 'diff') v = '◄ ' + diffNow().name + ' ►';
       else if (r === 'lives') v = '◄ ' + OPTS.lives + ' ►';
       else if (r === 'assist') v = '◄ ' + (OPTS.assist ? 'WŁ.' : 'WYŁ.') + ' ►';
       else if (r === 'music' || r === 'sfx') v = String(OPTS[r]);
       else if (r === 'touch') v = '◄ ' + TOUCH_NAMES[OPTS.touch] + ' ►';
-      else if (r === 'crt') v = '◄ ' + CRT_NAMES[crtMode()] + ' ►';
+      else if (r === 'crt') v = '◄ ' + CRT_NAMES[crtMode()] + (app.crtSuspended && crtMode() !== 'off' ? ' (WSTRZ.)' : '') + ' ►';
+      else if (r === 'crtauto') v = '◄ ' + (OPTS.crtAuto ? 'WŁ.' : 'WYŁ.') + ' ►';
       else if (r === 'rumble') v = '◄ ' + (OPTS.rumble ? 'WŁ.' : 'WYŁ.') + ' ►';
       else if (r === 'bezel') v = '◄ ' + (OPTS.bezel ? 'WŁ.' : 'WYŁ.') + ' ►';
       else if (r === 'pad1' || r === 'pad2') v = (padsNow[r === 'pad1' ? 0 : 1] ? '' : 'BRAK  ') + '{ok|ENTER} ►';
@@ -5339,7 +5517,8 @@
     if (OPT_ROWS[app.optSel] === 'bezel') text('GRAFIKA OBUDOWY AUTOMATU ZAMIAST CZARNYCH PASÓW WOKÓŁ EKRANU', W / 2, 196, 4, '#c0e0ff', 'center');
     if (OPT_ROWS[app.optSel] === 'rumble') text('DRGANIA PRZY TRAFIENIACH, OBRAŻENIACH I WYBUCHACH', W / 2, 196, 4, '#c0e0ff', 'center');
     if (OPT_ROWS[app.optSel] === 'pad1' || OPT_ROWS[app.optSel] === 'pad2') text(padsNow.length + ' PAD(Y) PODŁĄCZONE — NACIŚNIJ PRZYCISK NA PADZIE, ABY GO WYKRYĆ', W / 2, 196, 4, '#c0e0ff', 'center');
-    if (OPT_ROWS[app.optSel] === 'crt') text(CRT_DESC[crtMode()], W / 2, 196, 4, '#c0e0ff', 'center');
+    if (OPT_ROWS[app.optSel] === 'crt') text(CRT_DESC[crtMode()] + (crtMode() !== 'off' && crtGLInit() ? ' (KARTA GRAFICZNA)' : ''), W / 2, 196, 4, '#c0e0ff', 'center');
+    if (OPT_ROWS[app.optSel] === 'crtauto') text('GDY GRA ZWALNIA, FILTR CRT SAM SIĘ WYŁĄCZA (DO KOŃCA SESJI)', W / 2, 196, 4, '#c0e0ff', 'center');
     if (OPT_ROWS[app.optSel] === 'assist') text('AUTOMATYCZNE BLOKI (40%) I PODPOWIEDZI O NOWYCH WROGACH', W / 2, 196, 4, '#c0e0ff', 'center');
     if (app.optMsg > 0) text('PRZYWRÓCONO USTAWIENIA Z CONFIG.JS', W / 2, 186, 4, '#7cff7c', 'center');
     text('▲▼ WYBÓR   ◄► ZMIANA   {ok|ENTER} — OK   {back|ESC} — POWRÓT', W / 2, 206, 4, '#c0c0c0', 'center');
@@ -5875,9 +6054,12 @@
     while (app.entryQueue && app.entryQueue.length) {
       const q = app.entryQueue.shift();
       const rec = Object.assign({}, q); delete rec.table; delete rec.pIdx;
-      if (!qualifiesIn(q.table, rec)) continue;
+      // poza lokalną dziesiątką wynik może jeszcze trafić do tabeli światowej
+      const local = qualifiesIn(q.table, rec);
+      if (!local && !netWorthy(q.table, rec)) continue;
       app.mode = 'entry'; app.t = 0;
-      app.entry = { letters: [0, 0, 0], pos: 0, table: q.table, rec, c: q.c, pIdx: q.pIdx || 0, score: q.s || 0, time: 30 * 60 };
+      const last = loadJSON('paleo_initials');
+      app.entry = { letters: Array.isArray(last) && last.length === 3 ? last.slice() : [0, 0, 0], pos: 0, table: q.table, rec, c: q.c, pIdx: q.pIdx || 0, score: q.s || 0, time: 30 * 60, local };
       AU.stopMusic(); AU.play('map'); sfx('oneup');
       return;
     }
@@ -5886,13 +6068,17 @@
   function commitEntry() {
     const e = app.entry, k = e.table;
     const rec = Object.assign({ n: e.letters.map(i => LETTERS[i]).join('') }, e.rec);
-    const T = app.tables[k];
-    T.push(rec); T.sort(TABLES[k].cmp);
-    app.tables[k] = T.slice(0, 10);
-    if (k === 'main') { app.scores = app.tables.main; app.hiscore = app.scores[0].s; }
-    safeSet(TABLES[k].key, JSON.stringify(app.tables[k]));
+    safeSet('paleo_initials', JSON.stringify(e.letters));
+    if (e.local) {
+      const T = app.tables[k];
+      T.push(rec); T.sort(TABLES[k].cmp);
+      app.tables[k] = T.slice(0, 10);
+      if (k === 'main') { app.scores = app.tables.main; app.hiscore = app.scores[0].s; }
+      safeSet(TABLES[k].key, JSON.stringify(app.tables[k]));
+    }
+    netSubmit(k, rec);
     sfx('start');
-    nextEntry(app.tables[k].indexOf(rec));
+    nextEntry(e.local ? app.tables[k].indexOf(rec) : -1);
   }
   function entryLabel(e) {
     if (e.table === 'rush') return 'BOSSOWIE ' + e.rec.b + '/6   CZAS ' + fmtTime(e.rec.f);
@@ -5900,7 +6086,7 @@
     return 'WYNIK ' + e.rec.s;
   }
   function showScores(hi, attract, table) {
-    app.mode = 'scores'; app.t = 0; app.scoresHi = hi; app.attract = attract; app.scoreTable = table || 'main';
+    app.mode = 'scores'; app.t = 0; app.scoresHi = hi; app.attract = attract; app.scoreTable = table || 'main'; app.scoreNet = false;
     if (!attract) { AU.stopMusic(); AU.play('title'); }
   }
   function drawScoresBg() {
@@ -5911,9 +6097,9 @@
   }
   function drawScores() {
     drawScoresBg();
-    app.tables[app.scoreTable].forEach((r, i) => {
+    scoreRows().forEach((r, i) => {
       const y = 40 + i * 16;
-      if (i === app.scoresHi && app.t % 20 < 12) { ctx.fillStyle = 'rgba(255,200,60,0.25)'; ctx.fillRect(28, y - 3, W - 56, 15); }
+      if (i === app.scoresHi && !app.scoreNet && app.t % 20 < 12) { ctx.fillStyle = 'rgba(255,200,60,0.25)'; ctx.fillRect(28, y - 3, W - 56, 15); }
       const ch = CHARS[r.c] || CHARS.kruk;
       ctx.save(); ctx.beginPath(); ctx.rect(304, y - 3, 14, 14); ctx.clip();
       ctx.fillStyle = '#2a3a5a'; ctx.fillRect(304, y - 3, 14, 14);
@@ -5922,13 +6108,15 @@
     });
   }
   function drawScoresText() {
-    const k = app.scoreTable, T = app.tables[k];
+    const k = app.scoreTable, T = scoreRows();
     text('◄ ' + TABLES[k].title + ' ►', W / 2, 12, 9, '#ffe080', 'center');
+    if (net.on && !app.attract) text(app.scoreNet ? '▲▼  LOKALNE / [ŚWIAT]' : '▲▼  [LOKALNE] / ŚWIAT', W / 2, 196, 5, app.scoreNet ? '#80d0ff' : '#c0c0c0', 'center');
+    const st = netStatus(); if (st) text(st, W / 2, 110, 6, '#80d0ff', 'center');
     const heads = k === 'rush' ? [['BOSSOWIE', 200, 'center'], ['CZAS', 268, 'right']] : k === 'surv' ? [['FALA', 190, 'center'], ['WYNIK', 268, 'right']] : [['WYNIK', 230, 'right'], ['ETAP', 268, 'center']];
     [['MIEJSCE', 50, 'center'], ['INICJAŁY', 107, 'center'], ['POSTAĆ', 311, 'center']].concat(heads).forEach(([l, x, al]) => text(l, x, 28, 4, '#8a80a0', al));
     const cols = ['#ffe040', '#e0e0f0', '#e0a060'];
     T.forEach((r, i) => {
-      const y = 40 + i * 16, col = i === app.scoresHi ? '#7cff7c' : (cols[i] || '#c0b8d0');
+      const y = 40 + i * 16, col = i === app.scoresHi && !app.scoreNet ? '#7cff7c' : (cols[i] || '#c0b8d0');
       text(String(i + 1).padStart(2, ' ') + '.', 40, y, 7, col);
       text(r.n, 96, y, 7, col);
       if (k === 'rush') { text(r.b + '/' + RUSH_ORDER.length, 200, y, 7, col, 'center'); text(fmtTime(r.f), 268, y, 6, col, 'right'); }
@@ -5952,7 +6140,7 @@
   }
   function drawEntryText() {
     const e = app.entry;
-    text('NOWY REKORD!', W / 2, 18, 14, app.t % 20 < 10 ? '#ffe040' : '#ff9040', 'center');
+    text(e.local ? 'NOWY REKORD!' : 'TABELA ŚWIATOWA', W / 2, 18, 14, app.t % 20 < 10 ? '#ffe040' : '#ff9040', 'center');
     if ((G && G.players.length > 1) || (app.bonusTeam && app.bonusTeam.length > 1)) text('GRACZ ' + (e.pIdx + 1), 58, 136, 5, P_COLS[e.pIdx], 'center');
     text(entryLabel(e), W / 2, 44, 7, '#80d0ff', 'center');
     text('WPISZ INICJAŁY', W / 2, 64, 6, '#fff', 'center');
@@ -6285,14 +6473,16 @@
         'KLAWISZE I PAD: KAŻDĄ AKCJĘ PRZYPISZESZ OD NOWA, OSOBNO DLA GRACZA 1 I 2.',
         '{back|ESC} ALBO PRZYCISK B NA PADZIE ZAWSZE COFA. WIBRACJE PADA MOŻNA WYŁĄCZYĆ.',
         'FILTR CRT: AUTOMAT, MONITOR PC ALBO STARY TV. RAMKA AUTOMATU WYPEŁNIA BOKI.',
-        'STEROWANIE DOTYKOWE: GAŁKA I PRZYCISKI NA EKRANIE TELEFONU LUB TABLETU.'] },
+        'STEROWANIE DOTYKOWE: GAŁKA I PRZYCISKI NA EKRANIE TELEFONU LUB TABLETU.',
+        'JĘZYK: AUTO (WG PRZEGLĄDARKI), POLSKI ALBO ENGLISH.'] },
       { demo: 'scores', head: 'OCENY, WYNIKI I KONTYNUACJA', lines: () => [
         'PO ETAPIE: PREMIE ZA CZAS I ZDROWIE ORAZ OCENA S–D (CZAS, OTRZYMANE CIOSY,',
         'STRACONE ŻYCIA, NAJDŁUŻSZE KOMBO). OCENA S = +20 000 PUNKTÓW.',
         'KONIEC GRY: MASZ 10 S NA „KONTYNUOWAĆ?” — ' + K('start') + ' I GRASZ DALEJ OD MIEJSCA ŚMIERCI.',
         'NAJLEPSZE WYNIKI WPISUJESZ TRZEMA LITERAMI (OSOBNE TABELE DLA TRYBÓW).',
         '▲ NA EKRANIE WYNIKU — KARTA Z WYNIKIEM DO ZAPISANIA LUB UDOSTĘPNIENIA.',
-        'EKSTRA: 32 OSIĄGNIĘCIA, BESTIARIUSZ I ODTWARZACZ MUZYKI.'] }
+        'EKSTRA: 32 OSIĄGNIĘCIA, BESTIARIUSZ I ODTWARZACZ MUZYKI.',
+        'Z SERWEREM WYNIKÓW ▲▼ W TABELI PRZEŁĄCZA LOKALNE / ŚWIAT.'] }
     ] },
     { title: 'TRYBY I RADY', pages: [
       { demo: 'modes', head: 'TRYBY GRY', lines: () => [
@@ -6582,6 +6772,54 @@
     }
     if (pressed.pause || pressed.jump) { app.mode = 'title'; app.t = 0; sfx('select'); }
   }
+  // =============================================================== WSPÓLNA TABELA WYNIKÓW W SIECI
+  // Adres serwera: config.js → onlineScores (albo parametr adresu ?scores=...). Serwer: tools/score-server.mjs.
+  // W tabeli wyników ▲▼ przełącza LOKALNE / ŚWIAT; po wpisaniu inicjałów wynik idzie też na serwer.
+  const NET_URL = String(urlParams.get('scores') || CFG.onlineScores || '').trim().replace(/\/+$/, '');
+  const net = { on: /^https?:\/\//.test(NET_URL), cache: {} };
+  const netTableId = k => k === 'daily' ? 'daily-' + dailyId() : k;
+  function netFetch(p, opt) {
+    const c = new AbortController(), tm = setTimeout(() => c.abort(), 6000);
+    return fetch(NET_URL + p, Object.assign({ signal: c.signal, headers: { 'Content-Type': 'application/json' } }, opt))
+      .then(r => r.json().then(d => { if (!r.ok) throw new Error(d.error || 'HTTP ' + r.status); return d; }))
+      .finally(() => clearTimeout(tm));
+  }
+  // pobiera tabelę (najwyżej co 20 s, chyba że force)
+  function netLoad(k, force) {
+    if (!net.on) return;
+    const id = netTableId(k), C = net.cache[id];
+    if (C && !force && (C.loading || performance.now() - C.t < 20000)) return;
+    net.cache[id] = { list: C ? C.list : null, loading: true, t: performance.now() };
+    netFetch('/scores?table=' + encodeURIComponent(id) + '&limit=10')
+      .then(d => { net.cache[id] = { list: Array.isArray(d.scores) ? d.scores.slice(0, 10) : [], t: performance.now() }; })
+      .catch(() => { net.cache[id] = { list: C ? C.list : null, err: true, t: performance.now() }; });
+  }
+  // wpis zasługuje na tabelę światową (zwykły wynik > 0, w Boss Rush choć jeden boss, w przetrwaniu choć jedna fala)
+  const netWorthy = (k, r) => net.on && !app.demo && !cheated() && (k === 'rush' ? r.b > 0 : k === 'surv' ? r.w > 0 : r.s > 0);
+  function netSubmit(k, rec) {
+    if (!netWorthy(k, rec)) return;
+    const body = { table: netTableId(k), n: rec.n, s: rec.s | 0, st: rec.st, c: rec.c, b: rec.b, f: rec.f, w: rec.w };
+    netFetch('/scores', { method: 'POST', body: JSON.stringify(body) })
+      .then(d => {
+        net.cache[netTableId(k)] = null; netLoad(k, true);
+        app.toasts.push({ head: 'TABELA ŚWIATOWA', name: d.rank ? 'MIEJSCE ' + d.rank + '!' : 'WYNIK WYSŁANY', t: 0, col: '#80d0ff' });
+      })
+      .catch(e => app.toasts.push({ head: 'TABELA ŚWIATOWA', name: 'NIE UDAŁO SIĘ WYSŁAĆ', t: 0, col: '#ff8080' }));
+  }
+  // wiersze aktualnie oglądanej tabeli: lokalne albo z serwera
+  function scoreRows() {
+    if (!app.scoreNet) return app.tables[app.scoreTable];
+    const C = net.cache[netTableId(app.scoreTable)];
+    return (C && C.list) || [];
+  }
+  function netStatus() {
+    if (!app.scoreNet) return '';
+    const C = net.cache[netTableId(app.scoreTable)];
+    if (!C || (C.loading && !C.list)) return 'ŁĄCZENIE Z SERWEREM...';
+    if (C.err && !C.list) return 'BRAK POŁĄCZENIA Z SERWEREM';
+    if (C.list && !C.list.length) return 'NIKT JESZCZE NIE GRAŁ — BĄDŹ PIERWSZY!';
+    return '';
+  }
   // =============================================================== PĘTLA
   // ---- DŹWIĘKI OTOCZENIA: fale na plaży, krople w kanałach, wiatr w burzy piaskowej, deszcz, stukot pociągu
   function ambienceFor() {
@@ -6814,7 +7052,9 @@
           case 'diff': if (dir) { OPTS.difficulty = DIFF_KEYS[(DIFF_KEYS.indexOf(OPTS.difficulty) + dir + 3) % 3]; saveOpts(); sfx('select'); } break;
           case 'lives': if (dir) { OPTS.lives = clamp(OPTS.lives + dir, 1, 5); saveOpts(); sfx('select'); } break;
           case 'assist': if (dir || ok) { OPTS.assist = !OPTS.assist; saveOpts(); sfx('select'); } break;
-          case 'crt': if (dir || ok) { const n = CRT_MODES.length; OPTS.crt = CRT_MODES[(CRT_MODES.indexOf(crtMode()) + (dir || 1) + n) % n]; saveOpts(); sfx('select'); } break;
+          case 'crt': if (dir || ok) { const n = CRT_MODES.length; OPTS.crt = CRT_MODES[(CRT_MODES.indexOf(crtMode()) + (dir || 1) + n) % n]; app.crtSuspended = false; saveOpts(); sfx('select'); } break;
+          case 'lang': if (dir || ok) { const L = ['auto', 'pl', 'en']; OPTS.lang = L[(L.indexOf(OPTS.lang || 'auto') + (dir || 1) + 3) % 3]; applyLang(); saveOpts(); sfx('select'); } break;
+          case 'crtauto': if (dir || ok) { OPTS.crtAuto = !OPTS.crtAuto; app.crtSuspended = false; saveOpts(); sfx('select'); } break;
           case 'bezel': if (dir || ok) { OPTS.bezel = !OPTS.bezel; saveOpts(); drawBezel(); sfx('select'); } break;
           case 'rumble': if (dir || ok) { OPTS.rumble = !OPTS.rumble; saveOpts(); sfx('select'); if (OPTS.rumble) rumbleAll(0.6, 0.6, 250); } break;
           case 'pad1': case 'pad2': if (ok) { app.padFor = OPT_ROWS[app.optSel] === 'pad1' ? 0 : 1; app.padSel = 0; app.padCapture = null; app.t = 0; sfx('select'); } break;
@@ -6833,7 +7073,10 @@
         if (!app.attract && (pressed.left || pressed.right)) {
           const i = TABLE_KEYS.indexOf(app.scoreTable);
           app.scoreTable = TABLE_KEYS[(i + (pressed.right ? 1 : TABLE_KEYS.length - 1)) % TABLE_KEYS.length]; app.scoresHi = -1; app.t = 21; sfx('select');
+          if (app.scoreNet) netLoad(app.scoreTable);
         }
+        // wspólna tabela w sieci: ▲▼ przełącza widok
+        if (net.on && !app.attract && (pressed.up || pressed.down)) { app.scoreNet = !app.scoreNet; app.t = Math.max(app.t, 21); sfx('select'); if (app.scoreNet) netLoad(app.scoreTable); }
         if ((pressed.start || pressed.attack) && app.t > 20) {
           if (app.attract) { sfx('start'); app.gameMode = 'arcade'; app.mode = 'select'; app.t = 0; }
           else { app.mode = 'title'; app.t = 0; }
@@ -7084,6 +7327,7 @@
   let last = performance.now(), acc = 0;
   const STEP = 1000 / 60;
   function frame(now) {
+    crtPerfSample(now - last);
     acc += Math.min(100, now - last); last = now;
     let n = 0;
     while (acc >= STEP && n < 4) { tick(); acc -= STEP; n++; }
@@ -7099,6 +7343,7 @@
   addEventListener('appinstalled', () => { app.installPrompt = null; });
 
   function boot() {
+    applyLang();
     AU.setVolumes(OPTS.music, OPTS.sfx);
     updateTouchVisibility();
     STAGES[0].buildLayers();
@@ -7116,7 +7361,10 @@
   } else boot();
 
   // debug / testy: uchwyty do stanu gry tylko w trybie debug (config.js) albo z parametrem adresu ?hooks=1 (testy automatyczne)
-  if (CFG.debug === true || urlParams.has('hooks')) window.__paleo = { get G() { return G; }, app, pickWeather, customList, buildCustomStage, startCustom, CHARS, ENEMIES, bonus, startStage: i => { startStage(i, G && G.players); app.mode = 'play'; }, startBonus: () => startBonus(G && G.players, 4), startCages: () => startCages(G && G.players, 5), startTraining: () => startTraining(null), startSuper: i => startSuper(G.players[i || 0]), newStage: i => { startStage(i, null); app.mode = 'play'; }, startEscape: () => startEscape(G.players), startDemo, endDemo, AU, CODES, openCodes, applyCheatMods, cheats: () => app.cheats, grav: () => GRAV, startEpilog: () => startEpilog(G.players, () => endGame('★')), ENDINGS, startTrain: () => { app.gameMode = app.gameMode || 'arcade'; startTrain(G ? G.players : null, 7); }, unlocks: () => app.unlocks, hurt: (t, d, src, knock) => hurt(t, d, 1, !!knock, src), spawn: (type, x, y) => { const e = makeEnemy(type, x, y); if (type !== 'glider' && type !== 'digger') setState(e, 'idle'); G.actors.push(e); return e; }, afterStage, resumeProgress, saveInfo: () => app.save, startRush: () => startRush(null), startSurvival: () => startSurvival(null), unlock, opts: () => OPTS, endGame, inp, joinOrContinue: i => joinOrContinue(i),
+  if (CFG.debug === true || urlParams.has('hooks')) window.__paleo = { get G() { return G; }, app, pickWeather, customList, buildCustomStage, startCustom, CHARS, ENEMIES, bonus, startStage: i => { startStage(i, G && G.players); app.mode = 'play'; }, startBonus: () => startBonus(G && G.players, 4), startCages: () => startCages(G && G.players, 5), startTraining: () => startTraining(null), startSuper: i => startSuper(G.players[i || 0]), newStage: i => { startStage(i, null); app.mode = 'play'; }, startEscape: () => startEscape(G.players), startDemo, endDemo, AU, tr, applyLang, lang: () => LANG, net, netLoad, crtInfo: () => ({ gl: crtGL.ok, shown: !!(crtGL.cv && crtGL.cv.style.display === 'block'), suspended: !!app.crtSuspended }), crtSlow: () => { for (let i = 0; i < 130; i++) crtPerfSample(40); }, benchRender: (n, force2D) => { const keep = crtGL.ok; if (force2D) crtGL.ok = false; const px = new Uint8Array(4); const t0 = performance.now();
+    for (let i = 0; i < n; i++) render();
+    if (crtGL.ok && crtGL.cv && crtGL.cv.style.display === 'block') crtGL.gl.readPixels(0, 0, 1, 1, crtGL.gl.RGBA, crtGL.gl.UNSIGNED_BYTE, px); else sctx.getImageData(0, 0, 1, 1);
+    const ms = (performance.now() - t0) / n; crtGL.ok = keep; return ms; }, CODES, openCodes, applyCheatMods, cheats: () => app.cheats, grav: () => GRAV, startEpilog: () => startEpilog(G.players, () => endGame('★')), ENDINGS, startTrain: () => { app.gameMode = app.gameMode || 'arcade'; startTrain(G ? G.players : null, 7); }, unlocks: () => app.unlocks, hurt: (t, d, src, knock) => hurt(t, d, 1, !!knock, src), spawn: (type, x, y) => { const e = makeEnemy(type, x, y); if (type !== 'glider' && type !== 'digger') setState(e, 'idle'); G.actors.push(e); return e; }, afterStage, resumeProgress, saveInfo: () => app.save, startRush: () => startRush(null), startSurvival: () => startSurvival(null), unlock, opts: () => OPTS, endGame, inp, joinOrContinue: i => joinOrContinue(i),
     flight, curBonus: () => curBonus(), startFlight: () => startFlight(G ? G.players : null, 6), CHALLENGES, dailyPlan, startDaily: () => startDaily(null),
     startChallenge: id => { app.chDef = CHALLENGES.find(c => c.id === id); app.gameMode = 'challenge'; startChallenge(null); }, STAGES };
 })();

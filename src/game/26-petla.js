@@ -230,7 +230,9 @@
           case 'diff': if (dir) { OPTS.difficulty = DIFF_KEYS[(DIFF_KEYS.indexOf(OPTS.difficulty) + dir + 3) % 3]; saveOpts(); sfx('select'); } break;
           case 'lives': if (dir) { OPTS.lives = clamp(OPTS.lives + dir, 1, 5); saveOpts(); sfx('select'); } break;
           case 'assist': if (dir || ok) { OPTS.assist = !OPTS.assist; saveOpts(); sfx('select'); } break;
-          case 'crt': if (dir || ok) { const n = CRT_MODES.length; OPTS.crt = CRT_MODES[(CRT_MODES.indexOf(crtMode()) + (dir || 1) + n) % n]; saveOpts(); sfx('select'); } break;
+          case 'crt': if (dir || ok) { const n = CRT_MODES.length; OPTS.crt = CRT_MODES[(CRT_MODES.indexOf(crtMode()) + (dir || 1) + n) % n]; app.crtSuspended = false; saveOpts(); sfx('select'); } break;
+          case 'lang': if (dir || ok) { const L = ['auto', 'pl', 'en']; OPTS.lang = L[(L.indexOf(OPTS.lang || 'auto') + (dir || 1) + 3) % 3]; applyLang(); saveOpts(); sfx('select'); } break;
+          case 'crtauto': if (dir || ok) { OPTS.crtAuto = !OPTS.crtAuto; app.crtSuspended = false; saveOpts(); sfx('select'); } break;
           case 'bezel': if (dir || ok) { OPTS.bezel = !OPTS.bezel; saveOpts(); drawBezel(); sfx('select'); } break;
           case 'rumble': if (dir || ok) { OPTS.rumble = !OPTS.rumble; saveOpts(); sfx('select'); if (OPTS.rumble) rumbleAll(0.6, 0.6, 250); } break;
           case 'pad1': case 'pad2': if (ok) { app.padFor = OPT_ROWS[app.optSel] === 'pad1' ? 0 : 1; app.padSel = 0; app.padCapture = null; app.t = 0; sfx('select'); } break;
@@ -249,7 +251,10 @@
         if (!app.attract && (pressed.left || pressed.right)) {
           const i = TABLE_KEYS.indexOf(app.scoreTable);
           app.scoreTable = TABLE_KEYS[(i + (pressed.right ? 1 : TABLE_KEYS.length - 1)) % TABLE_KEYS.length]; app.scoresHi = -1; app.t = 21; sfx('select');
+          if (app.scoreNet) netLoad(app.scoreTable);
         }
+        // wspólna tabela w sieci: ▲▼ przełącza widok
+        if (net.on && !app.attract && (pressed.up || pressed.down)) { app.scoreNet = !app.scoreNet; app.t = Math.max(app.t, 21); sfx('select'); if (app.scoreNet) netLoad(app.scoreTable); }
         if ((pressed.start || pressed.attack) && app.t > 20) {
           if (app.attract) { sfx('start'); app.gameMode = 'arcade'; app.mode = 'select'; app.t = 0; }
           else { app.mode = 'title'; app.t = 0; }
@@ -500,6 +505,7 @@
   let last = performance.now(), acc = 0;
   const STEP = 1000 / 60;
   function frame(now) {
+    crtPerfSample(now - last);
     acc += Math.min(100, now - last); last = now;
     let n = 0;
     while (acc >= STEP && n < 4) { tick(); acc -= STEP; n++; }
@@ -515,6 +521,7 @@
   addEventListener('appinstalled', () => { app.installPrompt = null; });
 
   function boot() {
+    applyLang();
     AU.setVolumes(OPTS.music, OPTS.sfx);
     updateTouchVisibility();
     STAGES[0].buildLayers();
@@ -532,6 +539,9 @@
   } else boot();
 
   // debug / testy: uchwyty do stanu gry tylko w trybie debug (config.js) albo z parametrem adresu ?hooks=1 (testy automatyczne)
-  if (CFG.debug === true || urlParams.has('hooks')) window.__paleo = { get G() { return G; }, app, pickWeather, customList, buildCustomStage, startCustom, CHARS, ENEMIES, bonus, startStage: i => { startStage(i, G && G.players); app.mode = 'play'; }, startBonus: () => startBonus(G && G.players, 4), startCages: () => startCages(G && G.players, 5), startTraining: () => startTraining(null), startSuper: i => startSuper(G.players[i || 0]), newStage: i => { startStage(i, null); app.mode = 'play'; }, startEscape: () => startEscape(G.players), startDemo, endDemo, AU, CODES, openCodes, applyCheatMods, cheats: () => app.cheats, grav: () => GRAV, startEpilog: () => startEpilog(G.players, () => endGame('★')), ENDINGS, startTrain: () => { app.gameMode = app.gameMode || 'arcade'; startTrain(G ? G.players : null, 7); }, unlocks: () => app.unlocks, hurt: (t, d, src, knock) => hurt(t, d, 1, !!knock, src), spawn: (type, x, y) => { const e = makeEnemy(type, x, y); if (type !== 'glider' && type !== 'digger') setState(e, 'idle'); G.actors.push(e); return e; }, afterStage, resumeProgress, saveInfo: () => app.save, startRush: () => startRush(null), startSurvival: () => startSurvival(null), unlock, opts: () => OPTS, endGame, inp, joinOrContinue: i => joinOrContinue(i),
+  if (CFG.debug === true || urlParams.has('hooks')) window.__paleo = { get G() { return G; }, app, pickWeather, customList, buildCustomStage, startCustom, CHARS, ENEMIES, bonus, startStage: i => { startStage(i, G && G.players); app.mode = 'play'; }, startBonus: () => startBonus(G && G.players, 4), startCages: () => startCages(G && G.players, 5), startTraining: () => startTraining(null), startSuper: i => startSuper(G.players[i || 0]), newStage: i => { startStage(i, null); app.mode = 'play'; }, startEscape: () => startEscape(G.players), startDemo, endDemo, AU, tr, applyLang, lang: () => LANG, net, netLoad, crtInfo: () => ({ gl: crtGL.ok, shown: !!(crtGL.cv && crtGL.cv.style.display === 'block'), suspended: !!app.crtSuspended }), crtSlow: () => { for (let i = 0; i < 130; i++) crtPerfSample(40); }, benchRender: (n, force2D) => { const keep = crtGL.ok; if (force2D) crtGL.ok = false; const px = new Uint8Array(4); const t0 = performance.now();
+    for (let i = 0; i < n; i++) render();
+    if (crtGL.ok && crtGL.cv && crtGL.cv.style.display === 'block') crtGL.gl.readPixels(0, 0, 1, 1, crtGL.gl.RGBA, crtGL.gl.UNSIGNED_BYTE, px); else sctx.getImageData(0, 0, 1, 1);
+    const ms = (performance.now() - t0) / n; crtGL.ok = keep; return ms; }, CODES, openCodes, applyCheatMods, cheats: () => app.cheats, grav: () => GRAV, startEpilog: () => startEpilog(G.players, () => endGame('★')), ENDINGS, startTrain: () => { app.gameMode = app.gameMode || 'arcade'; startTrain(G ? G.players : null, 7); }, unlocks: () => app.unlocks, hurt: (t, d, src, knock) => hurt(t, d, 1, !!knock, src), spawn: (type, x, y) => { const e = makeEnemy(type, x, y); if (type !== 'glider' && type !== 'digger') setState(e, 'idle'); G.actors.push(e); return e; }, afterStage, resumeProgress, saveInfo: () => app.save, startRush: () => startRush(null), startSurvival: () => startSurvival(null), unlock, opts: () => OPTS, endGame, inp, joinOrContinue: i => joinOrContinue(i),
     flight, curBonus: () => curBonus(), startFlight: () => startFlight(G ? G.players : null, 6), CHALLENGES, dailyPlan, startDaily: () => startDaily(null),
     startChallenge: id => { app.chDef = CHALLENGES.find(c => c.id === id); app.gameMode = 'challenge'; startChallenge(null); }, STAGES };
